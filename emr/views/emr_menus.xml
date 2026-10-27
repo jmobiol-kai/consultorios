@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_emr_root" name="Historia clínica"
+              web_icon="emr,static/description/icon.svg" sequence="50"
+              groups="group_emr_reception"/>
+
+    <!-- Turnos: lo que hace la recepcion. Agendar, ver la grilla, operar. -->
+    <menuitem id="menu_emr_turnos" name="Turnos" parent="menu_emr_root" sequence="10"/>
+    <menuitem id="menu_emr_slots" name="Agenda" parent="menu_emr_turnos"
+              action="emr_slot_action" sequence="10"/>
+    <menuitem id="menu_emr_appointments" name="Turnos" parent="menu_emr_turnos"
+              action="sale_order_action_appointment" sequence="20"/>
+
+    <!-- Atencion: lo que ve el profesional entre paciente y paciente. -->
+    <menuitem id="menu_emr_atencion" name="Atención" parent="menu_emr_root"
+              sequence="20" groups="group_emr_practitioner"/>
+    <menuitem id="menu_emr_queue" name="Mis turnos" parent="menu_emr_atencion"
+              action="sale_order_action_queue" sequence="10"/>
+    <menuitem id="menu_emr_encounters" name="Historias clínicas" parent="menu_emr_atencion"
+              action="emr_encounter_action" sequence="20"/>
+
+    <!-- Rendir: contar lo cobrado a nombre de un profesional y entregarselo. -->
+    <menuitem id="menu_emr_settlement" name="Rendir a un profesional"
+              parent="menu_emr_atencion"
+              action="emr_settlement_action" sequence="30"
+              groups="group_emr_manager"/>
+
+    <menuitem id="menu_emr_people" name="Personas" parent="menu_emr_root" sequence="30"/>
+    <menuitem id="menu_emr_patients" name="Pacientes" parent="menu_emr_people"
+              action="res_partner_action_patient" sequence="10"/>
+    <menuitem id="menu_emr_practitioners" name="Profesionales" parent="menu_emr_people"
+              action="res_partner_action_practitioner" sequence="20"/>
+    <menuitem id="menu_emr_insurers" name="Obras sociales" parent="menu_emr_people"
+              action="res_partner_action_insurer" sequence="30"/>
+
+    <!-- Configuración: primero el link a los ajustes generales, después la
+         sección con los catálogos propios. Los ajustes van con
+         `base.group_system` porque la página de Ajustes es de administración:
+         un responsable del EMR que no sea administrador del sistema vería el
+         link y se comería un error de permisos. -->
+    <menuitem id="menu_emr_config" name="Configuración" parent="menu_emr_root"
+              sequence="90" groups="group_emr_manager"/>
+    <menuitem id="menu_emr_settings" name="Ajustes" parent="menu_emr_config"
+              action="base_setup.action_general_configuration" sequence="1"
+              groups="base.group_system"/>
+    <menuitem id="menu_emr_config_section" name="EMR" parent="menu_emr_config"
+              sequence="10"/>
+    <menuitem id="menu_emr_procedures" name="Prácticas" parent="menu_emr_config_section"
+              action="product_template_action_procedure" sequence="10"/>
+    <menuitem id="menu_emr_locations" name="Locaciones" parent="menu_emr_config_section"
+              action="emr_location_action" sequence="20"/>
+    <menuitem id="menu_emr_specialties" name="Especialidades" parent="menu_emr_config_section"
+              action="emr_specialty_action" sequence="30"/>
+    <menuitem id="menu_emr_diagnoses" name="Diagnósticos" parent="menu_emr_config_section"
+              action="emr_diagnosis_action" sequence="40"/>
+    <!-- Los nomencladores clínicos. Están acá y no en el módulo que los usa
+         porque son genéricos: una instalación que no registre medicación
+         simplemente los deja vacíos. Sin menú serían inalcanzables, y un
+         catálogo que no se puede cargar no sirve de nada. -->
+    <menuitem id="menu_emr_medications" name="Medicamentos" parent="menu_emr_config_section"
+              action="emr_medication_action" sequence="41"/>
+    <menuitem id="menu_emr_allergies" name="Alergias" parent="menu_emr_config_section"
+              action="emr_allergy_action" sequence="42"/>
+    <menuitem id="menu_emr_practice_types" name="Tipos de práctica" parent="menu_emr_config_section"
+              action="emr_practice_type_action" sequence="43"/>
+    <menuitem id="menu_emr_generate" name="Generar agenda" parent="menu_emr_config_section"
+              action="emr_slot_generate_action" sequence="50"/>
+</odoo>

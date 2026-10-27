@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="emr_appointment_charge_view_form" model="ir.ui.view">
+        <field name="name">emr.appointment.charge.form</field>
+        <field name="model">emr.appointment.charge</field>
+        <field name="arch" type="xml">
+            <form string="Cobrar turno">
+                <field name="order_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="allowed_journal_ids" invisible="1"/>
+
+                <div class="oe_title mb-3">
+                    <h1><field name="partner_id" readonly="1" nolabel="1"/></h1>
+                    <div class="text-muted">
+                        <field name="practitioner_id" readonly="1" nolabel="1"/>
+                        <span invisible="not insurer_id">
+                            · <field name="insurer_id" readonly="1" nolabel="1"/>
+                        </span>
+                        <span invisible="not pricelist_id">
+                            · <field name="pricelist_id" readonly="1" nolabel="1"/>
+                        </span>
+                    </div>
+                </div>
+
+                <separator string="Qué se le cobra"/>
+                <field name="order_line_ids" readonly="1">
+                    <list create="false" delete="false">
+                        <field name="product_id"/>
+                        <field name="product_uom_qty" string="Cant."/>
+                        <field name="price_unit"/>
+                        <field name="price_subtotal" sum="Total"/>
+                    </list>
+                </field>
+
+                <group class="oe_subtotal_footer">
+                    <field name="amount_total" widget="monetary"/>
+                </group>
+
+                <separator string="Cómo paga"/>
+                <field name="payment_line_ids">
+                    <list editable="bottom">
+                        <field name="currency_id" column_invisible="1"/>
+                        <field name="journal_id"/>
+                        <field name="amount" sum="Pagado"/>
+                    </list>
+                </field>
+
+                <group class="oe_subtotal_footer">
+                    <field name="amount_paid" widget="monetary"/>
+                    <field name="amount_diff" widget="monetary"
+                           decoration-danger="amount_diff != 0"
+                           decoration-bf="amount_diff != 0"/>
+                </group>
+
+                <div class="alert alert-warning" role="alert"
+                     invisible="amount_diff == 0">
+                    Los pagos tienen que sumar el total para poder cobrar.
+                </div>
+
+                <footer>
+                    <button name="action_charge" type="object"
+                            string="Cobrar y confirmar" class="btn-primary"
+                            invisible="amount_diff != 0"/>
+                    <!-- Siempre visible, también cuando los pagos no cierran:
+                         es justo ahí donde hace falta salir a la orden. -->
+                    <button name="action_manual" type="object"
+                            string="Manual" class="btn-secondary"
+                            help="Abre el turno para facturarlo y cobrarlo a mano"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

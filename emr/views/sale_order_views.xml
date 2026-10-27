@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_order_view_search_appointment" model="ir.ui.view">
+        <field name="name">sale.order.search.appointment</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <search string="Turnos">
+                <field name="partner_id" string="Paciente"
+                       context="{'default_is_patient': True}"
+                       filter_domain="[('partner_id', 'child_of', raw_value)]"/>
+                <field name="practitioner_id"/>
+                <field name="location_id"/>
+                <filter name="mine" string="Mis turnos"
+                        domain="[('practitioner_id.user_ids', 'in', [uid])]"/>
+                <separator/>
+                <filter name="waiting" string="En sala"
+                        domain="[('appointment_state', '=', 'confirmed')]"/>
+                <filter name="in_progress" string="En atención"
+                        domain="[('appointment_state', '=', 'in_progress')]"/>
+                <filter name="booked" string="Agendados"
+                        domain="[('appointment_state', '=', 'booked')]"/>
+                <separator/>
+                <filter name="today" string="Hoy"
+                        domain="[('appointment_start', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                 ('appointment_start', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <separator/>
+                <filter name="group_practitioner" string="Profesional"
+                        context="{'group_by': 'practitioner_id'}"/>
+                <filter name="group_state" string="Estado del turno"
+                        context="{'group_by': 'appointment_state'}"/>
+                <filter name="group_location" string="Locación"
+                        context="{'group_by': 'location_id'}"/>
+                <filter name="group_day" string="Día"
+                        context="{'group_by': 'appointment_start:day'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- La cola de atención: lo que el profesional mira entre paciente y
+         paciente. Es una vista propia sobre las órdenes, no una lista de
+         ventas: muestra a quién sigue y cuánto hace que espera. -->
+    <record id="sale_order_view_kanban_appointment" model="ir.ui.view">
+        <field name="name">sale.order.kanban.appointment</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="appointment_state"
+                    group_create="false"
+                    records_draggable="false">
+                <field name="appointment_state"/>
+                <field name="waiting_minutes"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_record">
+                            <div class="d-flex justify-content-between">
+                                <strong><field name="partner_id"/></strong>
+                                <field name="appointment_start" widget="datetime"
+                                       options="{'format': 'HH:mm'}"/>
+                            </div>
+                            <div class="text-muted">
+                                <field name="practitioner_id"/>
+                                <span t-if="record.location_id.raw_value">
+                                    · <field name="location_id"/>
+                                </span>
+                            </div>
+                            <div t-if="record.appointment_state.raw_value == 'confirmed'"
+                                 class="mt-1">
+                                <span class="badge text-bg-warning">
+                                    Espera <field name="waiting_minutes"/> min
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <button name="action_appointment_confirm" type="object"
+                                        class="btn btn-primary btn-sm"
+                                        invisible="appointment_state not in ('booked', 'waitlist')">
+                                    Cobrar
+                                </button>
+                                <button name="action_appointment_start" type="object"
+                                        class="btn btn-primary btn-sm"
+                                        invisible="appointment_state != 'confirmed'">
+                                    Atender
+                                </button>
+                                <button name="action_open_encounter" type="object"
+                                        class="btn btn-secondary btn-sm"
+                                        invisible="appointment_state != 'in_progress'">
+                                    Seguir la historia
+                                </button>
+                                <button name="action_appointment_cancel" type="object"
+                                        class="btn btn-outline-danger btn-sm"
+                                        invisible="appointment_state not in ('booked', 'waitlist')">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="sale_order_view_list_appointment" model="ir.ui.view">
+        <field name="name">sale.order.list.appointment</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <list string="Turnos">
+                <field name="appointment_start" widget="datetime"/>
+                <field name="partner_id" string="Paciente"/>
+                <field name="practitioner_id"/>
+                <field name="location_id" optional="show"/>
+                <field name="appointment_mode" optional="hide"/>
+                <field name="waiting_minutes" optional="hide"/>
+                <field name="amount_total" optional="show" sum="Total"/>
+                <field name="appointment_state" widget="badge"
+                       decoration-info="appointment_state == 'confirmed'"
+                       decoration-warning="appointment_state == 'in_progress'"
+                       decoration-success="appointment_state in ('done', 'validated')"
+                       decoration-danger="appointment_state in ('no_show', 'cancelled')"/>
+                <field name="state" optional="hide"/>
+                <field name="invoice_status" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Los campos clínicos sobre el formulario estándar de la orden.
+
+         Este formulario no es la interfaz de la clínica: la recepción usa el
+         asistente y el profesional la cola. Está para poder mirar el detalle
+         cuando algo no cierra. -->
+    <record id="sale_order_view_form_appointment" model="ir.ui.view">
+        <field name="name">sale.order.form.appointment</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group" position="before">
+                <group name="emr_appointment" string="Turno" invisible="not is_appointment">
+                    <group>
+                        <field name="is_appointment" invisible="1"/>
+                        <field name="practitioner_id"/>
+                        <field name="assistant_ids" widget="many2many_tags"/>
+                        <field name="location_id"/>
+                        <field name="slot_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="appointment_start"/>
+                        <field name="appointment_mode"/>
+                        <field name="appointment_state"/>
+                        <field name="appointment_priority"/>
+                        <field name="confirmed_datetime" readonly="1"/>
+                        <field name="encounter_id" readonly="1"/>
+                        <field name="parent_order_id" readonly="1"
+                               invisible="not parent_order_id"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_additional_orders" type="object"
+                        class="oe_stat_button" icon="fa-stethoscope"
+                        invisible="not additional_order_count">
+                    <field name="additional_order_count" widget="statinfo"
+                           string="Agregadas"/>
+                </button>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_appointment_confirm" type="object"
+                        string="Cobrar y confirmar" class="btn-primary"
+                        invisible="not is_appointment or appointment_state not in ('booked', 'waitlist')"/>
+                <button name="action_appointment_start" type="object"
+                        string="Atender" class="btn-primary"
+                        invisible="not is_appointment or appointment_state != 'confirmed'"/>
+                <button name="action_appointment_no_show" type="object"
+                        string="Ausente"
+                        invisible="not is_appointment or appointment_state != 'booked'"/>
+                <button name="action_appointment_cancel" type="object"
+                        string="Cancelar el turno"
+                        invisible="not is_appointment or appointment_state not in ('booked', 'waitlist')"/>
+                <!-- Lo que se agrega sobre la marcha. Sirve en cualquier
+                     estado: se descubre atendiendo, no agendando. -->
+                <button name="action_add_practice" type="object"
+                        string="Agregar una práctica"
+                        invisible="not is_appointment or parent_order_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_order_action_appointment" model="ir.actions.act_window">
+        <field name="name">Turnos</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('is_appointment', '=', True)]</field>
+        <field name="context">{'search_default_today': 1}</field>
+        <field name="search_view_id" ref="sale_order_view_search_appointment"/>
+    </record>
+
+    <record id="sale_order_action_queue" model="ir.actions.act_window">
+        <field name="name">Cola de atención</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_appointment', '=', True),
+                              ('appointment_state', 'in', ['confirmed', 'in_progress'])]</field>
+        <field name="context">{'search_default_mine': 1}</field>
+        <field name="search_view_id" ref="sale_order_view_search_appointment"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No hay nadie esperando</p>
+            <p>Acá aparecen los pacientes que llegaron y pagaron.</p>
+        </field>
+    </record>
+
+    <record id="sale_order_action_queue_kanban_first" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="sale_order_view_kanban_appointment"/>
+        <field name="act_window_id" ref="sale_order_action_queue"/>
+    </record>
+
+</odoo>

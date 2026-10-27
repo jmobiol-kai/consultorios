@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="emr_encounter_retype_view_form" model="ir.ui.view">
+        <field name="name">emr.encounter.retype.form</field>
+        <field name="model">emr.encounter.retype</field>
+        <field name="arch" type="xml">
+            <form string="Cambiar el tipo de historia clínica">
+                <div class="alert alert-info" role="alert">
+                    Se va a crear una historia clínica del nuevo tipo con los mismos
+                    datos de cabecera, y se descarta la actual. Lo que ya hayas
+                    cargado en los campos clínicos no se traslada, porque cada tipo
+                    tiene los suyos.
+                </div>
+                <group>
+                    <field name="encounter_id" invisible="1"/>
+                    <field name="partner_id" readonly="1"/>
+                    <field name="current_type_id" readonly="1"/>
+                    <field name="encounter_type_id"/>
+                </group>
+                <footer>
+                    <button name="action_retype" type="object" string="Cambiar"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="emr_encounter_retype_action" model="ir.actions.act_window">
+        <field name="name">Cambiar el tipo de historia clínica</field>
+        <field name="res_model">emr.encounter.retype</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

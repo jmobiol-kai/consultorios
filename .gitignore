@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+
+# Personalizacion de un cliente puntual: vive en el arbol de trabajo y no
+# se publica con el producto.
+emr_meditim/

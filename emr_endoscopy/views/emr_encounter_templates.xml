@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Resúmenes para el panel de historia del paciente.
+
+         Una plantilla por tipo. Es lo que se ve a la derecha mientras se
+         carga una atención nueva. El encabezado común lo pone emr; acá va
+         solo lo que distingue a cada estudio.
+         ================================================================ -->
+    <!-- Los tres resúmenes son iguales: encabezado y todos los campos que
+         tengan algo. El detalle de qué campos son lo sabe el modelo, no la
+         plantilla, así que agregar un campo al estudio no obliga a tocar
+         nada de acá. -->
+    <template id="encounter_summary_colonoscopy">
+        <div class="border-bottom py-2">
+            <t t-call="emr.encounter_summary_header"/>
+            <t t-call="emr.encounter_summary_fields"/>
+        </div>
+    </template>
+
+    <template id="encounter_summary_upper_endoscopy">
+        <div class="border-bottom py-2">
+            <t t-call="emr.encounter_summary_header"/>
+            <t t-call="emr.encounter_summary_fields"/>
+        </div>
+    </template>
+
+    <template id="encounter_summary_banding">
+        <div class="border-bottom py-2">
+            <t t-call="emr.encounter_summary_header"/>
+            <t t-call="emr.encounter_summary_fields"/>
+        </div>
+    </template>
+
+</odoo>

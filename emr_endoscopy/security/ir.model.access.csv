@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_emr_encounter_colonoscopy_practitioner,colonoscopy practitioner,model_emr_encounter_colonoscopy,emr.group_emr_practitioner,1,1,1,0
+access_emr_encounter_colonoscopy_manager,colonoscopy manager,model_emr_encounter_colonoscopy,emr.group_emr_manager,1,1,1,1
+access_emr_encounter_upper_endoscopy_practitioner,upper endoscopy practitioner,model_emr_encounter_upper_endoscopy,emr.group_emr_practitioner,1,1,1,0
+access_emr_encounter_upper_endoscopy_manager,upper endoscopy manager,model_emr_encounter_upper_endoscopy,emr.group_emr_manager,1,1,1,1
+access_emr_encounter_banding_practitioner,banding practitioner,model_emr_encounter_banding,emr.group_emr_practitioner,1,1,1,0
+access_emr_encounter_banding_manager,banding manager,model_emr_encounter_banding,emr.group_emr_manager,1,1,1,1

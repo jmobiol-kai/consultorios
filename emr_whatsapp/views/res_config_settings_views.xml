@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_emr_whatsapp" model="ir.ui.view">
+        <field name="name">res.config.settings.emr.whatsapp</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="whatsapp.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[last()]" position="after">
+                <block title="Avisos de turnos" name="emr_whatsapp">
+                    <setting string="Demora antes de confirmar"
+                             help="Cuánto espera el sistema antes de avisarle al paciente. Es la ventana para corregir o cancelar sin que reciba nada: un aviso enviado no se puede desenviar.">
+                        <div class="content-group mt-2">
+                            <field name="emr_whatsapp_confirmation_delay" class="o_light_label"/>
+                            minutos
+                        </div>
+                        <div class="mt-2">
+                            <field name="emr_whatsapp_confirmation_template_id"
+                                   options="{'no_create': True}"/>
+                        </div>
+                    </setting>
+                    <setting string="Recordatorio antes del turno"
+                             help="En cero no se manda ningún recordatorio.">
+                        <div class="content-group mt-2">
+                            <field name="emr_whatsapp_reminder_hours" class="o_light_label"/>
+                            horas antes
+                        </div>
+                        <div class="mt-2">
+                            <field name="emr_whatsapp_reminder_template_id"
+                                   options="{'no_create': True}"/>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

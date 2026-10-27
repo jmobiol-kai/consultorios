@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- La practica es un producto. Los dos campos propios son los que la
+         vuelven una practica medica: que historia clinica genera y que se
+         factura al hacerla. -->
+    <record id="product_template_view_form_emr" model="ir.ui.view">
+        <field name="name">product.template.form.emr</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']//group" position="inside">
+                <group name="emr_procedure" string="Práctica médica">
+                    <field name="is_medical_procedure"/>
+                    <field name="encounter_type_id" invisible="not is_medical_procedure"/>
+                    <field name="order_template_id" invisible="not is_medical_procedure"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+    <record id="product_template_action_procedure" model="ir.actions.act_window">
+        <field name="name">Prácticas</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_medical_procedure', '=', True)]</field>
+        <field name="context">{'default_is_medical_procedure': True, 'default_type': 'service'}</field>
+    </record>
+</odoo>

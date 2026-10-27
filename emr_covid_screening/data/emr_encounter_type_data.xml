@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="encounter_type_covid_screening" model="emr.encounter.type">
+        <field name="summary_template">emr_covid_screening.encounter_summary_covid_screening</field>
+        <field name="name">Triage COVID</field>
+        <field name="model_name">emr.encounter.covid.screening</field>
+        <field name="sequence">90</field>
+        <!-- Archivado: existe para consultar lo viejo, no para cargar nuevo. -->
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_slot_filter_view_form" model="ir.ui.view">
+        <field name="name">emr.slot.filter.form</field>
+        <field name="model">emr.slot.filter</field>
+        <field name="arch" type="xml">
+            <form string="Ver una agenda">
+                <!-- Sin alta al vuelo: esto es una búsqueda. Un profesional
+                     o una locación se dan de alta en Configuración, con sus
+                     matrículas y su agenda; crearlos desde acá deja un
+                     registro a medias que después nadie completa. -->
+                <group>
+                    <field name="practitioner_id" options="{'no_create': True}"/>
+                    <field name="location_id" options="{'no_create': True}"/>
+                </group>
+                <div class="text-muted small">
+                    Con los dos vacíos no hay nada que acotar. Con los dos
+                    cargados se ve ese profesional en esa locación.
+                </div>
+                <footer>
+                    <button name="action_filter" type="object" string="Ver la agenda"
+                            class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancelar" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_slot_filter_action" model="ir.actions.act_window">
+        <field name="name">Ver una agenda</field>
+        <field name="res_model">emr.slot.filter</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

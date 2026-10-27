@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="emr_appointment_book_view_form" model="ir.ui.view">
+        <field name="name">emr.appointment.book.form</field>
+        <field name="model">emr.appointment.book</field>
+        <field name="arch" type="xml">
+            <form string="Asignar turno">
+                <!-- El paciente arriba de todo y sin etiqueta: es lo primero
+                     que se hace, con la persona adelante. Buscar es la
+                     operacion mas frecuente del sistema.
+
+                     `mw-100` y `w-100` son para que ocupe todo el ancho: Odoo
+                     le pone a `.oe_title` un `max-width: 75%` de `sm` para
+                     arriba, y la regla que estira el campo del titulo al 100 %
+                     aplica a `o_field_char`, no a un many2one. Sin las dos
+                     clases, el buscador del paciente queda a tres cuartos del
+                     asistente y con el nombre cortado. -->
+                <div class="oe_title mw-100 mb-3">
+                    <h1>
+                        <field name="partner_id" nolabel="1" class="w-100"
+                               placeholder="Buscar paciente por nombre o documento..."
+                               options="{'no_open': True}"/>
+                    </h1>
+                    <div class="text-muted" invisible="not insurer_id">
+                        <field name="insurer_id" nolabel="1" readonly="1"/>
+                    </div>
+                </div>
+
+                <group>
+                    <group string="Turno">
+                        <field name="slot_id" invisible="not slot_id"/>
+                        <field name="practitioner_id" readonly="slot_id" options="{'no_create': True}"/>
+                        <field name="start" readonly="slot_id"/>
+                        <field name="location_id" required="not slot_id" options="{'no_create': True}"/>
+                        <field name="appointment_mode" readonly="1"/>
+                        <field name="appointment_priority"/>
+                    </group>
+                    <group string="Qué se hace">
+                        <field name="sale_order_template_id"/>
+                        <field name="encounter_type_id"/>
+                    </group>
+                </group>
+                <field name="note" placeholder="Nota interna del turno"/>
+                <footer>
+                    <button name="action_book" type="object" string="Asignar"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <!-- La puerta del sobreturno: el mismo asistente, con la modalidad ya
+         decidida y sin hueco. El hueco lo crea `action_book` al confirmar,
+         después de validar el tope diario del profesional. -->
+    <record id="emr_overbooking_book_action" model="ir.actions.act_window">
+        <field name="name">Dar un sobreturno</field>
+        <field name="res_model">emr.appointment.book</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_appointment_mode': 'overbooked'}</field>
+    </record>
+
+</odoo>

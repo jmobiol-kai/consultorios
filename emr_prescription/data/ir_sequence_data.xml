@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- El número de receta. Sin prefijo ni año: es el número que el paciente
+         y el mostrador tienen anotado en papel, y ahí no hay formato.
+
+         En una instalación que migra recetas de un sistema anterior hay que
+         mover number_next arriba del último número traído, o el primer
+         número nuevo choca con uno histórico. -->
+    <record id="seq_emr_prescription" model="ir.sequence">
+        <field name="name">Receta</field>
+        <field name="code">emr.prescription</field>
+        <field name="padding">5</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+</odoo>

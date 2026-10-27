@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- El profesional y el estado de rendicion sobre el pago. Es lo que
+         permite mirar un cobro y saber de quien es y si ya se le entrego. -->
+    <record id="account_payment_view_form_emr" model="ir.ui.view">
+        <field name="name">account.payment.form.emr</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <field name="date" position="after">
+                <field name="practitioner_id"
+                       invisible="not practitioner_id"
+                       readonly="state != 'draft'"/>
+                <field name="emr_settled" invisible="not practitioner_id" readonly="1"/>
+                <field name="emr_settlement_id" invisible="not emr_settled" readonly="1"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="account_payment_view_search_emr" model="ir.ui.view">
+        <field name="name">account.payment.search.emr</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_search"/>
+        <field name="arch" type="xml">
+            <filter name="inbound_filter" position="after">
+                <separator/>
+                <filter name="emr_pending_settlement" string="Pendientes de rendir"
+                        domain="[('practitioner_id', '!=', False),
+                                 ('emr_settled', '=', False),
+                                 ('payment_type', '=', 'inbound'),
+                                 ('journal_id.type', '=', 'cash')]"/>
+                <filter name="emr_settled" string="Rendidos"
+                        domain="[('emr_settled', '=', True)]"/>
+                <separator/>
+                <filter name="emr_group_practitioner" string="Profesional"
+                        context="{'group_by': 'practitioner_id'}"/>
+            </filter>
+        </field>
+    </record>
+</odoo>

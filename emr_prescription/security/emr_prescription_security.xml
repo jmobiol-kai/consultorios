@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Recepción escribe atenciones, pero solo las que son recetas.
+
+         La receta delega en emr.encounter: tomar un pedido crea la fila del
+         padre, y editar el paciente o la fecha del pedido la escribe. Sin
+         esto, recepción no puede tomar un pedido — emr le da emr.encounter
+         en solo lectura.
+
+         El permiso del CSV es de grano grueso: habilita el modelo entero.
+         Esta regla lo acota a lo que el flujo necesita. Importa: con write
+         sobre cualquier atención, recepción podría cambiarle el paciente a
+         una historia clínica ya firmada, que es de lo peor que puede pasarle
+         a un registro médico. emr.encounter no tiene guarda de inmutabilidad
+         propia — la tiene el hijo — así que la restricción va acá.
+
+         perm_read queda en False a propósito: la lectura de recepción ya está
+         gobernada por lo que trae emr y esta regla no tiene que tocarla.
+         ================================================================ -->
+    <record id="rule_encounter_reception_prescription" model="ir.rule">
+        <field name="name">Atenciones: recepción solo escribe recetas</field>
+        <field name="model_id" ref="emr.model_emr_encounter"/>
+        <field name="domain_force">[('res_model', '=', 'emr.prescription')]</field>
+        <field name="groups" eval="[(4, ref('emr.group_emr_reception'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>

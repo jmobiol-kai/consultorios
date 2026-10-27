@@ -1,0 +1,46 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_emr_location_user,emr.location user,model_emr_location,group_emr_reception,1,0,0,0
+access_emr_location_manager,emr.location manager,model_emr_location,group_emr_manager,1,1,1,1
+access_emr_specialty_user,emr.specialty user,model_emr_specialty,group_emr_reception,1,0,0,0
+access_emr_specialty_manager,emr.specialty manager,model_emr_specialty,group_emr_manager,1,1,1,1
+access_emr_diagnosis_user,emr.diagnosis user,model_emr_diagnosis,group_emr_reception,1,0,0,0
+access_emr_diagnosis_practitioner,emr.diagnosis practitioner,model_emr_diagnosis,group_emr_practitioner,1,1,1,0
+access_emr_diagnosis_manager,emr.diagnosis manager,model_emr_diagnosis,group_emr_manager,1,1,1,1
+access_emr_encounter_type_user,emr.encounter.type user,model_emr_encounter_type,group_emr_reception,1,0,0,0
+access_emr_encounter_type_manager,emr.encounter.type manager,model_emr_encounter_type,group_emr_manager,1,1,1,1
+access_emr_slot_reception,emr.slot reception,model_emr_slot,group_emr_reception,1,1,1,0
+access_emr_slot_manager,emr.slot manager,model_emr_slot,group_emr_manager,1,1,1,1
+access_emr_appointment_log_user,emr.appointment.log user,model_emr_appointment_log,group_emr_reception,1,0,1,0
+access_emr_appointment_log_manager,emr.appointment.log manager,model_emr_appointment_log,group_emr_manager,1,1,1,1
+access_emr_encounter_reception,emr.encounter reception,model_emr_encounter,group_emr_reception,1,0,0,0
+access_emr_encounter_practitioner,emr.encounter practitioner,model_emr_encounter,group_emr_practitioner,1,1,1,0
+access_emr_encounter_manager,emr.encounter manager,model_emr_encounter,group_emr_manager,1,1,1,1
+access_emr_encounter_addendum_practitioner,emr.encounter.addendum practitioner,model_emr_encounter_addendum,group_emr_practitioner,1,1,1,0
+access_emr_encounter_addendum_manager,emr.encounter.addendum manager,model_emr_encounter_addendum,group_emr_manager,1,1,1,1
+access_emr_encounter_consultation_practitioner,consultation practitioner,model_emr_encounter_consultation,group_emr_practitioner,1,1,1,0
+access_emr_encounter_consultation_manager,consultation manager,model_emr_encounter_consultation,group_emr_manager,1,1,1,1
+access_emr_encounter_lab_line_practitioner,lab line practitioner,model_emr_encounter_lab_line,group_emr_practitioner,1,1,1,1
+access_emr_slot_generate_manager,emr.slot.generate manager,model_emr_slot_generate,group_emr_manager,1,1,1,1
+access_emr_appointment_book_reception,emr.appointment.book reception,model_emr_appointment_book,group_emr_reception,1,1,1,1
+access_emr_appointment_charge_reception,emr.appointment.charge reception,model_emr_appointment_charge,group_emr_reception,1,1,1,1
+access_emr_appointment_charge_line_reception,emr.appointment.charge.line reception,model_emr_appointment_charge_line,group_emr_reception,1,1,1,1
+access_emr_demand_book_reception,emr.demand.book reception,model_emr_demand_book,group_emr_reception,1,1,1,1
+access_emr_encounter_retype_practitioner,emr.encounter.retype practitioner,model_emr_encounter_retype,group_emr_practitioner,1,1,1,1
+access_resource_resource_emr_user,resource.resource emr user,resource.model_resource_resource,group_emr_reception,1,0,0,0
+access_resource_resource_emr_manager,resource.resource emr manager,resource.model_resource_resource,group_emr_manager,1,1,1,1
+access_resource_calendar_emr_user,resource.calendar emr user,resource.model_resource_calendar,group_emr_reception,1,0,0,0
+access_resource_calendar_emr_manager,resource.calendar emr manager,resource.model_resource_calendar,group_emr_manager,1,1,1,1
+access_resource_calendar_attendance_emr_user,resource.calendar.attendance emr user,resource.model_resource_calendar_attendance,group_emr_reception,1,0,0,0
+access_resource_calendar_attendance_emr_manager,resource.calendar.attendance emr manager,resource.model_resource_calendar_attendance,group_emr_manager,1,1,1,1
+access_emr_settlement_manager,emr.settlement manager,model_emr_settlement,group_emr_manager,1,1,1,1
+access_emr_appointment_addon_reception,emr.appointment.addon reception,model_emr_appointment_addon,group_emr_reception,1,1,1,1
+access_emr_slot_filter_reception,emr.slot.filter reception,model_emr_slot_filter,group_emr_reception,1,1,1,1
+access_emr_medication_user,emr.medication user,model_emr_medication,group_emr_reception,1,0,0,0
+access_emr_medication_practitioner,emr.medication practitioner,model_emr_medication,group_emr_practitioner,1,1,1,0
+access_emr_medication_manager,emr.medication manager,model_emr_medication,group_emr_manager,1,1,1,1
+access_emr_allergy_user,emr.allergy user,model_emr_allergy,group_emr_reception,1,0,0,0
+access_emr_allergy_practitioner,emr.allergy practitioner,model_emr_allergy,group_emr_practitioner,1,1,1,0
+access_emr_allergy_manager,emr.allergy manager,model_emr_allergy,group_emr_manager,1,1,1,1
+access_emr_practice_type_user,emr.practice.type user,model_emr_practice_type,group_emr_reception,1,0,0,0
+access_emr_practice_type_practitioner,emr.practice.type practitioner,model_emr_practice_type,group_emr_practitioner,1,1,1,0
+access_emr_practice_type_manager,emr.practice.type manager,model_emr_practice_type,group_emr_manager,1,1,1,1

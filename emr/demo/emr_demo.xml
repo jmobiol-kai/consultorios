@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Locaciones y especialidades
+         ================================================================ -->
+    <record id="demo_location_consultorio_1" model="emr.location">
+        <field name="name">Consultorio 1</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="demo_location_consultorio_2" model="emr.location">
+        <field name="name">Consultorio 2</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="demo_location_endoscopia" model="emr.location">
+        <field name="name">Sala de endoscopía</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="demo_specialty_gastro" model="emr.specialty">
+        <field name="name">Gastroenterología</field>
+    </record>
+    <record id="demo_specialty_clinica" model="emr.specialty">
+        <field name="name">Clínica médica</field>
+    </record>
+    <record id="demo_specialty_anestesia" model="emr.specialty">
+        <field name="name">Anestesiología</field>
+    </record>
+
+    <!-- ================================================================
+         Obras sociales
+         ================================================================ -->
+    <record id="demo_pricelist_sindicato" model="product.pricelist">
+        <field name="name">Arancel Sindicato del Sueño</field>
+    </record>
+
+    <record id="demo_insurer_sindicato" model="res.partner">
+        <field name="name">Sindicato del Sueño</field>
+        <field name="is_company" eval="True"/>
+        <field name="is_insurer" eval="True"/>
+        <field name="insurer_pricelist_id" ref="demo_pricelist_sindicato"/>
+    </record>
+    <record id="demo_insurer_particular" model="res.partner">
+        <field name="name">Particular</field>
+        <field name="is_company" eval="True"/>
+        <field name="is_insurer" eval="True"/>
+    </record>
+
+    <!-- ================================================================
+         Profesionales
+
+         Nombres de ficción a propósito: que se note de una que es data de
+         prueba y no se confunda con un padrón real.
+         ================================================================ -->
+    <record id="demo_calendar_house" model="resource.calendar">
+        <field name="name">Agenda Dr. House</field>
+        <field name="tz">America/Argentina/Buenos_Aires</field>
+        <field name="attendance_ids" eval="[(5, 0, 0)]"/>
+    </record>
+    <record id="demo_att_house_mon" model="resource.calendar.attendance">
+        <field name="name">Lunes consultorio</field>
+        <field name="calendar_id" ref="demo_calendar_house"/>
+        <field name="dayofweek">0</field>
+        <field name="hour_from">9.0</field>
+        <field name="hour_to">13.0</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">scheduled</field>
+        <field name="location_id" ref="demo_location_consultorio_1"/>
+    </record>
+    <record id="demo_att_house_wed" model="resource.calendar.attendance">
+        <field name="name">Miércoles endoscopía</field>
+        <field name="calendar_id" ref="demo_calendar_house"/>
+        <field name="dayofweek">2</field>
+        <field name="hour_from">14.0</field>
+        <field name="hour_to">18.0</field>
+        <field name="slot_duration">45</field>
+        <field name="slot_type">scheduled</field>
+        <field name="location_id" ref="demo_location_endoscopia"/>
+    </record>
+
+    <record id="demo_resource_house" model="resource.resource">
+        <field name="name">Gregory House</field>
+        <field name="calendar_id" ref="demo_calendar_house"/>
+        <field name="tz">America/Argentina/Buenos_Aires</field>
+    </record>
+
+    <record id="demo_practitioner_house" model="res.partner">
+        <field name="resource_id" ref="demo_resource_house"/>
+        <field name="name">Gregory House</field>
+        <field name="is_practitioner" eval="True"/>
+        <field name="license_national">MN 11223</field>
+        <field name="specialty_ids" eval="[(6, 0, [ref('demo_specialty_gastro'), ref('demo_specialty_clinica')])]"/>
+        <field name="scheduling_method">slots</field>
+        <field name="copay_percent">100.0</field>
+    </record>
+
+    <record id="demo_calendar_chapatin" model="resource.calendar">
+        <field name="name">Agenda Dr. Chapatín</field>
+        <field name="tz">America/Argentina/Buenos_Aires</field>
+        <field name="attendance_ids" eval="[(5, 0, 0)]"/>
+    </record>
+    <record id="demo_att_chapatin_tue" model="resource.calendar.attendance">
+        <field name="name">Martes consultorio</field>
+        <field name="calendar_id" ref="demo_calendar_chapatin"/>
+        <field name="dayofweek">1</field>
+        <field name="hour_from">8.0</field>
+        <field name="hour_to">12.0</field>
+        <field name="slot_duration">15</field>
+        <field name="slot_type">scheduled</field>
+        <field name="location_id" ref="demo_location_consultorio_2"/>
+    </record>
+    <record id="demo_att_chapatin_thu" model="resource.calendar.attendance">
+        <field name="name">Jueves consultorio</field>
+        <field name="calendar_id" ref="demo_calendar_chapatin"/>
+        <field name="dayofweek">3</field>
+        <field name="hour_from">8.0</field>
+        <field name="hour_to">12.0</field>
+        <field name="slot_duration">15</field>
+        <field name="slot_type">scheduled</field>
+        <field name="location_id" ref="demo_location_consultorio_2"/>
+    </record>
+
+    <record id="demo_resource_chapatin" model="resource.resource">
+        <field name="name">Chapatín</field>
+        <field name="calendar_id" ref="demo_calendar_chapatin"/>
+        <field name="tz">America/Argentina/Buenos_Aires</field>
+    </record>
+
+    <record id="demo_practitioner_chapatin" model="res.partner">
+        <field name="resource_id" ref="demo_resource_chapatin"/>
+        <field name="name">Chapatín</field>
+        <field name="is_practitioner" eval="True"/>
+        <field name="license_national">MN 33445</field>
+        <field name="specialty_ids" eval="[(6, 0, [ref('demo_specialty_clinica')])]"/>
+        <field name="scheduling_method">slots</field>
+        <field name="copay_percent">90.0</field>
+    </record>
+
+    <!-- Juguete atiende por demanda todo el día, todos los días.
+
+         No es una clínica real: es para poder probar la demanda a cualquier
+         hora sin depender de que el reloj caiga dentro de la franja. Zoidberg
+         queda con el horario realista de lunes a viernes de 8 a 16.
+         ================================================================ -->
+    <record id="demo_calendar_juguete" model="resource.calendar">
+        <field name="name">Agenda Dra. Juguete (demanda, siempre abierta)</field>
+        <field name="tz">America/Argentina/Buenos_Aires</field>
+        <field name="attendance_ids" eval="[(5, 0, 0)]"/>
+    </record>
+    <record id="demo_att_juguete_0" model="resource.calendar.attendance">
+        <field name="name">Lunes demanda</field>
+        <field name="calendar_id" ref="demo_calendar_juguete"/>
+        <field name="dayofweek">0</field>
+        <field name="hour_from">0.0</field>
+        <field name="hour_to">23.98</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_1"/>
+    </record>
+    <record id="demo_att_juguete_1" model="resource.calendar.attendance">
+        <field name="name">Martes demanda</field>
+        <field name="calendar_id" ref="demo_calendar_juguete"/>
+        <field name="dayofweek">1</field>
+        <field name="hour_from">0.0</field>
+        <field name="hour_to">23.98</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_1"/>
+    </record>
+    <record id="demo_att_juguete_2" model="resource.calendar.attendance">
+        <field name="name">Miércoles demanda</field>
+        <field name="calendar_id" ref="demo_calendar_juguete"/>
+        <field name="dayofweek">2</field>
+        <field name="hour_from">0.0</field>
+        <field name="hour_to">23.98</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_1"/>
+    </record>
+    <record id="demo_att_juguete_3" model="resource.calendar.attendance">
+        <field name="name">Jueves demanda</field>
+        <field name="calendar_id" ref="demo_calendar_juguete"/>
+        <field name="dayofweek">3</field>
+        <field name="hour_from">0.0</field>
+        <field name="hour_to">23.98</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_1"/>
+    </record>
+    <record id="demo_att_juguete_4" model="resource.calendar.attendance">
+        <field name="name">Viernes demanda</field>
+        <field name="calendar_id" ref="demo_calendar_juguete"/>
+        <field name="dayofweek">4</field>
+        <field name="hour_from">0.0</field>
+        <field name="hour_to">23.98</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_1"/>
+    </record>
+    <record id="demo_att_juguete_5" model="resource.calendar.attendance">
+        <field name="name">Sábado demanda</field>
+        <field name="calendar_id" ref="demo_calendar_juguete"/>
+        <field name="dayofweek">5</field>
+        <field name="hour_from">0.0</field>
+        <field name="hour_to">23.98</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_1"/>
+    </record>
+    <record id="demo_att_juguete_6" model="resource.calendar.attendance">
+        <field name="name">Domingo demanda</field>
+        <field name="calendar_id" ref="demo_calendar_juguete"/>
+        <field name="dayofweek">6</field>
+        <field name="hour_from">0.0</field>
+        <field name="hour_to">23.98</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_1"/>
+    </record>
+
+    <!-- Atiende por orden de llegada: la modalidad sin franja fija.
+         Está implementada y casi nadie la usa; la data demo la deja visible. -->
+    <record id="demo_resource_juguete" model="resource.resource">
+        <field name="name">Juguete</field>
+        <field name="calendar_id" ref="demo_calendar_juguete"/>
+        <field name="tz">America/Argentina/Buenos_Aires</field>
+    </record>
+
+    <record id="demo_practitioner_juguete" model="res.partner">
+        <field name="resource_id" ref="demo_resource_juguete"/>
+        <field name="name">Juguete</field>
+        <field name="is_practitioner" eval="True"/>
+        <field name="license_national">MN 55667</field>
+        <field name="specialty_ids" eval="[(6, 0, [ref('demo_specialty_gastro')])]"/>
+        <field name="scheduling_method">walkin</field>
+        <field name="copay_percent">100.0</field>
+    </record>
+
+    <!-- El padrón: gente que aparece en una historia clínica sin operar el
+         sistema. No van marcados como profesionales —no atienden acá, no
+         tienen agenda ni liquidación— sino con la etiqueta que los campos
+         que los usan filtran. -->
+    <record id="demo_partner_anestesista" model="res.partner">
+        <field name="name">Nick Riviera</field>
+        <field name="category_id" eval="[Command.set([ref('emr.partner_category_anestesista')])]"/>
+        <field name="function">Anestesista</field>
+    </record>
+    <record id="demo_partner_derivante" model="res.partner">
+        <field name="name">Julius Hibbert</field>
+        <field name="category_id" eval="[Command.set([ref('emr.partner_category_medico')])]"/>
+        <field name="function">Médico clínico</field>
+    </record>
+
+    <!-- Un profesional que atiende por demanda.
+
+         Dos cosas lo distinguen y son independientes entre sí:
+
+         - el método de turnos es "por orden de llegada": no entrega horarios,
+           atiende al que llega;
+         - sus franjas son "variables": en vez de partirse en huecos de 20
+           minutos, cada día genera una sola ventana abierta de 8 a 16 a la
+           que se le van agregando pacientes.
+
+         Los 20 minutos quedan en la franja como duración de referencia de
+         cada atención, no como el tamaño del hueco.
+         ================================================================ -->
+    <record id="demo_calendar_zoidberg" model="resource.calendar">
+        <field name="name">Agenda Dr. Zoidberg (demanda)</field>
+        <field name="tz">America/Argentina/Buenos_Aires</field>
+        <field name="attendance_ids" eval="[(5, 0, 0)]"/>
+    </record>
+    <record id="demo_att_zoidberg_0" model="resource.calendar.attendance">
+        <field name="name">Lunes demanda</field>
+        <field name="calendar_id" ref="demo_calendar_zoidberg"/>
+        <field name="dayofweek">0</field>
+        <field name="hour_from">8.0</field>
+        <field name="hour_to">16.0</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_2"/>
+    </record>
+    <record id="demo_att_zoidberg_1" model="resource.calendar.attendance">
+        <field name="name">Martes demanda</field>
+        <field name="calendar_id" ref="demo_calendar_zoidberg"/>
+        <field name="dayofweek">1</field>
+        <field name="hour_from">8.0</field>
+        <field name="hour_to">16.0</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_2"/>
+    </record>
+    <record id="demo_att_zoidberg_2" model="resource.calendar.attendance">
+        <field name="name">Miércoles demanda</field>
+        <field name="calendar_id" ref="demo_calendar_zoidberg"/>
+        <field name="dayofweek">2</field>
+        <field name="hour_from">8.0</field>
+        <field name="hour_to">16.0</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_2"/>
+    </record>
+    <record id="demo_att_zoidberg_3" model="resource.calendar.attendance">
+        <field name="name">Jueves demanda</field>
+        <field name="calendar_id" ref="demo_calendar_zoidberg"/>
+        <field name="dayofweek">3</field>
+        <field name="hour_from">8.0</field>
+        <field name="hour_to">16.0</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_2"/>
+    </record>
+    <record id="demo_att_zoidberg_4" model="resource.calendar.attendance">
+        <field name="name">Viernes demanda</field>
+        <field name="calendar_id" ref="demo_calendar_zoidberg"/>
+        <field name="dayofweek">4</field>
+        <field name="hour_from">8.0</field>
+        <field name="hour_to">16.0</field>
+        <field name="slot_duration">20</field>
+        <field name="slot_type">open</field>
+        <field name="location_id" ref="demo_location_consultorio_2"/>
+    </record>
+
+    <record id="demo_resource_zoidberg" model="resource.resource">
+        <field name="name">John Zoidberg</field>
+        <field name="calendar_id" ref="demo_calendar_zoidberg"/>
+        <field name="tz">America/Argentina/Buenos_Aires</field>
+    </record>
+
+    <record id="demo_practitioner_zoidberg" model="res.partner">
+        <field name="resource_id" ref="demo_resource_zoidberg"/>
+        <field name="name">John Zoidberg</field>
+        <field name="is_practitioner" eval="True"/>
+        <field name="license_national">MN 99001</field>
+        <field name="specialty_ids" eval="[(6, 0, [ref('demo_specialty_clinica')])]"/>
+        <field name="scheduling_method">walkin</field>
+        <field name="copay_percent">100.0</field>
+    </record>
+
+    <!-- ================================================================
+         Pacientes
+
+         Incluye a propósito dos con el mismo documento: la falta de unicidad
+         es una característica del diseño, no un descuido, y la data demo
+         tiene que mostrarla.
+         ================================================================ -->
+    <record id="demo_patient_1" model="res.partner">
+        <field name="name">Homero Simpson</field>
+        <field name="is_patient" eval="True"/>
+        <field name="gender">male</field>
+        <field name="birthdate_date">1964-05-12</field>
+        <field name="insurer_id" ref="demo_insurer_sindicato"/>
+        <field name="insurance_member_number">SS-100234</field>
+        <field name="phone">+54 299 400-0001</field>
+    </record>
+    <record id="demo_patient_2" model="res.partner">
+        <field name="name">Marge Simpson</field>
+        <field name="is_patient" eval="True"/>
+        <field name="gender">female</field>
+        <field name="birthdate_date">1966-10-01</field>
+        <field name="insurer_id" ref="demo_insurer_sindicato"/>
+        <field name="insurance_member_number">SS-100235</field>
+    </record>
+    <record id="demo_patient_3" model="res.partner">
+        <field name="name">Doña Florinda</field>
+        <field name="is_patient" eval="True"/>
+        <field name="gender">female</field>
+        <field name="birthdate_date">1951-07-30</field>
+        <field name="insurer_id" ref="demo_insurer_particular"/>
+    </record>
+    <record id="demo_patient_4" model="res.partner">
+        <field name="name">Tony Soprano</field>
+        <field name="is_patient" eval="True"/>
+        <field name="gender">male</field>
+        <field name="birthdate_date">1959-08-22</field>
+        <field name="insurer_id" ref="demo_insurer_particular"/>
+    </record>
+
+    <!-- Dos pacientes con el mismo nombre y distinta fecha de nacimiento.
+         La falta de unicidad del documento es una decisión de diseño, no un
+         descuido, y la data demo tiene que dejarla a la vista para poder
+         probar la detección y la unificación. -->
+    <record id="demo_patient_5" model="res.partner">
+        <field name="name">Don Ramón</field>
+        <field name="is_patient" eval="True"/>
+        <field name="gender">male</field>
+        <field name="birthdate_date">1949-04-14</field>
+        <field name="insurer_id" ref="demo_insurer_particular"/>
+    </record>
+    <record id="demo_patient_6_homonimo" model="res.partner">
+        <field name="name">Don Ramón</field>
+        <field name="is_patient" eval="True"/>
+        <field name="gender">male</field>
+        <field name="birthdate_date">1989-01-19</field>
+        <field name="insurer_id" ref="demo_insurer_particular"/>
+        <field name="comment">Homónimo del anterior. Sirve para probar la
+            detección de duplicados y la unificación.</field>
+    </record>
+
+    <!-- Un profesional que además se atiende en la clínica: los roles no son
+         excluyentes y este es el caso que lo prueba. -->
+    <record id="demo_practitioner_chapatin" model="res.partner">
+        <field name="is_patient" eval="True"/>
+        <field name="insurer_id" ref="demo_insurer_particular"/>
+    </record>
+
+    <!-- ================================================================
+         Prácticas
+         ================================================================ -->
+    <record id="demo_product_consulta" model="product.product">
+        <field name="name">Consulta gastroenterológica</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="encounter_type_id" ref="encounter_type_consultation"/>
+        <field name="list_price">12000.0</field>
+    </record>
+    <!-- La atención que no se cobra: producto en cero. No genera factura ni
+         cobro, y queda registrado qué se hizo. -->
+    <record id="demo_product_control" model="product.product">
+        <field name="name">Control post procedimiento (sin cargo)</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="encounter_type_id" ref="encounter_type_consultation"/>
+        <field name="list_price">0.0</field>
+    </record>
+
+    <!-- ================================================================
+         Tipos de turno
+
+         Son plantillas de venta: definen qué se le cobra al paciente. Una
+         consulta es una sola línea; un estudio suele ser un conjunto.
+
+         El orden importa: el primero por secuencia es el que el asistente
+         propone por defecto.
+         ================================================================ -->
+
+    <!-- Sin compañía: el tipo de turno es configuración de la clínica y lo
+         usan todas sus compañías. Con compañía, el turno de un profesional
+         que factura por su cuenta no puede aplicar la plantilla —Odoo lo
+         corta por cruce de compañías. -->
+    <record id="demo_tmpl_consulta" model="sale.order.template">
+        <field name="company_id" eval="False"/>
+        <field name="name">Consulta</field>
+        <field name="is_appointment" eval="True"/>
+        <field name="sequence">1</field>
+    </record>
+    <record id="demo_tmpl_consulta_l1" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="demo_tmpl_consulta"/>
+        <field name="product_id" ref="demo_product_consulta"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+
+    <!-- Sin compañía: el tipo de turno es configuración de la clínica y lo
+         usan todas sus compañías. Con compañía, el turno de un profesional
+         que factura por su cuenta no puede aplicar la plantilla —Odoo lo
+         corta por cruce de compañías. -->
+    <record id="demo_tmpl_control" model="sale.order.template">
+        <field name="company_id" eval="False"/>
+        <field name="name">Control sin cargo</field>
+        <field name="is_appointment" eval="True"/>
+        <field name="sequence">30</field>
+    </record>
+    <record id="demo_tmpl_control_l1" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="demo_tmpl_control"/>
+        <field name="product_id" ref="demo_product_control"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+
+    <!-- ================================================================
+         Diagnósticos
+         ================================================================ -->
+    <record id="demo_diag_gastritis" model="emr.diagnosis">
+        <field name="name">Gastritis crónica</field>
+        <field name="code">K29.5</field>
+    </record>
+    <record id="demo_diag_polipo" model="emr.diagnosis">
+        <field name="name">Pólipo de colon</field>
+        <field name="code">K63.5</field>
+    </record>
+    <record id="demo_diag_erge" model="emr.diagnosis">
+        <field name="name">Reflujo gastroesofágico</field>
+        <field name="code">K21.9</field>
+    </record>
+
+    <!-- ================================================================
+         Vincular recurso y agenda a cada profesional
+
+         Se hace por código porque el recurso lo crea el propio partner al
+         marcarse como profesional.
+         ================================================================ -->
+
+    <!-- Generar la agenda para que la demo tenga algo que mirar.
+
+         Ojo: los <function> de un archivo de demo solo corren en una
+         instalación desde cero. Al actualizar el módulo, Odoo los saltea
+         porque la demo se carga con noupdate. Si actualizás y la agenda está
+         vacía, se genera desde Configuración → Generar agenda.
+
+         Reusa el método del cron, que respeta los días a generar de cada
+         profesional. Sin esto la grilla queda vacía y la data demo no sirve
+         para ver cómo se opera. -->
+    <function model="emr.slot" name="_cron_generate_slots"/>
+
+</odoo>

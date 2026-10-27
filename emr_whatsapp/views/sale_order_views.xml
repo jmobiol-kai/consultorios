@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_order_view_form_whatsapp" model="ir.ui.view">
+        <field name="name">sale.order.form.emr.whatsapp</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="emr.sale_order_view_form_appointment"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='emr_appointment']" position="after">
+                <group name="emr_whatsapp" string="Avisos por WhatsApp"
+                       invisible="not is_appointment">
+                    <group>
+                        <field name="whatsapp_confirmation_state"/>
+                        <field name="whatsapp_confirmation_queued_at"
+                               invisible="whatsapp_confirmation_state != 'queued'"/>
+                    </group>
+                    <group>
+                        <field name="whatsapp_reminder_state"/>
+                        <field name="whatsapp_error"
+                               invisible="not whatsapp_error"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <!-- Sacar el aviso de la cola es la razón por la que hay
+                     cola: el turno se corrige antes de que salga. -->
+                <button name="action_whatsapp_cancel_queued" type="object"
+                        string="Cancelar el aviso"
+                        invisible="whatsapp_confirmation_state != 'queued'"/>
+                <button name="action_whatsapp_queue_now" type="object"
+                        string="Reenviar el aviso"
+                        invisible="not is_appointment or whatsapp_confirmation_state == 'queued'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_order_view_list_whatsapp" model="ir.ui.view">
+        <field name="name">sale.order.list.emr.whatsapp</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="emr.sale_order_view_list_appointment"/>
+        <field name="arch" type="xml">
+            <field name="practitioner_id" position="after">
+                <field name="whatsapp_confirmation_state" optional="hide"
+                       widget="badge"
+                       decoration-warning="whatsapp_confirmation_state == 'queued'"
+                       decoration-danger="whatsapp_confirmation_state == 'failed'"
+                       decoration-success="whatsapp_confirmation_state == 'sent'"/>
+                <field name="whatsapp_reminder_state" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

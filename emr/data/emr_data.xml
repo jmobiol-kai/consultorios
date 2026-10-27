@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- El tipo de historia clinica que trae el nucleo. Los demas llegan en
+         su propio modulo: la endoscopia digestiva, por ejemplo, en
+         emr_endoscopy. -->
+    <record id="encounter_type_consultation" model="emr.encounter.type">
+        <field name="summary_template">emr.encounter_summary_consultation</field>
+        <field name="name">Consulta de consultorio</field>
+        <field name="model_name">emr.encounter.consultation</field>
+        <field name="report_template">emr.report_encounter_consultation_body</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- ================================================================
+         Etiquetas del padrón
+
+         Hay gente que aparece en una historia clínica sin operar el sistema:
+         el médico que deriva, el anestesista que asistió. Son contactos, no
+         profesionales de la clínica.
+
+         Marcarlos `is_practitioner` los mezclaría con quienes atienden acá:
+         aparecerían en la agenda, en las liquidaciones y en cada selector de
+         profesional. Una etiqueta dice lo mismo sin esa consecuencia, y es lo
+         que filtran los campos que los usan.
+         ================================================================ -->
+    <record id="partner_category_medico" model="res.partner.category">
+        <field name="name">Médico</field>
+        <field name="color">4</field>
+    </record>
+    <record id="partner_category_anestesista" model="res.partner.category">
+        <field name="name">Anestesista</field>
+        <field name="color">6</field>
+    </record>
+
+
+    <!-- ================================================================
+         Lo mínimo para que el módulo sirva recién instalado.
+
+         Sin una práctica y un tipo de turno no se puede asignar el primer
+         turno: el asistente pide una plantilla y no hay ninguna. Cada
+         instalación después arma las suyas; esta es la que existe siempre.
+         ================================================================ -->
+    <record id="product_consulta" model="product.product">
+        <field name="name">Consulta</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="encounter_type_id" ref="encounter_type_consultation"/>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+
+    <!-- Sin compañía: el tipo de turno es configuración de la clínica y lo
+         usan todas sus compañías. Con compañía, el turno de un profesional
+         que factura por su cuenta no puede aplicar la plantilla —Odoo lo
+         corta por cruce de compañías. -->
+    <record id="sale_order_template_consulta" model="sale.order.template">
+        <field name="company_id" eval="False"/>
+        <field name="name">Consulta de consultorio</field>
+        <field name="is_appointment" eval="True"/>
+        <field name="sequence">1</field>
+    </record>
+    <record id="sale_order_template_consulta_line" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="sale_order_template_consulta"/>
+        <field name="product_id" ref="product_consulta"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+
+</odoo>

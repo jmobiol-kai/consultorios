@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- El tipo es lo que pone la receta en la lista unificada de atenciones
+         y lo que hace que abrirla desde ahí lleve al formulario correcto.
+         La secuencia arranca en 50 para quedar detrás de la consulta (10) y
+         de los estudios (20-40).
+
+         summary_template y report_template quedan vacíos a propósito: los dos
+         caen al volcado genérico, que recorre los campos propios del modelo.
+         Para una receta alcanza — y una plantilla escrita a mano se
+         desactualiza en cuanto alguien agrega un campo. -->
+    <record id="encounter_type_prescription" model="emr.encounter.type">
+        <field name="name">Receta</field>
+        <field name="model_name">emr.prescription</field>
+        <field name="sequence">50</field>
+    </record>
+</odoo>

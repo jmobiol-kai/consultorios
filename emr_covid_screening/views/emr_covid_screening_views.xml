@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- El cuestionario en una tabla: una fila por pregunta y una columna por
+         ronda. Cuarenta y cinco campos en grupos sueltos serían ilegibles; así
+         se lee como el papel que era. -->
+    <record id="emr_covid_screening_view_form" model="ir.ui.view">
+        <field name="name">emr.encounter.covid.screening.form</field>
+        <field name="model">emr.encounter.covid.screening</field>
+        <field name="inherit_id" ref="emr.emr_encounter_view_form_base"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <page name="attachments" position="before">
+                <page name="screening" string="Triage">
+                    <div class="alert alert-info" role="alert">
+                        Cuestionario de screening de la pandemia. Se conserva
+                        como registro histórico; no se completa más.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="study_requested"/>
+                            <field name="done_by_1"/>
+                            <field name="done_by_2"/>
+                        </group>
+                        <group>
+                            <field name="days_7_before"/>
+                            <field name="days_10_before"/>
+                        </group>
+                    </group>
+                    <table class="table table-sm o_list_table">
+                        <thead>
+                            <tr>
+                                <th/>
+                                <th>1ª evaluación</th>
+                                <th>2ª evaluación</th>
+                                <th>3ª evaluación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-muted">Fecha</td>
+                                <td><field name="date_1" nolabel="1"/></td>
+                                <td><field name="date_2" nolabel="1"/></td>
+                                <td><field name="date_3" nolabel="1"/></td>
+                            </tr>
+                        <tr>
+                            <td class="text-muted">Fiebre</td>
+                            <td><field name="fever_1" nolabel="1"/></td>
+                            <td><field name="fever_2" nolabel="1"/></td>
+                            <td><field name="fever_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Tos</td>
+                            <td><field name="cough_1" nolabel="1"/></td>
+                            <td><field name="cough_2" nolabel="1"/></td>
+                            <td><field name="cough_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Dolor de garganta</td>
+                            <td><field name="sore_throat_1" nolabel="1"/></td>
+                            <td><field name="sore_throat_2" nolabel="1"/></td>
+                            <td><field name="sore_throat_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Odinofagia</td>
+                            <td><field name="odynophagia_1" nolabel="1"/></td>
+                            <td><field name="odynophagia_2" nolabel="1"/></td>
+                            <td><field name="odynophagia_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Falta de aire</td>
+                            <td><field name="breathlessness_1" nolabel="1"/></td>
+                            <td><field name="breathlessness_2" nolabel="1"/></td>
+                            <td><field name="breathlessness_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Cefalea</td>
+                            <td><field name="headache_1" nolabel="1"/></td>
+                            <td><field name="headache_2" nolabel="1"/></td>
+                            <td><field name="headache_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Dolor abdominal</td>
+                            <td><field name="abdominal_pain_1" nolabel="1"/></td>
+                            <td><field name="abdominal_pain_2" nolabel="1"/></td>
+                            <td><field name="abdominal_pain_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Pérdida del olfato</td>
+                            <td><field name="smell_loss_1" nolabel="1"/></td>
+                            <td><field name="smell_loss_2" nolabel="1"/></td>
+                            <td><field name="smell_loss_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Pérdida del gusto</td>
+                            <td><field name="taste_loss_1" nolabel="1"/></td>
+                            <td><field name="taste_loss_2" nolabel="1"/></td>
+                            <td><field name="taste_loss_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Contacto con paciente COVID</td>
+                            <td><field name="contact_1" nolabel="1"/></td>
+                            <td><field name="contact_2" nolabel="1"/></td>
+                            <td><field name="contact_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Antecedente de viajes</td>
+                            <td><field name="travel_1" nolabel="1"/></td>
+                            <td><field name="travel_2" nolabel="1"/></td>
+                            <td><field name="travel_3" nolabel="1"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Otros</td>
+                            <td><field name="other_1" nolabel="1"/></td>
+                            <td><field name="other_2" nolabel="1"/></td>
+                            <td><field name="other_3" nolabel="1"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </page>
+            </page>
+        </field>
+    </record>
+
+</odoo>

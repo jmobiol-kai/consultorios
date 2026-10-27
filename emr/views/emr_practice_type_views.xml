@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="emr_practice_type_view_list" model="ir.ui.view">
+        <field name="name">emr.practice.type.list</field>
+        <field name="model">emr.practice.type</field>
+        <field name="arch" type="xml">
+            <list string="Tipos de práctica" editable="bottom">
+                <field name="code"/>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+    <record id="emr_practice_type_view_search" model="ir.ui.view">
+        <field name="name">emr.practice.type.search</field>
+        <field name="model">emr.practice.type</field>
+        <field name="arch" type="xml">
+            <search string="Tipos de práctica">
+                <field name="name"/>
+                <field name="code"/>
+            </search>
+        </field>
+    </record>
+    <record id="emr_practice_type_action" model="ir.actions.act_window">
+        <field name="name">Tipos de práctica</field>
+        <field name="res_model">emr.practice.type</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

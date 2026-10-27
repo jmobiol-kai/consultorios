@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_slot_view_search" model="ir.ui.view">
+        <field name="name">emr.slot.search</field>
+        <field name="model">emr.slot</field>
+        <field name="arch" type="xml">
+            <search string="Huecos de agenda">
+                <!-- El paciente primero: es lo que se tipea en el mostrador con
+                     la persona adelante, y el primer campo es el que toma lo
+                     que se escribe en la caja de búsqueda. Además busca por
+                     documento sin configurar nada, porque `res.partner` lo
+                     tiene en `_rec_names_search`. -->
+                <field name="patient_id"/>
+                <field name="practitioner_id"/>
+                <field name="location_id"/>
+                <field name="order_id"/>
+                <!-- «Asignable» es la pregunta real de la agenda: incluye el
+                      hueco libre y también el que tuvo un turno que se cayó,
+                      que sigue mostrando qué pasó pero se puede volver a dar. -->
+                <filter name="available" string="Asignables" domain="[('available', '=', True)]"/>
+                <filter name="free" string="Libres" domain="[('state', '=', 'free')]"/>
+                <filter name="taken" string="Con turno"
+                        domain="[('state', 'not in', ['free', 'blocked'])]"/>
+                <filter name="blocked" string="Bloqueados" domain="[('state', '=', 'blocked')]"/>
+                <separator/>
+                <filter name="today" string="Hoy"
+                        domain="[('start', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                 ('start', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <filter name="upcoming" string="De acá en adelante"
+                        domain="[('start', '&gt;=', datetime.datetime.now())]"/>
+                <separator/>
+                <!-- Ventanas cortas alrededor de ahora. Son las que sirven en
+                     el mostrador: quién viene ya, y quién estuvo recién.
+
+                     La hora se compara contra datetime.datetime.now(), que es
+                     UTC, igual que como Odoo guarda `start`. -->
+                <filter name="next_2h" string="Próximas 2 horas"
+                        domain="[('start', '&gt;=', datetime.datetime.now()),
+                                 ('start', '&lt;=', datetime.datetime.now() + relativedelta(hours=2))]"/>
+                <filter name="next_4h" string="Próximas 4 horas"
+                        domain="[('start', '&gt;=', datetime.datetime.now()),
+                                 ('start', '&lt;=', datetime.datetime.now() + relativedelta(hours=4))]"/>
+                <filter name="next_7d" string="Próximos 7 días"
+                        domain="[('start', '&gt;=', datetime.datetime.now()),
+                                 ('start', '&lt;=', datetime.datetime.now() + relativedelta(days=7))]"/>
+                <!-- La ventana del mostrador: lo que está pasando ahora. Hacia
+                     atrás están los que ya llegaron y hacia adelante los que
+                     están por llegar. -->
+                <filter name="around_now" string="2 horas antes y 2 después"
+                        domain="[('start', '&gt;=', datetime.datetime.now() - relativedelta(hours=2)),
+                                 ('start', '&lt;=', datetime.datetime.now() + relativedelta(hours=2))]"/>
+                <separator/>
+                <filter name="group_practitioner" string="Profesional"
+                        context="{'group_by': 'practitioner_id'}"/>
+                <filter name="group_location" string="Locación"
+                        context="{'group_by': 'location_id'}"/>
+                <filter name="group_day" string="Día"
+                        context="{'group_by': 'start:day'}"/>
+                <filter name="group_state" string="Estado"
+                        context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_slot_view_list" model="ir.ui.view">
+        <field name="name">emr.slot.list</field>
+        <field name="model">emr.slot</field>
+        <field name="arch" type="xml">
+            <!-- Ni alta ni edición: el hueco no se escribe a mano. Sale de
+                 la grilla horaria del profesional y cambia por las acciones
+                 —asignar, bloquear, partir—, que son las que saben mantener
+                 coherentes el hueco, el turno y la agenda. -->
+            <list string="Huecos" create="false" edit="false"
+                  decoration-muted="state == 'blocked'"
+                  decoration-success="state == 'free'">
+                <header>
+                    <button name="%(emr_demand_book_action)d" type="action"
+                            icon="fa-user-plus" string="Demanda"
+                            title="Atender a alguien que llegó sin turno"
+                            class="btn-secondary" display="always"/>
+                    <button name="%(emr_overbooking_book_action)d" type="action"
+                            icon="fa-plus-circle" string="Sobreturno"
+                            title="Encajar un turno sobre una agenda llena"
+                            class="btn-secondary" display="always"/>
+                    <button name="%(emr_slot_filter_action)d" type="action"
+                            icon="fa-filter" string="Agenda"
+                            title="Ver la agenda de un profesional o de una locación"
+                            class="btn-secondary" display="always"/>
+                    <!-- Moverse de semana. Solo aparecen cuando se está
+                         mirando la agenda de alguien: fuera de ese contexto
+                         no hay semana desde la cual moverse, y el botón no
+                         sabría qué hacer. -->
+                    <button name="action_week_prev" type="object"
+                            icon="fa-chevron-left" title="Semana anterior"
+                            class="btn-secondary" display="always"
+                            invisible="not context.get('emr_week_nav')"/>
+                    <button name="action_week_next" type="object"
+                            icon="fa-chevron-right" title="Semana siguiente"
+                            class="btn-secondary" display="always"
+                            invisible="not context.get('emr_week_nav')"/>
+                </header>
+
+                <field name="start" widget="datetime"/>
+                <field name="duration" string="Min"/>
+                <field name="practitioner_id"/>
+                <field name="location_id" optional="show"/>
+                <field name="slot_type" optional="hide"/>
+                <field name="order_id" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'free'"
+                       decoration-info="state in ['booked', 'waitlist', 'confirmed', 'in_progress']"
+                       decoration-primary="state in ['done', 'validated']"
+                       decoration-danger="state in ['cancelled', 'no_show', 'void']"
+                       decoration-muted="state == 'blocked'"/>
+                <field name="block_reason" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <button name="action_book" type="object"
+                        icon="fa-plus" title="Asignar un paciente"
+                        invisible="not available"/>
+                <button name="action_split" type="object"
+                        icon="fa-scissors" title="Partir este hueco en dos"
+                        invisible="state != 'free'"/>
+                <button name="action_block" type="object"
+                        icon="fa-times" title="Dar de baja este horario"
+                        invisible="not available or block_reason"/>
+                <button name="action_free" type="object"
+                        icon="fa-undo" title="Volver a habilitar este horario"
+                        invisible="state != 'blocked' or block_reason != 'cancelled'"/>
+                <button name="action_add_practice" type="object"
+                        icon="fa-stethoscope" title="Agregar una práctica a este turno"
+                        invisible="not order_id"/>
+                <button name="action_cancel_order" type="object"
+                        icon="fa-ban" title="Cancelar el turno y liberar el hueco"
+                        invisible="state not in ('booked', 'waitlist')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- La grilla del día.
+
+         Kanban agrupado por profesional, que es como se mira la agenda en el
+         mostrador: una columna por médico y los huecos en orden. Desde la
+         búsqueda se reagrupa por locación o por día sin cambiar de vista.
+
+         La hora va grande, que es lo que se lee de un vistazo; el día va
+         chiquito abajo, porque casi siempre ya se sabe cuál es. -->
+    <record id="emr_slot_view_kanban" model="ir.ui.view">
+        <field name="name">emr.slot.kanban</field>
+        <field name="model">emr.slot</field>
+        <field name="arch" type="xml">
+            <!-- Sin Nuevo: crear un hueco a mano no es una operación del
+                 negocio —los huecos salen de la grilla horaria— y el único
+                 alta real, atender a alguien que llegó sin turno, ya tiene su
+                 botón en el encabezado. -->
+            <kanban default_group_by="practitioner_id" create="false"
+                    group_create="false"
+                    records_draggable="false"
+                    class="o_kanban_small_column">
+                <header>
+                    <button name="%(emr_demand_book_action)d" type="action"
+                            icon="fa-user-plus" string="Demanda"
+                            title="Atender a alguien que llegó sin turno"
+                            class="btn-secondary" display="always"/>
+                    <button name="%(emr_overbooking_book_action)d" type="action"
+                            icon="fa-plus-circle" string="Sobreturno"
+                            title="Encajar un turno sobre una agenda llena"
+                            class="btn-secondary" display="always"/>
+                    <button name="%(emr_slot_filter_action)d" type="action"
+                            icon="fa-filter" string="Agenda"
+                            title="Ver la agenda de un profesional o de una locación"
+                            class="btn-secondary" display="always"/>
+                    <!-- Moverse de semana. Solo aparecen cuando se está
+                         mirando la agenda de alguien: fuera de ese contexto
+                         no hay semana desde la cual moverse, y el botón no
+                         sabría qué hacer. -->
+                    <button name="action_week_prev" type="object"
+                            icon="fa-chevron-left" title="Semana anterior"
+                            class="btn-secondary" display="always"
+                            invisible="not context.get('emr_week_nav')"/>
+                    <button name="action_week_next" type="object"
+                            icon="fa-chevron-right" title="Semana siguiente"
+                            class="btn-secondary" display="always"
+                            invisible="not context.get('emr_week_nav')"/>
+                </header>
+                <field name="state"/>
+                <field name="available"/>
+                <field name="order_id"/>
+                <field name="block_reason"/>
+                <field name="patient_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fs-4 fw-bold lh-1">
+                                    <field name="hour_display"/>
+                                </div>
+                                <small class="text-muted">
+                                    <field name="date_display"/>
+                                    · <field name="duration"/> min
+                                </small>
+                            </div>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == 'free'"
+                                   decoration-info="state in ['booked', 'waitlist', 'confirmed', 'in_progress']"
+                                   decoration-primary="state in ['done', 'validated']"
+                                   decoration-danger="state in ['cancelled', 'no_show', 'void']"
+                                   decoration-muted="state == 'blocked'"/>
+                        </div>
+
+                        <div class="text-muted mt-1" t-if="record.location_id.raw_value">
+                            <field name="location_id"/>
+                        </div>
+
+                        <!-- El paciente antes que el número de la orden: en el
+                             mostrador lo que se busca es a quién se atiende. -->
+                        <div t-if="record.order_id.raw_value">
+                            <div class="fw-bold text-truncate">
+                                <field name="patient_id"/>
+                            </div>
+                            <small class="text-muted">
+                                <field name="order_id"/>
+                                <span t-if="record.block_reason.raw_value">
+                                    · <field name="block_reason"/>
+                                </span>
+                            </small>
+                        </div>
+                        <div class="mt-1 text-muted" t-if="record.block_reason.raw_value">
+                            <field name="block_reason"/>
+                        </div>
+
+                        <!-- Los botones van como iconos: son varios por tarjeta
+                             y con texto no entran. Cada estado va a ir sumando
+                             los suyos. -->
+                        <div class="mt-2 d-flex gap-1"
+                             t-if="record.available.raw_value">
+                            <button name="action_book" type="object"
+                                    class="btn btn-sm btn-primary"
+                                    title="Asignar un paciente">
+                                <i class="fa fa-plus"/>
+                            </button>
+                            <button name="action_split" type="object"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    title="Partir este hueco en dos">
+                                <i class="fa fa-scissors"/>
+                            </button>
+                            <button name="action_block" type="object"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    title="Dar de baja este horario">
+                                <i class="fa fa-times"/>
+                            </button>
+                        </div>
+
+                        <!-- Los botones del turno, en una sola fila.
+                             Cobrar solo mientras está agendado; agregar una
+                             práctica en cualquier estado, porque eso se
+                             descubre durante la atención y no antes. -->
+                        <div class="mt-2 d-flex gap-1"
+                             t-if="record.order_id.raw_value">
+                            <button name="action_charge_order" type="object"
+                                    class="btn btn-sm btn-primary"
+                                    title="Cobrar y confirmar el turno"
+                                    t-if="record.state.raw_value == 'booked' or record.state.raw_value == 'waitlist'">
+                                <i class="fa fa-dollar"/>
+                            </button>
+                            <button name="action_add_practice" type="object"
+                                    class="btn btn-sm btn-outline-primary"
+                                    title="Agregar una práctica a este turno">
+                                <i class="fa fa-stethoscope"/>
+                            </button>
+                            <!-- Mientras no se cobró, el turno se puede caer y
+                                 el horario tiene que volver a la grilla. Sin
+                                 esto un hueco asignado y sin pagar queda
+                                 tomado para siempre. -->
+                            <button name="action_cancel_order" type="object"
+                                    class="btn btn-sm btn-outline-danger"
+                                    title="Cancelar el turno y liberar el hueco"
+                                    t-if="record.state.raw_value == 'booked' or record.state.raw_value == 'waitlist'">
+                                <i class="fa fa-ban"/>
+                            </button>
+                        </div>
+
+                        <!-- Un horario dado de baja tiene que poder volver, o
+                             es una puerta de una sola dirección. -->
+                        <div class="mt-2"
+                             t-if="record.state.raw_value == 'blocked' and record.block_reason.raw_value == 'cancelled'">
+                            <button name="action_free" type="object"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    title="Volver a habilitar este horario">
+                                <i class="fa fa-undo"/>
+                            </button>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         El formulario del hueco.
+
+         Existe para que Odoo no genere uno automático, que sería editable de
+         punta a punta: cualquiera podría correrle la hora a un turno o
+         cambiarle el profesional sin que la agenda se entere.
+
+         Todo va de lectura menos el estado del turno, que es lo único que
+         alguien tiene motivo para corregir a mano.
+         ================================================================ -->
+    <record id="emr_slot_view_form" model="ir.ui.view">
+        <field name="name">emr.slot.form</field>
+        <field name="model">emr.slot</field>
+        <field name="arch" type="xml">
+            <form string="Hueco" create="false">
+                <header>
+                    <button name="action_book" type="object" string="Asignar"
+                            class="btn-primary"
+                            invisible="not available"/>
+                    <button name="action_charge_order" type="object"
+                            string="Cobrar" class="btn-primary"
+                            invisible="state not in ('booked', 'waitlist')"/>
+                    <button name="action_add_practice" type="object"
+                            string="Agregar una práctica"
+                            invisible="not order_id"/>
+                    <button name="action_cancel_order" type="object"
+                            string="Cancelar el turno"
+                            invisible="state not in ('booked', 'waitlist')"/>
+                    <button name="action_split" type="object" string="Partir"
+                            invisible="state != 'free'"/>
+                    <button name="action_block" type="object" string="Dar de baja"
+                            invisible="not available or block_reason"/>
+                    <button name="action_free" type="object" string="Rehabilitar"
+                            invisible="state != 'blocked'"/>
+                    <!-- Solo para ver dónde está: el estado del hueco lo
+                         cambian los botones, que ademas ajustan el turno. -->
+                    <!-- Badge y no statusbar: con once valores la barra de
+                         estados no entra, y el hueco no recorre una secuencia
+                         lineal. -->
+                    <field name="state" widget="badge" readonly="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="hour_display" readonly="1" class="oe_inline"/>
+                            <span class="text-muted ms-2">
+                                <field name="date_display" readonly="1" class="oe_inline"/>
+                            </span>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="practitioner_id" readonly="1"/>
+                            <field name="location_id" readonly="1"/>
+                            <field name="slot_type" readonly="1"/>
+                            <field name="attendance_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="start" readonly="1"/>
+                            <field name="stop" readonly="1"/>
+                            <field name="duration" readonly="1"/>
+                            <field name="block_reason" readonly="1"
+                                   invisible="state != 'blocked'"/>
+                            <field name="company_id" readonly="1"
+                                   groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Turno" invisible="not order_id">
+                        <field name="order_id" readonly="1"/>
+                        <field name="patient_id" readonly="1"/>
+                        <!-- Lo único editable: corregir a mano en qué punto
+                             está la atención. Escribirlo acá lo escribe en la
+                             orden. -->
+                            </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_slot_view_calendar" model="ir.ui.view">
+        <field name="name">emr.slot.calendar</field>
+        <field name="model">emr.slot</field>
+        <field name="arch" type="xml">
+            <calendar string="Agenda" date_start="start" date_stop="stop"
+                      color="practitioner_id" mode="day" quick_create="false">
+                <field name="practitioner_id" filters="1"/>
+                <field name="location_id" filters="1"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="emr_slot_action" model="ir.actions.act_window">
+        <field name="name">Agenda</field>
+        <field name="res_model">emr.slot</field>
+        <field name="view_mode">kanban,list,calendar</field>
+        <field name="context">{'search_default_today': 1, 'search_default_group_practitioner': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Todavía no hay agenda generada</p>
+            <p>
+                La agenda sale de las franjas horarias de cada profesional.
+                Configurá su agenda y generá los huecos desde su ficha.
+            </p>
+        </field>
+    </record>
+
+</odoo>

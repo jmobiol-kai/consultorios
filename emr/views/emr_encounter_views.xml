@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         La lista unificada.
+
+         Gracias a la herencia por delegación, esta tabla tiene una fila por
+         atención sea del tipo que sea. Ver todas las atenciones de un paciente
+         es filtrar acá: no hay ninguna vista que una modelos.
+         ================================================================ -->
+    <record id="emr_encounter_view_search" model="ir.ui.view">
+        <field name="name">emr.encounter.search</field>
+        <field name="model">emr.encounter</field>
+        <field name="arch" type="xml">
+            <search string="Atenciones">
+                <field name="partner_id" string="Paciente"/>
+                <field name="practitioner_id"/>
+                <field name="encounter_type_id"/>
+                <field name="diagnosis_ids"/>
+                <filter name="mine" string="Las mías"
+                        domain="[('practitioner_id.user_ids', 'in', [uid])]"/>
+                <separator/>
+                <filter name="draft" string="En elaboración"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="closed" string="Cerradas"
+                        domain="[('state', '=', 'closed')]"/>
+                <filter name="signed" string="Firmadas"
+                        domain="[('state', '=', 'signed')]"/>
+                <separator/>
+                <filter name="discarded" string="Descartadas"
+                        domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter name="group_patient" string="Paciente"
+                        context="{'group_by': 'partner_id'}"/>
+                <filter name="group_type" string="Tipo"
+                        context="{'group_by': 'encounter_type_id'}"/>
+                <filter name="group_practitioner" string="Profesional"
+                        context="{'group_by': 'practitioner_id'}"/>
+                <filter name="group_month" string="Mes"
+                        context="{'group_by': 'date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_encounter_view_list" model="ir.ui.view">
+        <field name="name">emr.encounter.list</field>
+        <field name="model">emr.encounter</field>
+        <field name="arch" type="xml">
+            <list string="Atenciones" create="false">
+                <field name="date"/>
+                <field name="partner_id" string="Paciente"/>
+                <field name="encounter_type_id"/>
+                <field name="practitioner_id"/>
+                <field name="location_id" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state == 'closed'"
+                       decoration-success="state == 'signed'"/>
+                <button name="action_open" type="object" string="Abrir"
+                        icon="fa-external-link" title="Abrir la historia clínica"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_encounter_action" model="ir.actions.act_window">
+        <field name="name">Historias clínicas</field>
+        <field name="res_model">emr.encounter</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="emr_encounter_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Todavía no hay atenciones</p>
+            <p>
+                Las historias clínicas se crean al atender un turno. Acá se ven
+                todas juntas, sin importar de qué tipo sean.
+            </p>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         El formulario de la consulta.
+
+         Hereda el formulario base en modo primario: los botones de la
+         atención, la cabecera y el panel de historia se escriben una sola vez
+         allá y acá va solo lo propio de la consulta. Los tipos que trae otro
+         módulo hacen exactamente lo mismo.
+         ================================================================ -->
+    <record id="emr_encounter_consultation_view_form" model="ir.ui.view">
+        <field name="name">emr.encounter.consultation.form</field>
+        <field name="model">emr.encounter.consultation</field>
+        <field name="inherit_id" ref="emr_encounter_view_form_base"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <page name="attachments" position="before">
+                <page name="clinical" string="Atención">
+                    <group>
+                        <group string="Signos">
+                            <field name="weight"/>
+                            <field name="height"/>
+                            <field name="bmi" readonly="1"/>
+                            <label for="blood_pressure_max" string="Presión"/>
+                            <div class="o_row">
+                                <field name="blood_pressure_max"/> /
+                                <field name="blood_pressure_min"/>
+                            </div>
+                        </group>
+                        <group string="Diagnóstico">
+                            <field name="diagnosis_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <field name="reason" placeholder="Motivo de consulta"/>
+                    <field name="notes" placeholder="Evolución"/>
+                </page>
+                <page name="lab" string="Análisis">
+                    <field name="lab_line_ids">
+                        <list editable="bottom">
+                            <field name="date"/>
+                            <field name="name"/>
+                            <field name="value"/>
+                            <field name="uom_name"/>
+                            <field name="value_text"/>
+                        </list>
+                    </field>
+                </page>
+            </page>
+        </field>
+    </record>
+
+</odoo>

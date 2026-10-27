@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         La caja, desde la aplicación.
+
+         Quien cobra en el mostrador no debería tener que irse a Contabilidad
+         para ver su propia caja. Estas acciones son las mismas de
+         account_cashbox pero acotadas a lo que le importa: lo suyo y lo que
+         está abierto.
+         ================================================================ -->
+
+    <!-- Mi caja abre la sesión que ya está abierta, no un formulario vacío.
+
+         Con una acción de ventana común, Odoo abre el formulario en modo alta
+         cuando no hay un registro concreto. Acá primero se busca la sesión y
+         recién después se decide a dónde ir.
+
+         El xmlid dice "server" a propósito y no hay que "acortarlo": esto
+         empezó siendo un ir.actions.act_window con el id
+         emr_cashbox_my_session_action, y Odoo no le puede cambiar el modelo a
+         un registro que ya existe con ese xmlid. Reusarlo rompe la
+         actualización de cualquier base instalada antes del cambio. -->
+    <record id="emr_cashbox_my_session_server_action" model="ir.actions.server">
+        <field name="name">Mi caja</field>
+        <field name="model_id" ref="account_cashbox.model_account_cashbox_session"/>
+        <field name="state">code</field>
+        <field name="code"><![CDATA[
+sesion = model.search([
+    ('state', '=', 'opened'),
+    ('user_ids', 'in', [env.uid]),
+], limit=1)
+if sesion:
+    action = {
+        'type': 'ir.actions.act_window',
+        'name': 'Mi caja',
+        'res_model': 'account.cashbox.session',
+        'res_id': sesion.id,
+        'view_mode': 'form',
+        'views': [(False, 'form')],
+    }
+else:
+    # Sin sesión propia abierta, lo útil es ver las sesiones para abrir una.
+    action = env['ir.actions.actions']._for_xml_id(
+        'account_cashbox.account_cashbox_session_action')
+]]></field>
+    </record>
+
+    <record id="emr_cashbox_my_payments_action" model="ir.actions.act_window">
+        <field name="name">Movimientos de mi caja</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('cashbox_session_id.state', '=', 'opened'),
+                              ('cashbox_session_id.user_ids', 'in', [uid])]</field>
+        <field name="context">{'search_default_group_by_journal': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Todavía no cobraste nada en esta caja</p>
+            <p>
+                Acá aparecen los cobros de tu sesión abierta. Cada uno lleva el
+                profesional al que corresponde, que es lo que después permite
+                liquidarle.
+            </p>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Menú
+
+         Cuelga de la aplicación de historia clínica, después de Atención:
+         cobrar es parte del mostrador, no una tarea contable aparte.
+         ================================================================ -->
+    <menuitem id="menu_emr_cashbox" name="Caja" parent="emr.menu_emr_root"
+              sequence="25" groups="account.group_account_invoice"/>
+
+    <menuitem id="menu_emr_cashbox_my_session" name="Mi caja"
+              parent="menu_emr_cashbox"
+              action="emr_cashbox_my_session_server_action" sequence="10"/>
+
+    <menuitem id="menu_emr_cashbox_my_payments" name="Movimientos"
+              parent="menu_emr_cashbox"
+              action="emr_cashbox_my_payments_action" sequence="20"/>
+
+    <!-- La rendición es una transferencia interna: sacar plata de la caja y
+         mandarla a otra. Lo resuelve account_internal_transfer, que ya es
+         dependencia de account_cashbox — no hay nada que construir. -->
+    <menuitem id="menu_emr_cashbox_transfer" name="Rendición"
+              parent="menu_emr_cashbox"
+              action="account_internal_transfer.action_account_payments_transfer"
+              sequence="30"/>
+
+    <menuitem id="menu_emr_cashbox_sessions" name="Sesiones de caja"
+              parent="menu_emr_cashbox"
+              action="account_cashbox.account_cashbox_session_action"
+              sequence="40" groups="account.group_account_manager"/>
+
+    <menuitem id="menu_emr_cashbox_cashboxes" name="Cajas"
+              parent="emr.menu_emr_config"
+              action="account_cashbox.account_cashbox_action"
+              sequence="60" groups="account.group_account_manager"/>
+
+</odoo>

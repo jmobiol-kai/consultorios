@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_view_form_emr" model="ir.ui.view">
+        <field name="name">res.partner.form.emr</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <!-- La historia completa, desde la ficha del paciente. -->
+                <button name="action_print_history" type="object"
+                        class="oe_stat_button" icon="fa-file-text-o"
+                        invisible="not is_patient"
+                        groups="emr.group_emr_practitioner">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Historia</span>
+                        <span class="o_stat_text">clínica</span>
+                    </div>
+                </button>
+                <button name="action_view_emr_slots" type="object"
+                        class="oe_stat_button" icon="fa-calendar"
+                        invisible="not is_practitioner or not scheduling_method">
+                    <field name="emr_slot_count" widget="statinfo" string="Agenda"/>
+                </button>
+                <!-- En demanda no se genera agenda: se atiende al que llega. -->
+                <button name="action_demand_appointment" type="object"
+                        class="oe_stat_button" icon="fa-user-plus"
+                        invisible="not is_practitioner or scheduling_method != 'walkin'">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Atender</span>
+                        <span class="o_stat_text">por demanda</span>
+                    </div>
+                </button>
+                <button name="%(emr_slot_generate_action)d" type="action"
+                        class="oe_stat_button" icon="fa-refresh"
+                        invisible="not is_practitioner or not resource_calendar_id or scheduling_method == 'walkin'">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Generar</span>
+                        <span class="o_stat_text">agenda</span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//sheet/group" position="before">
+                <field name="resource_calendar_id" invisible="1"/>
+                <field name="scheduling_method" invisible="1"/>
+                <!-- Los tres roles en una línea, como "se puede vender" y
+                     "se puede comprar" en el producto.
+
+                     Se esconden cuando el contexto ya trae el rol decidido:
+                     si estoy dando de alta un paciente desde el asistente de
+                     turno, elegir "es profesional" no es una opción, es una
+                     forma de equivocarse. El campo sigue en la vista para que
+                     el default se aplique, solo que no se muestra. -->
+                <div name="emr_roles" class="d-flex flex-wrap gap-4 mb-2"
+                     invisible="context.get('default_is_patient') or context.get('default_is_practitioner') or context.get('default_is_insurer')">
+                    <span class="d-inline-flex">
+                        <field name="is_patient"/>
+                        <label for="is_patient"/>
+                    </span>
+                    <span class="d-inline-flex">
+                        <field name="is_practitioner"/>
+                        <label for="is_practitioner"/>
+                    </span>
+                    <span class="d-inline-flex">
+                        <field name="is_insurer"/>
+                        <label for="is_insurer"/>
+                    </span>
+                </div>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="emr_patient" string="Paciente" invisible="not is_patient">
+                    <group>
+                        <group>
+                            <field name="birthdate_date"/>
+                            <field name="gender"/>
+                        </group>
+                        <group>
+                            <field name="insurer_id"/>
+                            <field name="insurance_member_number"/>
+                        </group>
+                    </group>
+                </page>
+                <page name="emr_practitioner" string="Profesional" invisible="not is_practitioner">
+                    <group>
+                        <group string="Matrículas">
+                            <field name="license_national"/>
+                            <field name="license_provincial"/>
+                            <field name="license_special"/>
+                            <field name="specialty_ids" widget="many2many_tags"/>
+                        </group>
+                        <group string="Agenda">
+                            <field name="scheduling_method"/>
+                            <!-- Sin método no hay recurso, así que tampoco hay
+                                 nada que configurar. -->
+                            <field name="resource_calendar_id"
+                                   invisible="not scheduling_method"/>
+                            <field name="slot_generation_days"
+                                   invisible="not scheduling_method"/>
+                            <field name="overbooking_daily_limit"/>
+                        </group>
+                        <group string="Dinero">
+                            <field name="copay_percent"/>
+                            <field name="invoicing_company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </page>
+                <page name="emr_insurer" string="Obra social" invisible="not is_insurer">
+                    <group>
+                        <field name="insurer_pricelist_id"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_partner_action_patient" model="ir.actions.act_window">
+        <field name="name">Pacientes</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('is_patient', '=', True)]</field>
+        <field name="context">{'default_is_patient': True}</field>
+    </record>
+
+    <record id="res_partner_action_practitioner" model="ir.actions.act_window">
+        <field name="name">Profesionales</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('is_practitioner', '=', True)]</field>
+        <field name="context">{'default_is_practitioner': True}</field>
+    </record>
+
+    <record id="res_partner_action_insurer" model="ir.actions.act_window">
+        <field name="name">Obras sociales</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('is_insurer', '=', True)]</field>
+        <field name="context">{'default_is_insurer': True, 'default_is_company': True}</field>
+    </record>
+</odoo>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_order_template_view_form_emr" model="ir.ui.view">
+        <field name="name">sale.order.template.form.emr</field>
+        <field name="model">sale.order.template</field>
+        <field name="inherit_id" ref="sale_management.sale_order_template_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet//group" position="before">
+                <div name="emr_options" class="mb-2">
+                    <span class="d-inline-flex">
+                        <field name="is_appointment"/>
+                        <label for="is_appointment"/>
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_order_template_view_list_emr" model="ir.ui.view">
+        <field name="name">sale.order.template.list.emr</field>
+        <field name="model">sale.order.template</field>
+        <field name="inherit_id" ref="sale_management.sale_order_template_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="is_appointment"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="sale_order_template_view_search_emr" model="ir.ui.view">
+        <field name="name">sale.order.template.search.emr</field>
+        <field name="model">sale.order.template</field>
+        <field name="inherit_id" ref="sale_management.sale_order_template_view_search"/>
+        <field name="arch" type="xml">
+            <search position="inside">
+                <filter name="is_appointment" string="Tipos de turno"
+                        domain="[('is_appointment', '=', True)]"/>
+                <filter name="not_appointment" string="No son turnos"
+                        domain="[('is_appointment', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Los tipos de turno, desde la aplicación: quien los define es la
+         clínica, no el área de ventas.
+
+         Muestra TODAS las plantillas, filtradas por defecto en las que son
+         turno. Acotar la acción con un dominio fijo dejaba afuera justo la
+         que hay que abrir para marcarla: una plantilla que todavía no es
+         turno era invisible desde acá, y había que irla a buscar a Ventas. -->
+    <record id="emr_appointment_type_action" model="ir.actions.act_window">
+        <field name="name">Tipos de turno</field>
+        <field name="res_model">sale.order.template</field>
+        <field name="view_mode">list,form</field>
+        <!-- Vacío a propósito, y explícito: sin la línea, una acción que ya
+             existía con dominio se lo queda para siempre. -->
+        <field name="domain">[]</field>
+        <field name="search_view_id" ref="sale_order_template_view_search_emr"/>
+        <!-- `default_company_id` vacío a propósito: el tipo de turno lo define
+             la clínica y lo usan todas sus compañías. El default de Odoo es la
+             compañía activa, y una plantilla con compañía no se le puede
+             aplicar al turno de un profesional que factura por la suya. Desde
+             Ventas la plantilla sigue naciendo con compañía, que es lo que
+             corresponde a una cotización. -->
+        <field name="context">{'default_is_appointment': True, 'default_company_id': False, 'search_default_is_appointment': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Definí el primer tipo de turno</p>
+            <p>
+                Un tipo de turno dice qué se le hace al paciente y qué se le
+                cobra. La consulta es una línea; un estudio suele traer también
+                la anestesia y los insumos.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_emr_appointment_type" name="Tipos de turno"
+              parent="menu_emr_config_section"
+              action="emr_appointment_type_action" sequence="15"/>
+
+</odoo>

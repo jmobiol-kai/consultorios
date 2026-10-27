@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_emr_prescription_reception,emr.prescription reception,model_emr_prescription,emr.group_emr_reception,1,1,1,0
+access_emr_prescription_practitioner,emr.prescription practitioner,model_emr_prescription,emr.group_emr_practitioner,1,1,1,0
+access_emr_prescription_manager,emr.prescription manager,model_emr_prescription,emr.group_emr_manager,1,1,1,1
+access_emr_prescription_line_reception,emr.prescription.line reception,model_emr_prescription_line,emr.group_emr_reception,1,1,1,1
+access_emr_prescription_line_practitioner,emr.prescription.line practitioner,model_emr_prescription_line,emr.group_emr_practitioner,1,1,1,1
+access_emr_prescription_line_manager,emr.prescription.line manager,model_emr_prescription_line,emr.group_emr_manager,1,1,1,1
+access_emr_encounter_reception_rx,emr.encounter reception (recetas),emr.model_emr_encounter,emr.group_emr_reception,1,1,1,0

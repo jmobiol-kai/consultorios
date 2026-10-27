@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Las prácticas de endoscopía.
+
+         Cada una apunta a su tipo de historia clínica: al atender el turno,
+         eso es lo que decide qué formulario se abre.
+         ================================================================ -->
+    <record id="demo_product_colono" model="product.product">
+        <field name="name">Videocolonoscopía</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="encounter_type_id" ref="encounter_type_colonoscopy"/>
+        <field name="list_price">95000.0</field>
+    </record>
+    <record id="demo_product_endo" model="product.product">
+        <field name="name">Endoscopía alta</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="encounter_type_id" ref="encounter_type_upper_endoscopy"/>
+        <field name="list_price">88000.0</field>
+    </record>
+    <record id="demo_product_banding" model="product.product">
+        <field name="name">Banding hemorroidal</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="encounter_type_id" ref="encounter_type_banding"/>
+        <field name="list_price">70000.0</field>
+    </record>
+
+    <!-- Lo que acompaña al estudio y no es una práctica en sí: no lleva
+         historia clínica, solo se cobra. -->
+    <record id="demo_product_anestesia" model="product.product">
+        <field name="name">Anestesia</field>
+        <field name="type">service</field>
+        <field name="list_price">35000.0</field>
+    </record>
+    <record id="demo_product_sedacion" model="product.product">
+        <field name="name">Insumos de endoscopía</field>
+        <field name="type">service</field>
+        <field name="list_price">18000.0</field>
+    </record>
+
+    <!-- ================================================================
+         Tipos de turno
+
+         Son plantillas de venta. Acá se ve por qué: un estudio no es una
+         línea sino un conjunto — la práctica, la anestesia y los insumos
+         entran juntos y se cobran juntos.
+         ================================================================ -->
+    <!-- Sin compañía: el tipo de turno es configuración de la clínica y lo
+         usan todas sus compañías. Con compañía, el turno de un profesional
+         que factura por su cuenta no puede aplicar la plantilla —Odoo lo
+         corta por cruce de compañías. -->
+    <record id="demo_tmpl_colono" model="sale.order.template">
+        <field name="company_id" eval="False"/>
+        <field name="name">Videocolonoscopía con anestesia</field>
+        <field name="is_appointment" eval="True"/>
+        <field name="sequence">10</field>
+    </record>
+    <record id="demo_tmpl_colono_l1" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="demo_tmpl_colono"/>
+        <field name="product_id" ref="demo_product_colono"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+    <record id="demo_tmpl_colono_l2" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="demo_tmpl_colono"/>
+        <field name="product_id" ref="demo_product_anestesia"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+    <record id="demo_tmpl_colono_l3" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="demo_tmpl_colono"/>
+        <field name="product_id" ref="demo_product_sedacion"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+
+    <!-- Sin compañía: el tipo de turno es configuración de la clínica y lo
+         usan todas sus compañías. Con compañía, el turno de un profesional
+         que factura por su cuenta no puede aplicar la plantilla —Odoo lo
+         corta por cruce de compañías. -->
+    <record id="demo_tmpl_endo" model="sale.order.template">
+        <field name="company_id" eval="False"/>
+        <field name="name">Endoscopía alta con anestesia</field>
+        <field name="is_appointment" eval="True"/>
+        <field name="sequence">20</field>
+    </record>
+    <record id="demo_tmpl_endo_l1" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="demo_tmpl_endo"/>
+        <field name="product_id" ref="demo_product_endo"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+    <record id="demo_tmpl_endo_l2" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="demo_tmpl_endo"/>
+        <field name="product_id" ref="demo_product_anestesia"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+
+</odoo>

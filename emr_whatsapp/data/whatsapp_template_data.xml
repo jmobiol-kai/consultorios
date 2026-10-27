@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Las dos plantillas, en borrador.
+
+         Meta las tiene que aprobar antes de que salga un mensaje, así que no
+         sirve traerlas ya activas: se suben desde acá, se espera la
+         aprobación, y el módulo recién entonces envía. Mientras tanto los
+         turnos quedan en "Falló" con el motivo escrito, que es mejor que un
+         silencio.
+
+         El teléfono sale de `partner_id.phone`, que es el primer teléfono del
+         paciente. Ojo: casi ninguno está en formato internacional, así que
+         hay que normalizarlos para que Meta los acepte. -->
+
+    <record id="whatsapp_template_appointment_confirmation" model="whatsapp.template">
+        <field name="name">Turno confirmado</field>
+        <field name="template_name">emr_turno_confirmado</field>
+        <field name="lang_code">es_AR</field>
+        <field name="template_type">utility</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="phone_field">partner_id.phone</field>
+        <field name="body">Hola {{1}}, te confirmamos tu turno.
+
+Fecha y hora: {{2}}
+Profesional: {{3}}
+Lugar: {{4}}
+
+Si no podés venir, avisanos con tiempo así le damos el lugar a otra persona.</field>
+        <field name="variable_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'name': '{{1}}', 'field_type': 'field',
+                    'field_name': 'partner_id.name', 'demo_value': 'Homero Simpson',
+                    'line_type': 'body'}),
+            (0, 0, {'name': '{{2}}', 'field_type': 'field',
+                    'field_name': 'appointment_start', 'demo_value': '12/09/2026 10:30',
+                    'line_type': 'body'}),
+            (0, 0, {'name': '{{3}}', 'field_type': 'field',
+                    'field_name': 'practitioner_id.name', 'demo_value': 'Dr. House',
+                    'line_type': 'body'}),
+            (0, 0, {'name': '{{4}}', 'field_type': 'field',
+                    'field_name': 'location_id.name', 'demo_value': 'Consultorio 1',
+                    'line_type': 'body'}),
+        ]"/>
+    </record>
+
+    <record id="whatsapp_template_appointment_reminder" model="whatsapp.template">
+        <field name="name">Recordatorio de turno</field>
+        <field name="template_name">emr_turno_recordatorio</field>
+        <field name="lang_code">es_AR</field>
+        <field name="template_type">utility</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="phone_field">partner_id.phone</field>
+        <field name="body">Hola {{1}}, te recordamos tu turno.
+
+Fecha y hora: {{2}}
+Profesional: {{3}}
+Lugar: {{4}}
+
+Te esperamos.</field>
+        <field name="variable_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'name': '{{1}}', 'field_type': 'field',
+                    'field_name': 'partner_id.name', 'demo_value': 'Homero Simpson',
+                    'line_type': 'body'}),
+            (0, 0, {'name': '{{2}}', 'field_type': 'field',
+                    'field_name': 'appointment_start', 'demo_value': '12/09/2026 10:30',
+                    'line_type': 'body'}),
+            (0, 0, {'name': '{{3}}', 'field_type': 'field',
+                    'field_name': 'practitioner_id.name', 'demo_value': 'Dr. House',
+                    'line_type': 'body'}),
+            (0, 0, {'name': '{{4}}', 'field_type': 'field',
+                    'field_name': 'location_id.name', 'demo_value': 'Consultorio 1',
+                    'line_type': 'body'}),
+        ]"/>
+    </record>
+
+    <!-- La compañía arranca apuntando a estas dos. -->
+    <function model="res.company" name="write">
+        <value model="res.company" eval="obj().env['res.company'].search([]).ids"/>
+        <value eval="{
+            'emr_whatsapp_confirmation_template_id': ref('whatsapp_template_appointment_confirmation'),
+            'emr_whatsapp_reminder_template_id': ref('whatsapp_template_appointment_reminder'),
+        }"/>
+    </function>
+
+</odoo>

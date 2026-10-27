@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         El formulario base de una atención.
+
+         Está definido sobre emr.encounter, que es donde viven los campos y
+         las acciones comunes. Cada tipo lo hereda en modo primario con su
+         propio modelo y solo agrega sus páginas: como todos delegan en
+         emr.encounter, los campos de la cabecera existen en los cuatro.
+
+         Lo que se gana: los botones de la atención y el panel de historia se
+         escriben una sola vez. Antes estaban repetidos en cada formulario y
+         ya se habían desincronizado — un botón nuevo entraba en dos de los
+         cuatro.
+         ================================================================ -->
+    <record id="emr_encounter_view_form_base" model="ir.ui.view">
+        <field name="name">emr.encounter.form.base</field>
+        <field name="model">emr.encounter</field>
+        <field name="arch" type="xml">
+            <form string="Atención">
+                <header>
+                    <!-- Las tres formas de salir de una atención. Solo una es
+                         haber atendido. -->
+                    <button name="action_close" type="object" string="Atendido"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_wait" type="object" string="Espera"
+                            invisible="state != 'draft'"
+                            help="Vuelve a la sala de espera y sigue con otro paciente"/>
+                    <button name="action_no_show" type="object" string="Ausente"
+                            invisible="state != 'draft'"
+                            confirm="Se va a descartar esta historia clínica y el turno queda como ausente. ¿Seguimos?"
+                            help="No entró al consultorio"/>
+                    <button name="action_retype" type="object" string="Cambiar el tipo"
+                            invisible="state != 'draft'"
+                            help="Registrar esta atención en otro tipo de historia clínica"/>
+                    <button name="action_sign" type="object" string="Firmar"
+                            class="btn-primary" invisible="state != 'closed'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,closed,signed"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Descartada" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="alert alert-info" role="alert" invisible="state != 'signed'">
+                        Esta historia clínica está firmada. Para sumar información,
+                        agregá un agregado: el original no se modifica.
+                    </div>
+                    <field name="active" invisible="1"/>
+                    <!-- El encabezado no se edita. Paciente, profesional,
+                         momento, locación y compañía no son datos de la
+                         historia clínica: son el hecho de la atención, y salen
+                         del turno que la produjo. Editarlos acá seria mover una
+                         atención de paciente o de fecha desde el formulario que
+                         justamente documenta esa atención.
+
+                         Si alguna vez se habilita el alta manual de una
+                         historia sin turno —hoy la lista es `create="false"` y
+                         nacen al atender— esto tiene que pasar a
+                         `readonly="id"`: editable mientras se crea, congelado
+                         despues de guardar. -->
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="practitioner_id" readonly="1"/>
+                            <field name="date" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="order_id" readonly="1"/>
+                            <field name="location_id" readonly="1"/>
+                            <field name="company_id" readonly="1"
+                                   groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <!-- Cada tipo mete sus páginas antes de estas dos,
+                             que son iguales para todos. -->
+                        <page name="attachments" string="Imágenes y estudios">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                        <page name="addenda" string="Agregados">
+                            <field name="addendum_ids" readonly="1">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="author_id"/>
+                                    <field name="body"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <patient_history/>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         El encabezado que comparten todos los informes clínicos.
+
+         En el sistema viejo el PDF era la página del nodo renderizada tal
+         cual, sin membrete: `pdf_top` y `pdf_pie` estaban vacíos, así que la
+         clínica imprimía sobre papel con logo. Acá se usa el layout de la
+         compañía, que trae el membrete de Odoo — si siguen imprimiendo en
+         papel preimpreso, se cambia `web.external_layout` por
+         `web.basic_layout` en cada informe y listo.
+         ================================================================ -->
+    <template id="report_encounter_header">
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 class="mt-0"><span t-out="titulo"/></h4>
+                <div>
+                    <strong t-out="doc.partner_id.name"/>
+                </div>
+                <div class="text-muted">
+                    <span t-if="doc.partner_id.vat">
+                        <span t-out="doc.partner_id.l10n_latam_identification_type_id.name or 'Doc.'"/>
+                        <span t-out="doc.partner_id.vat"/>
+                    </span>
+                    <span t-if="doc.partner_id.birthdate_date">
+                        · Nac. <span t-out="doc.partner_id.birthdate_date" t-options="{'widget': 'date'}"/>
+                    </span>
+                </div>
+                <div t-if="doc.partner_id.insurer_id" class="text-muted">
+                    <span t-out="doc.partner_id.insurer_id.name"/>
+                    <span t-if="doc.partner_id.insurance_member_number">
+                        · Nº <span t-out="doc.partner_id.insurance_member_number"/>
+                    </span>
+                </div>
+            </div>
+            <div class="col-5 text-end">
+                <div>
+                    <strong>Fecha</strong>
+                    <span t-out="doc.date" t-options="{'widget': 'date'}"/>
+                </div>
+                <div>
+                    <strong>Profesional</strong>
+                    <span t-out="doc.practitioner_id.name"/>
+                </div>
+                <div t-if="doc.practitioner_id.license_national" class="text-muted">
+                    <span t-out="doc.practitioner_id.license_national"/>
+                </div>
+                <div t-if="doc.location_id" class="text-muted">
+                    <span t-out="doc.location_id.name"/>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Los diagnósticos y la firma cierran todos los informes igual. -->
+    <template id="report_encounter_footer">
+        <div t-if="doc.diagnosis_ids" class="mt-3">
+            <strong>Diagnósticos</strong>
+            <div>
+                <span t-foreach="doc.diagnosis_ids" t-as="d">
+                    <span t-out="d.name"/><span t-if="not d_last">, </span>
+                </span>
+            </div>
+        </div>
+        <div t-if="doc.addendum_ids" class="mt-3">
+            <strong>Agregados</strong>
+            <div t-foreach="doc.addendum_ids" t-as="a" class="mt-1">
+                <div class="text-muted small">
+                    <span t-out="a.date" t-options="{'widget': 'date'}"/>
+                    · <span t-out="a.author_id.name"/>
+                </div>
+                <div t-out="a.body"/>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-5 offset-7 text-center">
+                <div style="border-top: 1px solid #000; padding-top: 4px;">
+                    <span t-out="doc.practitioner_id.name"/>
+                    <div t-if="doc.practitioner_id.license_national" class="small text-muted">
+                        <span t-out="doc.practitioner_id.license_national"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- ================================================================
+         Consulta de consultorio
+         ================================================================ -->
+    <!-- El cuerpo clínico, sin layout ni encabezado: lo llaman el informe
+         individual y la historia clínica completa del paciente. Separarlo es
+         lo que evita tener el mismo contenido escrito dos veces y que una
+         copia se quede vieja. -->
+    <template id="report_encounter_consultation_body">
+        <div t-if="doc.weight or doc.height or doc.blood_pressure_max" class="mb-2">
+            <strong>Signos</strong>
+            <div class="text-muted">
+                <span t-if="doc.weight">Peso <span t-out="doc.weight"/> kg</span>
+                <span t-if="doc.height">· Talla <span t-out="doc.height"/> cm</span>
+                <span t-if="doc.bmi">· IMC <span t-out="round(doc.bmi, 1)"/></span>
+                <span t-if="doc.blood_pressure_max">
+                    · TA <span t-out="doc.blood_pressure_max"/>/<span t-out="doc.blood_pressure_min"/>
+                </span>
+            </div>
+        </div>
+        <div t-if="doc.reason" class="mb-2">
+            <strong>Motivo de consulta</strong>
+            <div t-out="doc.reason"/>
+        </div>
+        <div t-if="doc.notes" class="mb-2">
+            <strong>Evolución</strong>
+            <div t-out="doc.notes"/>
+        </div>
+        <div t-if="doc.lab_line_ids" class="mb-2">
+            <strong>Análisis</strong>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Fecha</th><th>Análisis</th>
+                        <th class="text-end">Valor</th><th>Unidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="doc.lab_line_ids" t-as="l">
+                        <td><span t-out="l.date" t-options="{'widget': 'date'}"/></td>
+                        <td><span t-out="l.name"/></td>
+                        <td class="text-end"><span t-out="l.value_text or l.value"/></td>
+                        <td><span t-out="l.uom_name"/></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <template id="report_encounter_consultation_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <t t-call="emr.report_encounter_header">
+                    <t t-set="titulo">Consulta</t>
+                </t>
+                <t t-call="emr.report_encounter_consultation_body"/>
+                <t t-call="emr.report_encounter_footer"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_encounter_consultation">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr.report_encounter_consultation_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_encounter_consultation" model="ir.actions.report">
+        <field name="name">Consulta</field>
+        <field name="model">emr.encounter.consultation</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr.report_encounter_consultation</field>
+        <field name="report_file">emr.report_encounter_consultation</field>
+        <field name="print_report_name">'Consulta - %s' % (object.partner_id.name or '')</field>
+        <field name="binding_model_id" ref="model_emr_encounter_consultation"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

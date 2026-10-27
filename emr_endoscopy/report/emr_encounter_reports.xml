@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Los informes de los estudios.
+
+         Son el papel que se lleva el paciente, así que a diferencia del
+         resumen del panel lateral no se arman recorriendo campos: un informe
+         de colonoscopía tiene un orden convencional —motivo, hallazgos por
+         segmento, conclusiones— y ese orden es parte de lo que se lee.
+
+         El encabezado, los diagnósticos y la firma los pone emr.
+         ================================================================ -->
+
+    <template id="report_encounter_study_context">
+        <div class="row mb-3">
+            <div class="col-6">
+                <div t-if="doc.referring_practitioner_id">
+                    <strong>Solicitado por</strong>
+                    <span t-out="doc.referring_practitioner_id.name"/>
+                </div>
+                <div t-if="doc.study_reason">
+                    <strong>Motivo</strong>
+                    <span t-out="doc.study_reason"/>
+                </div>
+            </div>
+            <div class="col-6">
+                <div t-if="doc.anesthetist_id">
+                    <strong>Anestesista</strong>
+                    <span t-out="doc.anesthetist_id.name"/>
+                </div>
+                <div t-if="doc.equipment">
+                    <strong>Equipo</strong>
+                    <span t-out="doc.equipment"/>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Un bloque con título, que se omite solo si no hay nada que decir. -->
+    <template id="report_encounter_block">
+        <div t-if="texto" class="mb-3">
+            <strong t-out="titulo"/>
+            <div t-out="texto"/>
+        </div>
+    </template>
+
+    <!-- ================================================================
+         Colonoscopía
+         ================================================================ -->
+    <template id="report_encounter_colonoscopy_body">
+        <t t-call="emr_endoscopy.report_encounter_study_context"/>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Inspección</t><t t-set="texto" t-value="doc.inspection"/>
+        </t>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Tacto rectal</t><t t-set="texto" t-value="doc.rectal_exam"/>
+        </t>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Anoscopía</t><t t-set="texto" t-value="doc.anoscopy"/>
+        </t>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Endoscopía</t><t t-set="texto" t-value="doc.endoscopy"/>
+        </t>
+        <div class="row mb-2">
+            <div class="col-6">
+                <div t-if="doc.ileal_intubation">
+                    <strong>Intubación ileal</strong>
+                    <span t-out="doc.ileal_intubation"/>
+                </div>
+                <div t-if="doc.procedures">
+                    <strong>Procedimientos</strong>
+                    <span t-out="doc.procedures"/>
+                </div>
+            </div>
+            <div class="col-6">
+                <div>
+                    <strong>Estudio</strong>
+                    <span t-if="doc.complete">completo</span>
+                    <span t-else="">incompleto</span>
+                </div>
+                <div>
+                    <strong>Muestra</strong>
+                    <span t-if="doc.sample_sent">enviada a patología</span>
+                    <span t-else="">no se envió</span>
+                </div>
+            </div>
+        </div>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Conclusiones</t><t t-set="texto" t-value="doc.conclusions"/>
+        </t>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Informe de anestesia</t>
+            <t t-set="texto" t-value="doc.anesthesia_report"/>
+        </t>
+    </template>
+
+    <template id="report_encounter_colonoscopy_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <t t-call="emr.report_encounter_header">
+                    <t t-set="titulo">Videocolonoscopía</t>
+                </t>
+                <t t-call="emr_endoscopy.report_encounter_study_context"/>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Inspección</t><t t-set="texto" t-value="doc.inspection"/>
+                </t>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Tacto rectal</t><t t-set="texto" t-value="doc.rectal_exam"/>
+                </t>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Anoscopía</t><t t-set="texto" t-value="doc.anoscopy"/>
+                </t>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Endoscopía</t><t t-set="texto" t-value="doc.endoscopy"/>
+                </t>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div t-if="doc.ileal_intubation">
+                            <strong>Intubación ileal</strong>
+                            <span t-out="doc.ileal_intubation"/>
+                        </div>
+                        <div t-if="doc.procedures">
+                            <strong>Procedimientos</strong>
+                            <span t-out="doc.procedures"/>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div>
+                            <strong>Estudio</strong>
+                            <span t-if="doc.complete">completo</span>
+                            <span t-else="">incompleto</span>
+                        </div>
+                        <div>
+                            <strong>Muestra</strong>
+                            <span t-if="doc.sample_sent">enviada a patología</span>
+                            <span t-else="">no se envió</span>
+                        </div>
+                    </div>
+                </div>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Conclusiones</t><t t-set="texto" t-value="doc.conclusions"/>
+                </t>
+                <t t-call="emr.report_encounter_footer"/>
+            </div>
+        </t>
+        <t t-if="doc.anesthesia_report" t-call="web.external_layout">
+            <div class="page">
+                <t t-call="emr.report_encounter_header">
+                    <t t-set="titulo">Informe de anestesia</t>
+                </t>
+                <div t-if="doc.anesthetist_id" class="mb-3">
+                    <strong>Anestesista</strong>
+                    <span t-out="doc.anesthetist_id.name"/>
+                </div>
+                <div t-out="doc.anesthesia_report"/>
+                <div class="row mt-5">
+                    <div class="col-5 offset-7 text-center">
+                        <div style="border-top: 1px solid #000; padding-top: 4px;">
+                            <span t-out="doc.anesthetist_id.name"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_encounter_colonoscopy">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr_endoscopy.report_encounter_colonoscopy_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_encounter_colonoscopy" model="ir.actions.report">
+        <field name="name">Videocolonoscopía</field>
+        <field name="model">emr.encounter.colonoscopy</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr_endoscopy.report_encounter_colonoscopy</field>
+        <field name="report_file">emr_endoscopy.report_encounter_colonoscopy</field>
+        <field name="print_report_name">'Colonoscopia - %s' % (object.partner_id.name or '')</field>
+        <field name="binding_model_id" ref="model_emr_encounter_colonoscopy"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- ================================================================
+         Endoscopía alta
+         ================================================================ -->
+    <template id="report_encounter_upper_endoscopy_body">
+        <t t-call="emr_endoscopy.report_encounter_study_context"/>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Esófago</t><t t-set="texto" t-value="doc.esophagus"/>
+        </t>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Estómago</t><t t-set="texto" t-value="doc.stomach"/>
+        </t>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Duodeno</t><t t-set="texto" t-value="doc.duodenum"/>
+        </t>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Conclusiones</t><t t-set="texto" t-value="doc.conclusions"/>
+        </t>
+        <t t-call="emr_endoscopy.report_encounter_block">
+            <t t-set="titulo">Informe de anestesia</t>
+            <t t-set="texto" t-value="doc.anesthesia_report"/>
+        </t>
+    </template>
+
+    <template id="report_encounter_banding_body">
+        <div t-if="doc.referring_practitioner_id" class="mb-2">
+            <strong>Solicitado por</strong>
+            <span t-out="doc.referring_practitioner_id.name"/>
+        </div>
+        <div t-if="doc.body" class="mb-2" t-out="doc.body"/>
+    </template>
+
+    <template id="report_encounter_upper_endoscopy_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <t t-call="emr.report_encounter_header">
+                    <t t-set="titulo">Videoendoscopía digestiva alta</t>
+                </t>
+                <t t-call="emr_endoscopy.report_encounter_study_context"/>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Esófago</t><t t-set="texto" t-value="doc.esophagus"/>
+                </t>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Estómago</t><t t-set="texto" t-value="doc.stomach"/>
+                </t>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Duodeno</t><t t-set="texto" t-value="doc.duodenum"/>
+                </t>
+                <t t-call="emr_endoscopy.report_encounter_block">
+                    <t t-set="titulo">Conclusiones</t><t t-set="texto" t-value="doc.conclusions"/>
+                </t>
+                <t t-call="emr.report_encounter_footer"/>
+            </div>
+        </t>
+        <t t-if="doc.anesthesia_report" t-call="web.external_layout">
+            <div class="page">
+                <t t-call="emr.report_encounter_header">
+                    <t t-set="titulo">Informe de anestesia</t>
+                </t>
+                <div t-if="doc.anesthetist_id" class="mb-3">
+                    <strong>Anestesista</strong>
+                    <span t-out="doc.anesthetist_id.name"/>
+                </div>
+                <div t-out="doc.anesthesia_report"/>
+                <div class="row mt-5">
+                    <div class="col-5 offset-7 text-center">
+                        <div style="border-top: 1px solid #000; padding-top: 4px;">
+                            <span t-out="doc.anesthetist_id.name"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_encounter_upper_endoscopy">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr_endoscopy.report_encounter_upper_endoscopy_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_encounter_upper_endoscopy" model="ir.actions.report">
+        <field name="name">Endoscopía alta</field>
+        <field name="model">emr.encounter.upper.endoscopy</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr_endoscopy.report_encounter_upper_endoscopy</field>
+        <field name="report_file">emr_endoscopy.report_encounter_upper_endoscopy</field>
+        <field name="print_report_name">'Endoscopia alta - %s' % (object.partner_id.name or '')</field>
+        <field name="binding_model_id" ref="model_emr_encounter_upper_endoscopy"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- ================================================================
+         Banding
+         ================================================================ -->
+    <template id="report_encounter_banding_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <t t-call="emr.report_encounter_header">
+                    <t t-set="titulo">Banding hemorroidal</t>
+                </t>
+                <div t-if="doc.referring_practitioner_id" class="mb-3">
+                    <strong>Solicitado por</strong>
+                    <span t-out="doc.referring_practitioner_id.name"/>
+                </div>
+                <div t-if="doc.body" class="mb-3" t-out="doc.body"/>
+                <t t-call="emr.report_encounter_footer"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_encounter_banding">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr_endoscopy.report_encounter_banding_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_encounter_banding" model="ir.actions.report">
+        <field name="name">Banding</field>
+        <field name="model">emr.encounter.banding</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr_endoscopy.report_encounter_banding</field>
+        <field name="report_file">emr_endoscopy.report_encounter_banding</field>
+        <field name="print_report_name">'Banding - %s' % (object.partner_id.name or '')</field>
+        <field name="binding_model_id" ref="model_emr_encounter_banding"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

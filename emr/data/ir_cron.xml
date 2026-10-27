@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cron_generate_slots" model="ir.cron">
+        <field name="name">EMR: mantener la agenda generada</field>
+        <field name="model_id" ref="model_emr_slot"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_generate_slots()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

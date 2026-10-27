@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Grupos
+
+         Odoo 19 reemplazó category_id por privilege_id sobre
+         res.groups.privilege. Se escribe así desde el principio.
+         ================================================================ -->
+    <record id="module_category_emr" model="ir.module.category">
+        <field name="name">Historia clínica</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="privilege_emr" model="res.groups.privilege">
+        <field name="name">Historia clínica</field>
+        <field name="category_id" ref="module_category_emr"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="group_emr_reception" model="res.groups">
+        <field name="name">Recepción</field>
+        <field name="privilege_id" ref="privilege_emr"/>
+        <field name="comment">Busca pacientes, agenda turnos y cobra.</field>
+    </record>
+
+    <record id="group_emr_practitioner" model="res.groups">
+        <field name="name">Profesional</field>
+        <field name="privilege_id" ref="privilege_emr"/>
+        <field name="implied_ids" eval="[(4, ref('group_emr_reception'))]"/>
+        <field name="comment">Atiende pacientes y firma historias clínicas.</field>
+    </record>
+
+    <record id="group_emr_manager" model="res.groups">
+        <field name="name">Administración</field>
+        <field name="privilege_id" ref="privilege_emr"/>
+        <field name="implied_ids" eval="[(4, ref('group_emr_practitioner'))]"/>
+        <field name="comment">Configura agendas, prácticas y unifica pacientes.</field>
+    </record>
+
+    <!-- Las listas de precios son parte del diseño, no una opción.
+
+         El arancel de cada turno sale de la lista de la obra social del
+         paciente. Sin esta funcionalidad activa, Odoo esconde el campo en la
+         orden: el precio se aplica igual, pero no se ve de dónde salió, y eso
+         en una clínica es justo lo que hay que poder mostrar.
+
+         Es la misma operación que hace el tilde en Ventas → Ajustes. -->
+    <!-- Las dos funcionalidades de Ventas que la clínica necesita sí o sí:
+         listas de precios, porque el arancel depende de la obra social, y
+         plantillas de venta, que son los tipos de turno. Sin ellas el precio
+         se aplica sin que se vea de dónde salió y el asistente de asignación
+         no tiene de dónde elegir.
+
+         Cuelgan de group_emr_reception y NO de base.group_user, que sería lo
+         obvio. base.group_user es un registro de `base` con noupdate=1: al
+         instalar se le puede escribir, al actualizar Odoo lo saltea. O sea
+         que un grupo agregado después nunca llega a las bases ya instaladas,
+         en silencio. Sobre un grupo propio del módulo no pasa, y además es
+         más preciso: lo necesita quien opera la clínica, no todo empleado. -->
+    <record id="group_emr_reception" model="res.groups">
+        <field name="implied_ids" eval="[
+            Command.link(ref('base.group_user')),
+            Command.link(ref('product.group_product_pricelist')),
+            Command.link(ref('sale_management.group_sale_order_template')),
+        ]"/>
+    </record>
+
+    <!-- Al instalar la aplicación, el administrador queda con acceso.
+
+         Sin esto el menú no aparece y las reglas le ocultan los pacientes, así
+         que la instalación se ve vacía. Es el patrón que usan las apps de
+         Odoo. -->
+    <record id="base.user_admin" model="res.users">
+        <field name="group_ids" eval="[(4, ref('group_emr_manager'))]"/>
+    </record>
+
+    <!-- ================================================================
+         Reglas de registro
+
+         Los pacientes viven en res.partner, que es visible para cualquier
+         usuario interno de Odoo. Sin esta regla, un empleado de
+         administración que entre a Contactos vería a todos los pacientes.
+
+         Va en el mismo archivo que los grupos y en el mismo commit que los
+         campos: es un requisito de datos de salud, no una mejora.
+         ================================================================ -->
+    <record id="rule_partner_patient_hidden" model="ir.rule">
+        <field name="name">Pacientes: ocultos al usuario interno común</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="domain_force">[('is_patient', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="rule_partner_patient_visible" model="ir.rule">
+        <field name="name">Pacientes: visibles al personal clínico</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_emr_reception'))]"/>
+    </record>
+
+    <!-- Historia clínica: el profesional ve las suyas; administración, todas.
+         Las reglas de un mismo grupo se unen, así que alcanza con dar la
+         propia y agregar la amplia al grupo que corresponde. -->
+    <record id="rule_encounter_own" model="ir.rule">
+        <field name="name">Historia clínica: las propias</field>
+        <field name="model_id" ref="model_emr_encounter"/>
+        <field name="domain_force">[('practitioner_id.user_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('group_emr_practitioner'))]"/>
+    </record>
+
+    <record id="rule_encounter_all" model="ir.rule">
+        <field name="name">Historia clínica: todas</field>
+        <field name="model_id" ref="model_emr_encounter"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_emr_manager'))]"/>
+    </record>
+
+    <!-- Multi-compañía -->
+    <record id="rule_slot_company" model="ir.rule">
+        <field name="name">Huecos: multi-compañía</field>
+        <field name="model_id" ref="model_emr_slot"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_encounter_company" model="ir.rule">
+        <field name="name">Historia clínica: multi-compañía</field>
+        <field name="model_id" ref="model_emr_encounter"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+</odoo>

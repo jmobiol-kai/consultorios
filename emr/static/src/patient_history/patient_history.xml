@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="emr.PatientHistory">
+        <div class="o-emr-PatientHistory d-flex flex-column">
+            <!-- El titulo era un rotulo que no hacia nada. En su lugar va la
+                 accion que se busca desde aca: llevarse la historia completa
+                 del paciente en un PDF. Que hay atenciones anteriores ya lo
+                 dice la lista, y cuantas lo dice el contador. -->
+            <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+                <button class="btn btn-sm btn-outline-primary"
+                        t-att-disabled="!state.partnerId or undefined"
+                        title="Descargar la historia clínica completa del paciente"
+                        t-on-click="() => this.printHistory()">
+                    <i class="fa fa-file-pdf-o me-1"/>Historia clínica
+                </button>
+                <span t-if="state.loaded" class="badge text-bg-light"
+                      t-esc="state.entries.length"/>
+            </div>
+
+            <div class="flex-grow-1 overflow-auto px-3">
+                <div t-if="!state.loaded" class="text-muted small py-3">
+                    Buscando…
+                </div>
+                <div t-elif="!state.entries.length" class="text-muted fst-italic py-3">
+                    Es la primera atención de este paciente.
+                </div>
+                <t t-else="">
+                    <div t-foreach="state.entries" t-as="entry" t-key="entry.id"
+                         class="o-emr-PatientHistory-entry py-2 border-bottom">
+                        <div t-out="entry.html"/>
+                        <div class="mt-1 d-flex gap-3">
+                            <button class="btn btn-link btn-sm p-0"
+                                    t-on-click="() => this.openEncounter(entry)">
+                                Abrir
+                            </button>
+                            <button class="btn btn-link btn-sm p-0"
+                                    title="Descargar el informe de esta atención"
+                                    t-on-click="() => this.printEncounter(entry)">
+                                <i class="fa fa-file-pdf-o me-1"/>PDF
+                            </button>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- El resumen usa el volcado genérico: muestra los campos cargados y
+         calla los vacíos, que en un cuestionario de tres rondas donde casi
+         siempre se hizo una sola es la mayoría. -->
+    <template id="encounter_summary_covid_screening">
+        <div class="border-bottom py-2">
+            <t t-call="emr.encounter_summary_header"/>
+            <t t-call="emr.encounter_summary_fields"/>
+        </div>
+    </template>
+
+</odoo>

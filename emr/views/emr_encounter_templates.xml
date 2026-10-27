@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Resúmenes de la historia del paciente.
+
+         Una plantilla por tipo de historia clínica. Es lo que se ve en el
+         panel de la derecha mientras se carga una atención nueva: qué le
+         pasó antes a este paciente, de lo más reciente a lo más viejo.
+
+         Cada tipo declara la suya en emr.encounter.type.summary_template. Un
+         tipo nuevo trae su plantilla y no toca las demás — que es la misma
+         razón por la que cada tipo es un modelo propio.
+         ================================================================ -->
+
+    <!-- El encabezado, común a todas: cuándo, quién y de qué tipo. -->
+    <template id="encounter_summary_header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <strong t-out="encounter.encounter_type_id.name"/>
+                <div class="text-muted small">
+                    <t t-out="encounter.practitioner_id.name"/>
+                </div>
+            </div>
+            <div class="text-end text-muted small text-nowrap">
+                <t t-out="encounter.date" t-options="{'widget': 'date'}"/>
+                <div t-if="encounter.state == 'signed'" class="text-success">
+                    <i class="fa fa-check"/> Firmada
+                </div>
+                <div t-elif="encounter.state == 'draft'" class="text-warning">
+                    En elaboración
+                </div>
+            </div>
+        </div>
+        <div t-if="encounter.diagnosis_ids" class="mt-1">
+            <span t-foreach="encounter.diagnosis_ids" t-as="d"
+                  class="badge text-bg-light me-1" t-out="d.name"/>
+        </div>
+    </template>
+
+    <!-- Todos los campos propios del tipo que tienen algo cargado.
+
+         La lista no se escribe acá: la arma _emr_summary_values recorriendo
+         el modelo. Un campo nuevo aparece solo, y ninguna plantilla se queda
+         vieja escondiendo un dato que alguien cargó. -->
+    <template id="encounter_summary_fields">
+        <div t-if="campos" class="small mt-1">
+            <t t-foreach="campos" t-as="campo">
+                <div t-if="campo['long']" class="mt-1">
+                    <span class="text-muted"><t t-out="campo['label']"/>:</span>
+                    <div t-out="campo['value']"/>
+                </div>
+                <div t-else="">
+                    <span class="text-muted"><t t-out="campo['label']"/>:</span>
+                    <t t-out="campo['value']"/>
+                </div>
+            </t>
+        </div>
+    </template>
+
+    <!-- Genérico: lo que se muestra cuando el tipo no declara plantilla. -->
+    <template id="encounter_summary_generic">
+        <div class="border-bottom py-2">
+            <t t-call="emr.encounter_summary_header"/>
+            <t t-call="emr.encounter_summary_fields"/>
+        </div>
+    </template>
+
+    <template id="encounter_summary_consultation">
+        <div class="border-bottom py-2">
+            <t t-call="emr.encounter_summary_header"/>
+            <t t-call="emr.encounter_summary_fields"/>
+        </div>
+    </template>
+
+</odoo>

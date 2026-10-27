@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         La historia clínica completa de un paciente.
+
+         Todas sus atenciones en un documento, de la más nueva a la más vieja,
+         y cada una dibujada con el cuerpo de su tipo: la misma plantilla que
+         usa el informe individual, llamada por nombre desde
+         emr.encounter.type.report_template.
+
+         Un tipo que no declare plantilla no queda en blanco: cae al volcado
+         genérico de campos, el mismo del panel lateral. En una historia
+         clínica, mostrar de menos es peor que mostrar de más.
+         ================================================================ -->
+    <template id="report_patient_history_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <div class="row mb-4">
+                    <div class="col-8">
+                        <h4 class="mt-0">Historia clínica</h4>
+                        <div><strong t-out="doc.name"/></div>
+                        <div class="text-muted">
+                            <span t-if="doc.vat">
+                                <span t-out="doc.l10n_latam_identification_type_id.name or 'Doc.'"/>
+                                <span t-out="doc.vat"/>
+                            </span>
+                            <span t-if="doc.birthdate_date">
+                                · Nac. <span t-out="doc.birthdate_date" t-options="{'widget': 'date'}"/>
+                            </span>
+                            <span t-if="doc.gender">
+                                · <span t-out="dict(doc._fields['gender']._description_selection(env)).get(doc.gender)"/>
+                            </span>
+                        </div>
+                        <div t-if="doc.insurer_id" class="text-muted">
+                            <span t-out="doc.insurer_id.name"/>
+                            <span t-if="doc.insurance_member_number">
+                                · Nº <span t-out="doc.insurance_member_number"/>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <t t-set="atenciones" t-value="historia.get(doc.id) or []"/>
+                        <div>
+                            <strong t-out="len(atenciones)"/>
+                            <span t-if="len(atenciones) == 1">atención</span>
+                            <span t-else="">atenciones</span>
+                        </div>
+                        <div t-if="atenciones" class="text-muted">
+                            desde
+                            <span t-out="atenciones[-1]['encuentro'].date" t-options="{'widget': 'date'}"/>
+                        </div>
+                        <div class="text-muted small">
+                            Emitida el <span t-out="context_timestamp(datetime.datetime.now())" t-options="{'widget': 'date'}"/>
+                        </div>
+                    </div>
+                </div>
+
+                <p t-if="not atenciones" class="text-muted">
+                    Este paciente no tiene atenciones cerradas.
+                </p>
+
+                <t t-foreach="atenciones" t-as="linea">
+                    <t t-set="enc" t-value="linea['encuentro']"/>
+                    <t t-set="doc" t-value="linea['detalle']"/>
+                    <div class="mt-3 pt-2" style="border-top: 1px solid #dee2e6;">
+                        <div class="row">
+                            <div class="col-8">
+                                <strong t-out="enc.encounter_type_id.name"/>
+                                <span class="text-muted">
+                                    · <span t-out="enc.practitioner_id.name"/>
+                                </span>
+                            </div>
+                            <div class="col-4 text-end text-muted">
+                                <span t-out="enc.date" t-options="{'widget': 'datetime'}"/>
+                                <span t-if="enc.state == 'signed'"> · firmada</span>
+                            </div>
+                        </div>
+
+                        <t t-if="doc and linea['plantilla']">
+                            <t t-call="{{linea['plantilla']}}"/>
+                        </t>
+                        <t t-elif="doc">
+                            <!-- Sin plantilla declarada: se vuelcan los campos
+                                 que tengan algo, igual que en el panel. -->
+                            <t t-set="campos" t-value="doc._emr_summary_values()"/>
+                            <div t-foreach="campos" t-as="campo">
+                                <span class="text-muted"><t t-out="campo['label']"/>:</span>
+                                <t t-out="campo['value']"/>
+                            </div>
+                        </t>
+
+                        <div t-if="enc.diagnosis_ids" class="mt-1">
+                            <span class="text-muted">Diagnósticos:</span>
+                            <span t-foreach="enc.diagnosis_ids" t-as="d">
+                                <span t-out="d.name"/><span t-if="not d_last">, </span>
+                            </span>
+                        </div>
+                        <div t-if="enc.addendum_ids" class="mt-1">
+                            <div t-foreach="enc.addendum_ids" t-as="a" class="small">
+                                <span class="text-muted">
+                                    Agregado <span t-out="a.date" t-options="{'widget': 'date'}"/>
+                                    · <span t-out="a.author_id.name"/>:
+                                </span>
+                                <span t-out="a.body"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_patient_history">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr.report_patient_history_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_patient_history" model="ir.actions.report">
+        <field name="name">Historia clínica completa</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr.report_patient_history</field>
+        <field name="report_file">emr.report_patient_history</field>
+        <field name="print_report_name">'Historia clinica - %s' % (object.name or '')</field>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_type">report</field>
+        <!-- Solo quien puede ver historias clínicas puede imprimirlas. -->
+        <field name="group_ids" eval="[Command.set([ref('group_emr_practitioner')])]"/>
+    </record>
+
+</odoo>

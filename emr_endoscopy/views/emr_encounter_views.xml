@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Los formularios de los estudios.
+
+         Heredan el formulario base de emr en modo primario: los botones de la
+         atención, la cabecera y el panel de historia se escriben una sola vez
+         allá y acá va solo lo propio de cada estudio.
+         ================================================================ -->
+    <record id="emr_encounter_colonoscopy_view_form" model="ir.ui.view">
+        <field name="name">emr.encounter.colonoscopy.form</field>
+        <field name="model">emr.encounter.colonoscopy</field>
+        <field name="inherit_id" ref="emr.emr_encounter_view_form_base"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <page name="attachments" position="before">
+                <page name="study" string="Estudio">
+                    <group>
+                        <group>
+                            <field name="referring_practitioner_id"/>
+                            <field name="study_reason"/>
+                        </group>
+                        <group>
+                            <field name="anesthetist_id"/>
+                            <field name="equipment"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="inspection"/>
+                        <field name="rectal_exam"/>
+                        <field name="anoscopy"/>
+                        <field name="endoscopy"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="ileal_intubation"/>
+                            <field name="procedures"/>
+                        </group>
+                        <group>
+                            <field name="complete"/>
+                            <field name="sample_sent"/>
+                        </group>
+                    </group>
+                    <field name="conclusions" placeholder="Conclusiones"/>
+                    <field name="diagnosis_ids" widget="many2many_tags"/>
+                </page>
+                <page name="anesthesia" string="Anestesia">
+                    <field name="anesthesia_report"/>
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <record id="emr_encounter_upper_endoscopy_view_form" model="ir.ui.view">
+        <field name="name">emr.encounter.upper.endoscopy.form</field>
+        <field name="model">emr.encounter.upper.endoscopy</field>
+        <field name="inherit_id" ref="emr.emr_encounter_view_form_base"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <page name="attachments" position="before">
+                <page name="study" string="Estudio">
+                    <group>
+                        <group>
+                            <field name="referring_practitioner_id"/>
+                            <field name="study_reason"/>
+                        </group>
+                        <group>
+                            <field name="anesthetist_id"/>
+                            <field name="equipment"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="esophagus"/>
+                        <field name="stomach"/>
+                        <field name="duodenum"/>
+                    </group>
+                    <field name="conclusions" placeholder="Conclusiones"/>
+                    <field name="diagnosis_ids" widget="many2many_tags"/>
+                </page>
+                <page name="anesthesia" string="Anestesia">
+                    <field name="anesthesia_report"/>
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <record id="emr_encounter_banding_view_form" model="ir.ui.view">
+        <field name="name">emr.encounter.banding.form</field>
+        <field name="model">emr.encounter.banding</field>
+        <field name="inherit_id" ref="emr.emr_encounter_view_form_base"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <page name="attachments" position="before">
+                <page name="procedure" string="Procedimiento">
+                    <group>
+                        <field name="referring_practitioner_id"/>
+                    </group>
+                    <field name="body" placeholder="Relato"/>
+                    <field name="diagnosis_ids" widget="many2many_tags"/>
+                </page>
+            </page>
+        </field>
+    </record>
+
+</odoo>

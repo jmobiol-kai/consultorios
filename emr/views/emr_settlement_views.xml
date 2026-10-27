@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="emr_settlement_view_form" model="ir.ui.view">
+        <field name="name">emr.settlement.form</field>
+        <field name="model">emr.settlement</field>
+        <field name="arch" type="xml">
+            <form string="Rendir a un profesional">
+                <field name="currency_id" invisible="1"/>
+                <field name="allowed_journal_ids" invisible="1"/>
+                <group>
+                    <group>
+                        <field name="practitioner_id" options="{'no_create': True}"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="journal_id"/>
+                        <field name="date"/>
+                        <field name="copay_percent"/>
+                    </group>
+                </group>
+
+                <separator string="Cobros a rendir"/>
+                <div class="text-muted small mb-2">
+                    Solo se rinde lo cobrado en efectivo: lo que entró por banco o
+                    tarjeta no está en la caja para entregarlo.
+                </div>
+                <field name="payment_ids" readonly="1">
+                    <list create="false" delete="false">
+                        <field name="date"/>
+                        <field name="memo"/>
+                        <field name="partner_id" string="Paciente"/>
+                        <field name="journal_id"/>
+                        <field name="amount" sum="Cobrado"/>
+                    </list>
+                </field>
+
+                <group class="oe_subtotal_footer">
+                    <field name="amount_collected" widget="monetary"/>
+                    <field name="amount_retained" widget="monetary"/>
+                    <field name="amount_to_settle" widget="monetary" class="oe_subtotal_footer_separator"/>
+                </group>
+
+                <div class="alert alert-info" role="alert" invisible="payment_count">
+                    No hay cobros en efectivo pendientes de rendir en ese período.
+                </div>
+
+                <footer>
+                    <button name="action_settle" type="object" string="Rendir"
+                            class="btn-primary" invisible="not payment_count"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_settlement_action" model="ir.actions.act_window">
+        <field name="name">Rendir a un profesional</field>
+        <field name="res_model">emr.settlement</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

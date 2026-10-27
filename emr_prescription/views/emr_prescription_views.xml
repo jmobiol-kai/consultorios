@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         El formulario de la receta.
+
+         No hereda el formulario base de la atención a propósito. Ese trae los
+         botones del acto clínico —Atendido, Espera, Ausente, Cambiar el
+         tipo— y ninguno significa nada en una receta. Los campos comunes
+         están igual, porque vienen por delegación.
+
+         Sí lleva el panel de historia del paciente: quien autoriza necesita
+         ver qué se le viene indicando.
+         ================================================================ -->
+    <record id="emr_prescription_view_form" model="ir.ui.view">
+        <field name="name">emr.prescription.form</field>
+        <field name="model">emr.prescription</field>
+        <field name="arch" type="xml">
+            <form string="Receta">
+                <header>
+                    <button name="action_authorize" type="object" string="Autorizar"
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="emr.group_emr_practitioner"
+                            help="Firma la receta a tu nombre y la deja lista para entregar"/>
+                    <button name="action_deliver" type="object" string="Entregar"
+                            class="btn-primary"
+                            invisible="state != 'signed' or delivered_date"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,signed"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert"
+                         invisible="state != 'draft'">
+                        Pedido tomado en el mostrador. Lo autoriza un profesional.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="requested_date" readonly="state != 'draft'"/>
+                            <field name="intake_uid"/>
+                        </group>
+                        <group>
+                            <field name="practitioner_id" readonly="1"
+                                   invisible="state == 'draft'"/>
+                            <field name="date" readonly="1"/>
+                            <field name="delivered_date" invisible="not delivered_date"/>
+                            <field name="delivered_by" invisible="not delivered_by"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="lines" string="Renglones">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="medication_id"
+                                           options="{'no_quick_create': True}"/>
+                                    <field name="unit_text"/>
+                                    <field name="indication"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="notes" string="Observaciones">
+                            <field name="notes" readonly="state != 'draft'"
+                                   placeholder="Lo que haya que aclarar del pedido"/>
+                        </page>
+                        <page name="attachments" string="Adjuntos">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <patient_history/>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_prescription_view_list" model="ir.ui.view">
+        <field name="name">emr.prescription.list</field>
+        <field name="model">emr.prescription</field>
+        <field name="arch" type="xml">
+            <list string="Recetas">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date"/>
+                <field name="requested_date" optional="show"/>
+                <field name="intake_uid" optional="hide"/>
+                <field name="practitioner_id" optional="show"/>
+                <field name="delivered_date" optional="hide"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_prescription_view_search" model="ir.ui.view">
+        <field name="name">emr.prescription.search</field>
+        <field name="model">emr.prescription</field>
+        <field name="arch" type="xml">
+            <search string="Recetas">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="practitioner_id"/>
+                <!-- Las tres cosas que alguien busca acá: lo que hay que
+                     autorizar, lo que hay que entregar, y lo terminado. -->
+                <filter name="to_authorize" string="A autorizar"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="to_deliver" string="A entregar"
+                        domain="[('state', '=', 'signed'), ('delivered_date', '=', False)]"/>
+                <filter name="delivered" string="Entregadas"
+                        domain="[('delivered_date', '!=', False)]"/>
+                <separator/>
+                <filter name="mine" string="Autorizadas por mí"
+                        domain="[('practitioner_id.user_ids', 'in', [uid])]"/>
+                <separator/>
+                <filter name="group_state" string="Estado"
+                        context="{'group_by': 'state'}"/>
+                <filter name="group_practitioner" string="Profesional"
+                        context="{'group_by': 'practitioner_id'}"/>
+                <filter name="group_month" string="Mes"
+                        context="{'group_by': 'date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_prescription_action" model="ir.actions.act_window">
+        <field name="name">Recetas</field>
+        <field name="res_model">emr.prescription</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_to_authorize': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Registrar un pedido de receta</p>
+            <p>El pedido se toma en el mostrador y lo autoriza un profesional.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_emr_prescriptions" name="Recetas"
+              parent="emr.menu_emr_turnos"
+              action="emr_prescription_action" sequence="30"/>
+
+</odoo>
