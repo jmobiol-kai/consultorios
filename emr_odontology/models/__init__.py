@@ -6,3 +6,4 @@
 from . import emr_odontogram
 from . import emr_encounter
 from . import res_partner
+from . import sale_order

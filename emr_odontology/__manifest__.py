@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.0.1",
+    "version": "19.0.1.1.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -32,6 +32,11 @@ La visita delega en `emr.encounter`, igual que la endoscopía. Lo que se
 anota en la visita —pieza, cara, condición y estado— se vuelca al
 odontograma. El historial queda en las atenciones; el odontograma es la
 boca como está ahora.
+
+Cada marca que es una práctica (condición distinta de sano/ausente, en
+estado "A tratar" o "Tratado") agrega una línea al turno de la atención,
+con el producto de servicio de su condición y una descripción como
+"Caries distal pieza 14 (A tratar)".
 
 La notación es FDI. Las piezas temporarias están en el mismo esquema y se
 muestran aparte en el mapa.
@@ -46,8 +51,10 @@ muestran aparte en el mapa.
         "views/emr_odontogram_views.xml",
         "views/emr_encounter_views.xml",
         "views/res_partner_views.xml",
+        "views/product_template_views.xml",
         "report/emr_encounter_reports.xml",
         "data/emr_odontology_data.xml",
+        "data/emr_odontology_sale_data.xml",
     ],
     "assets": {
         "web.assets_backend": [

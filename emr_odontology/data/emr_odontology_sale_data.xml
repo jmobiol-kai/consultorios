@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Un producto de servicio por condición del odontograma. La marca de la
+         visita agrega una línea al turno con el de su condición; la pieza y la
+         cara van en la descripción. Sin precio: se carga acá o en la lista de
+         precios de cada obra social. Se puede reemplazar por otro producto
+         poniéndole la misma "Condición del odontograma". -->
+    <record id="product_odontology_caries" model="product.product">
+        <field name="name">Tratamiento de caries</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">caries</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+    <record id="product_odontology_restoration" model="product.product">
+        <field name="name">Obturación</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">restoration</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+    <record id="product_odontology_crown" model="product.product">
+        <field name="name">Corona</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">crown</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+    <record id="product_odontology_endodontics" model="product.product">
+        <field name="name">Endodoncia</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">endodontics</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+    <record id="product_odontology_implant" model="product.product">
+        <field name="name">Implante</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">implant</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+    <record id="product_odontology_fracture" model="product.product">
+        <field name="name">Tratamiento de fractura</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">fracture</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+    <record id="product_odontology_extraction" model="product.product">
+        <field name="name">Extracción</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">extraction</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+    <record id="product_odontology_prosthesis" model="product.product">
+        <field name="name">Prótesis</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">prosthesis</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+    <record id="product_odontology_sealant" model="product.product">
+        <field name="name">Sellador</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="odontology_condition">sealant</field>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+</odoo>
