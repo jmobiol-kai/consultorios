@@ -5,13 +5,17 @@ import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
 /**
- * Mapa FDI. La notación es la de PERMANENT_QUADRANTS y DECIDUOUS_QUADRANTS
- * en emr_odontogram.py: derecha del paciente a la izquierda de la pantalla.
+ * Mapa FDI. Cada pieza es un círculo de cinco zonas: oclusal al centro y
+ * las cuatro caras alrededor. Mesial mira a la línea media; vestibular
+ * mira afuera de la arcada (arriba en el maxilar, abajo en la mandíbula).
+ *
+ * Un clic en una zona marca esa cara de esa pieza. Los botones siguen
+ * eligiendo la cara —incluida la pieza entera, que no es una zona del
+ * dibujo— y el número FDI de abajo la aplica.
  *
  * El clic recorre un atajo (caries, obturación, ausente, sano, sin marca).
- * Corona, implante y el resto se cargan en la lista. Cada clic deja el
- * formulario modificado: se escribe al guardar, que es cuando la visita
- * actualiza el odontograma.
+ * Corona, implante y el resto se cargan en la lista. Se escribe al guardar,
+ * que es cuando la visita actualiza el odontograma.
  */
 
 const PERMANENT = {
@@ -36,6 +40,8 @@ const SURFACES = [
     ["buccal", "Vestibular"],
     ["lingual", "Palatino"],
 ];
+
+const SURFACE_LABELS = Object.fromEntries(SURFACES);
 
 const CYCLE = [
     { condition: "caries", status: "pending" },
@@ -71,6 +77,35 @@ const LEGEND = Object.keys(CONDITION_LABELS).map((condition) => ({
     label: CONDITION_LABELS[condition],
 }));
 
+// Círculo en viewBox 0 0 100 100. 0° es la derecha y crece en sentido
+// horario, que es el sentido del arco SVG con y hacia abajo.
+function polar(radius, deg) {
+    const rad = (deg * Math.PI) / 180;
+    return [50 + radius * Math.cos(rad), 50 + radius * Math.sin(rad)];
+}
+
+function slice(a0, a1) {
+    const fmt = (n) => n.toFixed(2);
+    const [x0, y0] = polar(46, a0);
+    const [x1, y1] = polar(46, a1);
+    const [xi1, yi1] = polar(20, a1);
+    const [xi0, yi0] = polar(20, a0);
+    return [
+        `M ${fmt(x0)} ${fmt(y0)}`,
+        `A 46 46 0 0 1 ${fmt(x1)} ${fmt(y1)}`,
+        `L ${fmt(xi1)} ${fmt(yi1)}`,
+        `A 20 20 0 0 0 ${fmt(xi0)} ${fmt(yi0)}`,
+        "Z",
+    ].join(" ");
+}
+
+const SLICES = {
+    top: slice(225, 315),
+    right: slice(315, 405),
+    bottom: slice(45, 135),
+    left: slice(135, 225),
+};
+
 export class OdontogramChartField extends Component {
     static template = "emr_odontology.OdontogramChart";
     static props = { ...standardFieldProps };
@@ -85,26 +120,46 @@ export class OdontogramChartField extends Component {
         return this.state.deciduous ? DECIDUOUS : PERMANENT;
     }
 
+    get quadrantLabels() {
+        // Izquierda de la pantalla es la derecha del paciente.
+        return this.state.deciduous
+            ? { upperLeft: "5", upperRight: "6", lowerLeft: "8", lowerRight: "7" }
+            : { upperLeft: "1", upperRight: "2", lowerLeft: "4", lowerRight: "3" };
+    }
+
     get jaws() {
         const arches = this.arches;
+        const labels = this.quadrantLabels;
         return [
             {
                 key: "upper",
                 lower: false,
-                right: arches.upperRight,
-                left: arches.upperLeft,
+                labelRight: labels.upperLeft,
+                labelLeft: labels.upperRight,
+                sides: [
+                    { key: "right", teeth: arches.upperRight },
+                    { key: "left", teeth: arches.upperLeft },
+                ],
             },
             {
                 key: "lower",
                 lower: true,
-                right: arches.lowerRight,
-                left: arches.lowerLeft,
+                labelRight: labels.lowerLeft,
+                labelLeft: labels.lowerRight,
+                sides: [
+                    { key: "right", teeth: arches.lowerRight },
+                    { key: "left", teeth: arches.lowerLeft },
+                ],
             },
         ];
     }
 
     get lines() {
         return this.props.record.data[this.props.name];
+    }
+
+    positionOf(fdi) {
+        return fdi.slice(1);
     }
 
     mark(fdi, surface) {
@@ -118,47 +173,53 @@ export class OdontogramChartField extends Component {
         );
     }
 
-    conditionOf(fdi) {
-        const rec = this.mark(fdi, this.state.surface);
+    conditionOfSurface(fdi, surface) {
+        const rec = this.mark(fdi, surface);
         return (rec && rec.data.condition) || "";
     }
 
-    hasOtherMark(fdi) {
-        const list = this.lines;
-        if (!list || !list.records) {
-            return false;
-        }
-        return list.records.some(
-            (rec) =>
-                rec.data.fdi === fdi &&
-                rec.data.surface &&
-                rec.data.surface !== this.state.surface &&
-                rec.data.condition
-        );
-    }
-
-    toothClass(fdi, lower) {
-        const classes = [
-            "o_emr_odontogram_tooth",
-            "o_emr_odontogram_cond_" + (this.conditionOf(fdi) || "empty"),
+    /**
+     * Mesial hacia la línea media. Vestibular hacia afuera de la boca:
+     * arriba en el maxilar, abajo en la mandíbula.
+     */
+    facesFor(fdi, lower) {
+        const mesialRight = ["1", "4", "5", "8"].includes(fdi[0]);
+        return [
+            { surface: lower ? "lingual" : "buccal", d: SLICES.top },
+            { surface: mesialRight ? "mesial" : "distal", d: SLICES.right },
+            { surface: lower ? "buccal" : "lingual", d: SLICES.bottom },
+            { surface: mesialRight ? "distal" : "mesial", d: SLICES.left },
         ];
-        if (lower) {
-            classes.push("o_emr_odontogram_tooth_lower");
-        }
-        if (this.hasOtherMark(fdi)) {
-            classes.push("o_emr_odontogram_tooth_more");
-        }
-        return classes.join(" ");
     }
 
-    titleOf(fdi) {
-        const rec = this.mark(fdi, this.state.surface);
+    regionClass(fdi, surface) {
+        const cond = this.conditionOfSurface(fdi, surface) || "empty";
+        const active = this.state.surface === surface ? " o_emr_odontogram_region_active" : "";
+        return `o_emr_odontogram_region o_emr_odontogram_cond_${cond}${active}`;
+    }
+
+    piezaClass(fdi) {
+        const cond = this.conditionOfSurface(fdi, "tooth") || "empty";
+        const active = this.state.surface === "tooth" ? " o_emr_odontogram_region_active" : "";
+        return `o_emr_odontogram_pieza o_emr_odontogram_cond_${cond}${active}`;
+    }
+
+    fdiClass(fdi) {
+        const missing = this.conditionOfSurface(fdi, "tooth") === "missing";
+        const active = this.state.surface === "tooth" ? " o_emr_odontogram_fdi_active" : "";
+        const gone = missing ? " o_emr_odontogram_fdi_missing" : "";
+        return `o_emr_odontogram_fdi${active}${gone}`;
+    }
+
+    regionTitle(fdi, surface) {
+        const face = SURFACE_LABELS[surface] || surface;
+        const rec = this.mark(fdi, surface);
         if (!rec || !rec.data.condition) {
-            return fdi;
+            return `${fdi} · ${face}`;
         }
         const cond = CONDITION_LABELS[rec.data.condition] || rec.data.condition;
         const status = STATUS_LABELS[rec.data.status] || rec.data.status || "";
-        return status ? `${fdi}: ${cond} (${status})` : `${fdi}: ${cond}`;
+        return status ? `${fdi} · ${face}: ${cond} (${status})` : `${fdi} · ${face}: ${cond}`;
     }
 
     setSurface(surface) {
@@ -169,11 +230,24 @@ export class OdontogramChartField extends Component {
         this.state.deciduous = !this.state.deciduous;
     }
 
+    async onRegion(fdi, surface, ev) {
+        if (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
+        this.state.surface = surface;
+        await this.applyMark(fdi, surface);
+    }
+
     async onTooth(fdi, ev) {
         if (ev) {
             ev.preventDefault();
             ev.stopPropagation();
         }
+        await this.applyMark(fdi, this.state.surface);
+    }
+
+    async applyMark(fdi, surface) {
         if (this.props.readonly) {
             return;
         }
@@ -181,7 +255,6 @@ export class OdontogramChartField extends Component {
         if (!list) {
             return;
         }
-        const surface = this.state.surface;
         const existing = this.mark(fdi, surface);
         const index = existing
             ? CYCLE.findIndex((step) => step.condition === existing.data.condition)
