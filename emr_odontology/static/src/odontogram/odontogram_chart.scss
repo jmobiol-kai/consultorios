@@ -1,0 +1,109 @@
+.o_emr_odontogram {
+    margin-bottom: 1rem;
+
+    .o_emr_odontogram_toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .o_emr_odontogram_sides {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        max-width: 42rem;
+        margin: 0 auto 0.25rem;
+    }
+
+    .o_emr_odontogram_jaw {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        gap: 0.35rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .o_emr_odontogram_quadrant {
+        display: flex;
+        gap: 0.2rem;
+    }
+
+    .o_emr_odontogram_midline {
+        width: 2px;
+        background: #90a4ae;
+        margin: 0 0.15rem;
+    }
+
+    .o_emr_odontogram_tooth {
+        width: 2rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 1px solid #78909c;
+        border-radius: 0.4rem 0.4rem 0.55rem 0.55rem;
+        background: #fff;
+        color: #263238;
+        font-size: 0.65rem;
+        line-height: 1;
+    }
+
+    .o_emr_odontogram_tooth_lower {
+        border-radius: 0.55rem 0.55rem 0.4rem 0.4rem;
+    }
+
+    .o_emr_odontogram_tooth:hover:not(:disabled) {
+        border-color: #1565c0;
+    }
+
+    .o_emr_odontogram_tooth:disabled {
+        cursor: default;
+    }
+
+    .o_emr_odontogram_tooth_more {
+        box-shadow: inset 0 0 0 2px #455a64;
+    }
+
+    .o_emr_odontogram_cond_empty { background: #fff; }
+    .o_emr_odontogram_cond_sound { background: #c8e6c9; }
+    .o_emr_odontogram_cond_caries { background: #ef9a9a; }
+    .o_emr_odontogram_cond_restoration { background: #90caf9; }
+    .o_emr_odontogram_cond_crown { background: #fff59d; }
+    .o_emr_odontogram_cond_endodontics { background: #ffcc80; }
+    .o_emr_odontogram_cond_implant { background: #ce93d8; }
+    .o_emr_odontogram_cond_fracture { background: #ffab91; }
+    .o_emr_odontogram_cond_extraction { background: #f48fb1; }
+    .o_emr_odontogram_cond_missing {
+        background: #cfd8dc;
+        color: #607d8b;
+        text-decoration: line-through;
+    }
+    .o_emr_odontogram_cond_prosthesis { background: #b39ddb; }
+    .o_emr_odontogram_cond_sealant { background: #80cbc4; }
+
+    .o_emr_odontogram_help {
+        font-size: 0.75rem;
+        margin: 0.35rem 0;
+    }
+
+    .o_emr_odontogram_legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    .o_emr_odontogram_legend_item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .o_emr_odontogram_swatch {
+        width: 0.75rem;
+        height: 0.75rem;
+        border: 1px solid #78909c;
+        border-radius: 2px;
+        display: inline-block;
+    }
+}

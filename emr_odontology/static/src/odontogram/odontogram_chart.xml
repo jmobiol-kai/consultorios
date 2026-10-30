@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="emr_odontology.OdontogramChart">
+        <div class="o_emr_odontogram">
+            <div class="o_emr_odontogram_toolbar">
+                <div class="btn-group" role="group" aria-label="Cara">
+                    <t t-foreach="surfaces" t-as="surf" t-key="surf[0]">
+                        <button type="button"
+                                t-att-class="state.surface === surf[0] ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-secondary'"
+                                t-on-click="() => this.setSurface(surf[0])"
+                                t-esc="surf[1]"/>
+                    </t>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        t-on-click="() => this.toggleDeciduous()">
+                    <t t-if="state.deciduous">Ver permanentes</t>
+                    <t t-else="">Ver temporarias</t>
+                </button>
+            </div>
+            <div class="o_emr_odontogram_sides text-muted">
+                <span>Derecha</span>
+                <span>Izquierda</span>
+            </div>
+            <t t-foreach="jaws" t-as="jaw" t-key="jaw.key">
+                <div class="o_emr_odontogram_jaw">
+                    <div class="o_emr_odontogram_quadrant">
+                        <t t-foreach="jaw.right" t-as="fdi" t-key="fdi">
+                            <button type="button"
+                                    t-att-class="toothClass(fdi, jaw.lower)"
+                                    t-att-title="titleOf(fdi)"
+                                    t-att-disabled="props.readonly or undefined"
+                                    t-on-click="(ev) => this.onTooth(fdi, ev)"
+                                    t-esc="fdi"/>
+                        </t>
+                    </div>
+                    <div class="o_emr_odontogram_midline" aria-hidden="true"/>
+                    <div class="o_emr_odontogram_quadrant">
+                        <t t-foreach="jaw.left" t-as="fdi" t-key="fdi">
+                            <button type="button"
+                                    t-att-class="toothClass(fdi, jaw.lower)"
+                                    t-att-title="titleOf(fdi)"
+                                    t-att-disabled="props.readonly or undefined"
+                                    t-on-click="(ev) => this.onTooth(fdi, ev)"
+                                    t-esc="fdi"/>
+                        </t>
+                    </div>
+                </div>
+            </t>
+            <p class="o_emr_odontogram_help text-muted">
+                Clic en la cara elegida: caries, obturación, ausente, sano, y
+                otra vez queda sin marca. El resto de las condiciones y las
+                notas se cargan en la lista. Hay que guardar el formulario.
+            </p>
+            <div class="o_emr_odontogram_legend">
+                <t t-foreach="legend" t-as="item" t-key="item.condition">
+                    <span class="o_emr_odontogram_legend_item">
+                        <i t-attf-class="o_emr_odontogram_swatch o_emr_odontogram_cond_{{ item.condition }}"/>
+                        <t t-esc="item.label"/>
+                    </span>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

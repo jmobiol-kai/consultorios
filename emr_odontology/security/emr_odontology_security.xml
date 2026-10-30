@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Privacidad
+
+         La visita sigue la misma regla que emr.encounter: el profesional ve
+         las suyas, administración ve todas, y la compañía recorta. Las
+         reglas de grupos distintos se combinan en OR, así que quien es
+         administración —que también es profesional— ve todo.
+
+         El odontograma no se recorta al profesional de la última visita. Es
+         el estado actual de la boca y lo necesita quien atiende después.
+         Lo que lo saca del padrón común es el acceso: solo el personal
+         clínico lee el modelo, igual que al paciente. Una regla global
+         deja afuera un contacto que no sea paciente, por si el rol se
+         desmarca después.
+         ================================================================ -->
+
+    <record id="rule_odontogram_patient" model="ir.rule">
+        <field name="name">Odontograma: solo pacientes</field>
+        <field name="model_id" ref="model_emr_odontogram"/>
+        <field name="domain_force">[('partner_id.is_patient', '=', True)]</field>
+    </record>
+
+    <record id="rule_odontogram_tooth_patient" model="ir.rule">
+        <field name="name">Pieza de odontograma: solo pacientes</field>
+        <field name="model_id" ref="model_emr_odontogram_tooth"/>
+        <field name="domain_force">[('odontogram_id.partner_id.is_patient', '=', True)]</field>
+    </record>
+
+    <record id="rule_encounter_odontology_own" model="ir.rule">
+        <field name="name">Consulta odontológica: las propias</field>
+        <field name="model_id" ref="model_emr_encounter_odontology"/>
+        <field name="domain_force">[('encounter_id.practitioner_id.user_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('emr.group_emr_practitioner'))]"/>
+    </record>
+
+    <record id="rule_encounter_odontology_all" model="ir.rule">
+        <field name="name">Consulta odontológica: todas</field>
+        <field name="model_id" ref="model_emr_encounter_odontology"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('emr.group_emr_manager'))]"/>
+    </record>
+
+    <record id="rule_encounter_odontology_company" model="ir.rule">
+        <field name="name">Consulta odontológica: multi-compañía</field>
+        <field name="model_id" ref="model_emr_encounter_odontology"/>
+        <field name="domain_force">['|', ('encounter_id.company_id', '=', False), ('encounter_id.company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_encounter_odontology_line_own" model="ir.rule">
+        <field name="name">Tratamiento odontológico: los propios</field>
+        <field name="model_id" ref="model_emr_encounter_odontology_line"/>
+        <field name="domain_force">[('odontology_id.encounter_id.practitioner_id.user_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('emr.group_emr_practitioner'))]"/>
+    </record>
+
+    <record id="rule_encounter_odontology_line_all" model="ir.rule">
+        <field name="name">Tratamiento odontológico: todos</field>
+        <field name="model_id" ref="model_emr_encounter_odontology_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('emr.group_emr_manager'))]"/>
+    </record>
+
+    <record id="rule_encounter_odontology_line_company" model="ir.rule">
+        <field name="name">Tratamiento odontológico: multi-compañía</field>
+        <field name="model_id" ref="model_emr_encounter_odontology_line"/>
+        <field name="domain_force">['|', ('odontology_id.encounter_id.company_id', '=', False), ('odontology_id.encounter_id.company_id', 'in', company_ids)]</field>
+    </record>
+
+</odoo>

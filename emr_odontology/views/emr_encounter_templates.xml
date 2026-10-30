@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- El resumen del panel de historia. El encabezado lo pone emr; los
+         campos propios —motivo, evolución y los tratamientos— los vuelca
+         el modelo, así que una columna nueva no obliga a tocar esto. -->
+    <template id="encounter_summary_odontology">
+        <div class="border-bottom py-2">
+            <t t-call="emr.encounter_summary_header"/>
+            <t t-call="emr.encounter_summary_fields"/>
+        </div>
+    </template>
+
+</odoo>
