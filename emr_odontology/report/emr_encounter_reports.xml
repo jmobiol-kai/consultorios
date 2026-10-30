@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- El cuerpo clínico, sin membrete: lo usan el informe de la visita y
+         la historia completa del paciente. El encabezado y la firma los
+         pone emr. -->
+    <template id="report_encounter_odontology_body">
+        <div t-if="doc.reason" class="mb-2">
+            <strong>Motivo de consulta</strong>
+            <div t-out="doc.reason"/>
+        </div>
+        <div t-if="doc.notes" class="mb-2">
+            <strong>Evolución</strong>
+            <div t-out="doc.notes"/>
+        </div>
+        <div t-if="doc.line_ids" class="mb-2">
+            <strong>Piezas</strong>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Pieza</th>
+                        <th>Cara</th>
+                        <th>Condición</th>
+                        <th>Estado</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="doc.line_ids" t-as="line">
+                        <td><span t-out="line.fdi"/></td>
+                        <td><span t-out="line.selection_label('surface')"/></td>
+                        <td><span t-out="line.selection_label('condition')"/></td>
+                        <td><span t-out="line.selection_label('status')"/></td>
+                        <td><span t-out="line.notes"/></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <template id="report_encounter_odontology_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <t t-call="emr.report_encounter_header">
+                    <t t-set="titulo">Consulta odontológica</t>
+                </t>
+                <t t-call="emr_odontology.report_encounter_odontology_body"/>
+                <t t-call="emr.report_encounter_footer"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_encounter_odontology">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr_odontology.report_encounter_odontology_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_encounter_odontology" model="ir.actions.report">
+        <field name="name">Consulta odontológica</field>
+        <field name="model">emr.encounter.odontology</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr_odontology.report_encounter_odontology</field>
+        <field name="report_file">emr_odontology.report_encounter_odontology</field>
+        <field name="print_report_name">'Odontologia - %s' % (object.partner_id.name or '')</field>
+        <field name="binding_model_id" ref="model_emr_encounter_odontology"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

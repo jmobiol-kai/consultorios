@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_odontogram_view_form" model="ir.ui.view">
+        <field name="name">emr.odontogram.form</field>
+        <field name="model">emr.odontogram</field>
+        <field name="arch" type="xml">
+            <form string="Odontograma">
+                <sheet>
+                    <div class="alert alert-info" role="alert">
+                        Estado actual de la boca, uno por paciente. Las consultas
+                        lo actualizan al guardarse; también se puede corregir
+                        acá. El historial queda en las atenciones, no en este
+                        mapa.
+                    </div>
+                    <group>
+                        <field name="partner_id" readonly="id"/>
+                    </group>
+                    <field name="tooth_ids" widget="odontogram_chart" mode="list" nolabel="1">
+                        <list limit="1000">
+                            <field name="fdi"/>
+                            <field name="surface"/>
+                            <field name="condition"/>
+                            <field name="status"/>
+                            <field name="notes"/>
+                            <field name="last_encounter_id"/>
+                        </list>
+                    </field>
+                    <field name="tooth_ids" nolabel="1">
+                        <list editable="bottom" limit="1000">
+                            <field name="fdi"/>
+                            <field name="surface"/>
+                            <field name="condition"/>
+                            <field name="status"/>
+                            <field name="notes"/>
+                            <field name="last_encounter_id" optional="hide"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_view_list" model="ir.ui.view">
+        <field name="name">emr.odontogram.list</field>
+        <field name="model">emr.odontogram</field>
+        <field name="arch" type="xml">
+            <list string="Odontogramas">
+                <field name="partner_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_view_search" model="ir.ui.view">
+        <field name="name">emr.odontogram.search</field>
+        <field name="model">emr.odontogram</field>
+        <field name="arch" type="xml">
+            <search string="Odontogramas">
+                <field name="partner_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_action" model="ir.actions.act_window">
+        <field name="name">Odontogramas</field>
+        <field name="res_model">emr.odontogram</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Abrir el odontograma de un paciente</p>
+            <p>
+                Hay uno por paciente. También se abre desde la ficha, y se
+                actualiza solo cuando se guarda una consulta odontológica.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_emr_odontogram" name="Odontogramas"
+              parent="emr.menu_emr_atencion"
+              action="emr_odontogram_action" sequence="23"
+              groups="emr.group_emr_practitioner"/>
+
+    <!-- El mismo listado, para quien administra. No es un catálogo: el
+         estado de la boca se carga en Atención. Está acá para encontrarlo
+         sin pasar por la ficha del paciente. -->
+    <menuitem id="menu_emr_odontogram_config" name="Odontogramas"
+              parent="emr.menu_emr_config_section"
+              action="emr_odontogram_action" sequence="44"
+              groups="emr.group_emr_manager"/>
+
+</odoo>

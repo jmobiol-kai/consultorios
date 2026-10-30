@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_emr_odontogram_practitioner,odontogram practitioner,model_emr_odontogram,emr.group_emr_practitioner,1,1,1,0
+access_emr_odontogram_manager,odontogram manager,model_emr_odontogram,emr.group_emr_manager,1,1,1,1
+access_emr_odontogram_tooth_practitioner,odontogram tooth practitioner,model_emr_odontogram_tooth,emr.group_emr_practitioner,1,1,1,1
+access_emr_odontogram_tooth_manager,odontogram tooth manager,model_emr_odontogram_tooth,emr.group_emr_manager,1,1,1,1
+access_emr_encounter_odontology_practitioner,odontology practitioner,model_emr_encounter_odontology,emr.group_emr_practitioner,1,1,1,0
+access_emr_encounter_odontology_manager,odontology manager,model_emr_encounter_odontology,emr.group_emr_manager,1,1,1,1
+access_emr_encounter_odontology_line_practitioner,odontology line practitioner,model_emr_encounter_odontology_line,emr.group_emr_practitioner,1,1,1,1
+access_emr_encounter_odontology_line_manager,odontology line manager,model_emr_encounter_odontology_line,emr.group_emr_manager,1,1,1,1

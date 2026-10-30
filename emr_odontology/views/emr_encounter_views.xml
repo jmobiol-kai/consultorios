@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- El formulario hereda el de la atención en modo primario: los botones,
+         la cabecera y el panel de historia se escriben una sola vez en emr. -->
+    <record id="emr_encounter_odontology_view_form" model="ir.ui.view">
+        <field name="name">emr.encounter.odontology.form</field>
+        <field name="model">emr.encounter.odontology</field>
+        <field name="inherit_id" ref="emr.emr_encounter_view_form_base"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <page name="attachments" position="before">
+                <page name="odontology" string="Odontología">
+                    <div class="alert alert-info" role="alert">
+                        Lo que se anota en las piezas actualiza el odontograma
+                        del paciente al guardar o al cerrar la consulta. Esta
+                        atención queda como el registro de la visita.
+                    </div>
+                    <group>
+                        <field name="reason" placeholder="Motivo de consulta"/>
+                        <field name="notes" placeholder="Evolución"/>
+                    </group>
+                    <field name="line_ids" widget="odontogram_chart" mode="list"
+                           nolabel="1" readonly="state == 'signed'">
+                        <list limit="1000">
+                            <field name="fdi"/>
+                            <field name="surface"/>
+                            <field name="condition"/>
+                            <field name="status"/>
+                            <field name="notes"/>
+                            <field name="sequence" column_invisible="1"/>
+                        </list>
+                    </field>
+                    <field name="line_ids" readonly="state == 'signed'" nolabel="1">
+                        <list editable="bottom" limit="1000">
+                            <field name="sequence" widget="handle"/>
+                            <field name="fdi"/>
+                            <field name="surface"/>
+                            <field name="condition"/>
+                            <field name="status"/>
+                            <field name="notes"/>
+                        </list>
+                    </field>
+                    <field name="diagnosis_ids" widget="many2many_tags"/>
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <record id="emr_encounter_odontology_view_list" model="ir.ui.view">
+        <field name="name">emr.encounter.odontology.list</field>
+        <field name="model">emr.encounter.odontology</field>
+        <field name="arch" type="xml">
+            <list string="Consultas odontológicas" create="false">
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="practitioner_id"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state == 'closed'"
+                       decoration-success="state == 'signed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_encounter_odontology_view_search" model="ir.ui.view">
+        <field name="name">emr.encounter.odontology.search</field>
+        <field name="model">emr.encounter.odontology</field>
+        <field name="arch" type="xml">
+            <search string="Consultas odontológicas">
+                <field name="partner_id"/>
+                <field name="practitioner_id"/>
+                <filter name="mine" string="Las mías"
+                        domain="[('practitioner_id.user_ids', 'in', [uid])]"/>
+                <separator/>
+                <filter name="draft" string="En elaboración"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="closed" string="Cerradas"
+                        domain="[('state', '=', 'closed')]"/>
+                <filter name="signed" string="Firmadas"
+                        domain="[('state', '=', 'signed')]"/>
+                <separator/>
+                <filter name="group_practitioner" string="Profesional"
+                        context="{'group_by': 'practitioner_id'}"/>
+                <filter name="group_month" string="Mes"
+                        context="{'group_by': 'date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_encounter_odontology_action" model="ir.actions.act_window">
+        <field name="name">Odontología</field>
+        <field name="res_model">emr.encounter.odontology</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Todavía no hay consultas odontológicas</p>
+            <p>
+                Se crean al atender un turno de consulta odontológica. El
+                odontograma del paciente se actualiza con lo que se anota acá.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_emr_odontology" name="Odontología"
+              parent="emr.menu_emr_atencion"
+              action="emr_encounter_odontology_action" sequence="22"
+              groups="emr.group_emr_practitioner"/>
+
+</odoo>

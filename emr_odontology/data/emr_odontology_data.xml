@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- La secuencia queda detrás de la receta (50) y antes del triage
+         histórico (90). -->
+    <record id="encounter_type_odontology" model="emr.encounter.type">
+        <field name="name">Odontología</field>
+        <field name="model_name">emr.encounter.odontology</field>
+        <field name="summary_template">emr_odontology.encounter_summary_odontology</field>
+        <field name="report_template">emr_odontology.report_encounter_odontology_body</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="specialty_odontology" model="emr.specialty">
+        <field name="name">Odontología</field>
+        <field name="code">ODO</field>
+    </record>
+
+    <record id="product_consulta_odontologica" model="product.product">
+        <field name="name">Consulta odontológica</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="encounter_type_id" ref="encounter_type_odontology"/>
+        <field name="purchase_ok" eval="False"/>
+    </record>
+
+    <!-- Sin compañía: el tipo de turno lo usan todas las compañías de la
+         clínica. Con compañía, el turno de un profesional que factura por
+         su cuenta no puede aplicar la plantilla. -->
+    <record id="sale_order_template_consulta_odontologica" model="sale.order.template">
+        <field name="company_id" eval="False"/>
+        <field name="name">Consulta odontológica</field>
+        <field name="is_appointment" eval="True"/>
+        <field name="sequence">6</field>
+    </record>
+    <record id="sale_order_template_consulta_odontologica_line" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="sale_order_template_consulta_odontologica"/>
+        <field name="product_id" ref="product_consulta_odontologica"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+</odoo>
