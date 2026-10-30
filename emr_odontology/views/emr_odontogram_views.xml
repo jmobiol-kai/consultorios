@@ -6,12 +6,20 @@
         <field name="model">emr.odontogram</field>
         <field name="arch" type="xml">
             <form string="Odontograma">
+                <header>
+                    <button name="action_odontology_walkin" type="object"
+                            string="Atender ahora" class="btn-primary"
+                            invisible="not id"
+                            help="Crea el turno y abre una consulta odontológica para este paciente. Lo que marques ahí como práctica pasa solo al presupuesto."/>
+                </header>
                 <sheet>
                     <div class="alert alert-info" role="alert">
                         Estado actual de la boca, uno por paciente. Las consultas
                         lo actualizan al guardarse; también se puede corregir
                         acá. El historial queda en las atenciones, no en este
-                        mapa.
+                        mapa. Lo que se corrige acá no se cobra: para registrar
+                        una práctica y que pase al presupuesto, usá
+                        <strong>Atender ahora</strong>.
                     </div>
                     <group>
                         <field name="partner_id" readonly="id"/>

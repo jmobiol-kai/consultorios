@@ -90,6 +90,23 @@ class EmrEncounterOdontology(models.Model):
         self._sync_odontogram()
         return super().action_close()
 
+    def action_view_sale_order(self):
+        """«Ver presupuesto»: el turno de esta visita, con las prácticas."""
+        self.ensure_one()
+        order = self.encounter_id.order_id
+        if not order:
+            raise UserError(_("Esta consulta no tiene un turno asociado."))
+        # Antes de abrirlo, por si quedó alguna marca sin volcar.
+        self._sync_sale_order_lines()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Presupuesto"),
+            "res_model": "sale.order",
+            "res_id": order.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
     def _sync_odontogram(self):
         """Pisa en el odontograma cada pieza que esta visita menciona.
 

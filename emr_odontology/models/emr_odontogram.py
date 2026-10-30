@@ -166,6 +166,15 @@ class EmrOdontogram(models.Model):
             chart = self.create({"partner_id": partner.id})
         return chart
 
+    def action_odontology_walkin(self):
+        """«Atender ahora» desde el mapa: abre una visita con turno.
+
+        Lo que se marca directo en este mapa no se cobra —no hay visita—;
+        para que la práctica llegue al presupuesto se anota en la consulta.
+        """
+        self.ensure_one()
+        return self.partner_id.action_odontology_walkin()
+
     def copy(self, default=None):
         raise UserError(
             _("El odontograma es uno por paciente y no se duplica.")

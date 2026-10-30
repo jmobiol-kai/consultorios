@@ -9,6 +9,12 @@
         <field name="inherit_id" ref="emr.emr_encounter_view_form_base"/>
         <field name="mode">primary</field>
         <field name="arch" type="xml">
+            <xpath expr="//header/field[@name='state']" position="before">
+                <button name="action_view_sale_order" type="object"
+                        string="Ver presupuesto" icon="fa-file-text-o"
+                        invisible="not order_id"
+                        help="Abre el turno de esta visita: las prácticas marcadas como A tratar o Tratado ya están cargadas."/>
+            </xpath>
             <page name="attachments" position="before">
                 <page name="odontology" string="Odontología">
                     <div class="alert alert-info" role="alert">
@@ -104,6 +110,41 @@
     <menuitem id="menu_emr_odontology" name="Odontología"
               parent="emr.menu_emr_atencion"
               action="emr_encounter_odontology_action" sequence="22"
+              groups="emr.group_emr_practitioner"/>
+
+    <record id="emr_odontology_walkin_view_form" model="ir.ui.view">
+        <field name="name">emr.odontology.walkin.form</field>
+        <field name="model">emr.odontology.walkin</field>
+        <field name="arch" type="xml">
+            <form string="Atender ahora">
+                <p class="text-muted">
+                    Para el paciente que llegó sin turno: se crea el turno y se
+                    abre la consulta odontológica. Lo que marques en la consulta
+                    como práctica (A tratar o Tratado) pasa solo al presupuesto.
+                </p>
+                <group>
+                    <field name="partner_id" options="{'no_quick_create': True}"/>
+                    <field name="practitioner_id" options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_start" type="object" string="Atender ahora"
+                            class="btn-primary"/>
+                    <button string="Cancelar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_odontology_walkin_action" model="ir.actions.act_window">
+        <field name="name">Atender ahora</field>
+        <field name="res_model">emr.odontology.walkin</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_emr_odontology_walkin" name="Atender ahora"
+              parent="emr.menu_emr_atencion"
+              action="emr_odontology_walkin_action" sequence="21"
               groups="emr.group_emr_practitioner"/>
 
 </odoo>

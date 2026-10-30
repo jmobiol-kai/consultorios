@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -37,6 +37,13 @@ Cada marca que es una práctica (condición distinta de sano/ausente, en
 estado "A tratar" o "Tratado") agrega una línea al turno de la atención,
 con el producto de servicio de su condición y una descripción como
 "Caries distal pieza 14 (A tratar)".
+
+Atender ahora: para el paciente que llega sin turno. Desde el menú
+Atención, la ficha del paciente o su odontograma, crea el turno (con el
+hueco de demanda si el profesional tiene franja abierta) y abre la consulta
+odontológica en atención, sin pasar por el cobro. Lo que se marca en la
+consulta pasa solo al presupuesto, que se abre con "Ver presupuesto".
+Las correcciones hechas directo en el odontograma no se cobran.
 
 La notación es FDI. Las piezas temporarias están en el mismo esquema y se
 muestran aparte en el mapa.

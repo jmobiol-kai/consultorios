@@ -6,6 +6,15 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_odontology_walkin" type="object"
+                        class="oe_stat_button" icon="fa-user-md"
+                        invisible="not is_patient"
+                        groups="emr.group_emr_practitioner"
+                        help="Paciente sin turno: crea el turno y abre la consulta odontológica">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Atender ahora</span>
+                    </div>
+                </button>
                 <button name="action_open_odontogram" type="object"
                         class="oe_stat_button" icon="fa-smile-o"
                         invisible="not is_patient"
