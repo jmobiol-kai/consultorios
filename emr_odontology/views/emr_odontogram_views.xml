@@ -178,7 +178,7 @@
         <field name="name">emr.odontogram.status.list</field>
         <field name="model">emr.odontogram.status</field>
         <field name="arch" type="xml">
-            <list string="Estados de la marca" editable="bottom">
+            <list string="Estados del procedimiento" editable="bottom">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="code" readonly="id"/>
@@ -192,7 +192,7 @@
         <field name="name">emr.odontogram.status.form</field>
         <field name="model">emr.odontogram.status</field>
         <field name="arch" type="xml">
-            <form string="Estado de la marca">
+            <form string="Estado del procedimiento">
                 <sheet>
                     <group>
                         <field name="name"/>
@@ -220,7 +220,7 @@
         <field name="name">emr.odontogram.status.search</field>
         <field name="model">emr.odontogram.status</field>
         <field name="arch" type="xml">
-            <search string="Estados de la marca">
+            <search string="Estados del procedimiento">
                 <field name="name"/>
                 <field name="code"/>
                 <filter name="inactive" string="Archivados"
@@ -231,7 +231,7 @@
     </record>
 
     <record id="emr_odontogram_status_action" model="ir.actions.act_window">
-        <field name="name">Estados de la marca</field>
+        <field name="name">Estados del procedimiento</field>
         <field name="res_model">emr.odontogram.status</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
@@ -244,7 +244,7 @@
         </field>
     </record>
 
-    <menuitem id="menu_emr_odontogram_status" name="Estados de la marca"
+    <menuitem id="menu_emr_odontogram_status" name="Estados del procedimiento"
               parent="emr.menu_emr_config_section"
               action="emr_odontogram_status_action" sequence="46"
               groups="emr.group_emr_manager"/>

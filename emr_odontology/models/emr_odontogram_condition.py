@@ -10,7 +10,7 @@ Estados de la pieza. El código técnico sí queda fijo, porque es lo que se gua
 en cada marca. Cambiarlo rompería las piezas ya cargadas.
 
 La situación de la marca (Presente, A tratar, Tratado) es otro
-catálogo, `emr.odontogram.status`, en Configuración → Estados de la marca.
+catálogo, `emr.odontogram.status`, en Configuración → Estados del procedimiento.
 """
 import logging
 import re

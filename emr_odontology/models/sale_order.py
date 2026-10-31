@@ -40,7 +40,7 @@ ODONTOLOGY_PRODUCT_NAMES = {
 }
 # Solo lo que se hizo o hay que hacer. "Presente" es trabajo que el paciente
 # ya traía (una corona vieja, por ejemplo) y no se presupuesta.
-# La clave es el código, no el nombre de Configuración → Estados de la marca:
+# La clave es el código, no el nombre de Configuración → Estados del procedimiento:
 # renombrar «A tratar» sigue siendo `pending` y se cobra igual.
 BILLABLE_STATUSES = ("pending", "treated")
 
