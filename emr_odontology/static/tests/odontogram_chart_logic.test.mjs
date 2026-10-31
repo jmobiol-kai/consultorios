@@ -2,9 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+    FACE_SURFACES,
     STATUS_FOR_CONDITION,
+    clearTargets,
+    conditionIsWholeTooth,
     cssColor,
     faceClickAction,
+    legendPaintPlan,
+    legendShowsActive,
     nextMark,
     paintCondition,
     statusForCondition,
@@ -101,6 +106,78 @@ test("legend statuses are stable codes, not the editable labels", () => {
     assert.equal(STATUS_FOR_CONDITION.restoration, "treated");
     assert.equal(STATUS_FOR_CONDITION.sound, "present");
     assert.equal(STATUS_FOR_CONDITION.missing, "missing");
+});
+
+test("the catalog flag decides whole-tooth, not the Spanish name", () => {
+    assert.equal(conditionIsWholeTooth({ whole_tooth: true, name: "Caries" }, "caries"), true);
+    assert.equal(
+        conditionIsWholeTooth({ whole_tooth: false, name: "Implante" }, "implant"),
+        false
+    );
+    assert.equal(conditionIsWholeTooth({ whole_tooth: 1 }, "caries"), true);
+    assert.equal(conditionIsWholeTooth({ whole_tooth: 0 }, "crown"), false);
+    // Sin fila no se lee el nombre: solo el código de fábrica.
+    assert.equal(conditionIsWholeTooth({ name: "Prótesis" }, "protesis_fija"), false);
+    assert.equal(conditionIsWholeTooth(null, "protesis_fija"), false);
+});
+
+test("factory codes cover the whole-tooth legend and not face conditions", () => {
+    for (const code of ["sound", "crown", "implant", "extraction", "missing", "prosthesis"]) {
+        assert.equal(conditionIsWholeTooth(null, code), true, code);
+        assert.equal(conditionIsWholeTooth({}, code), true, code);
+    }
+    for (const code of ["caries", "restoration", "endodontics", "fracture", "sealant"]) {
+        assert.equal(conditionIsWholeTooth(null, code), false, code);
+    }
+});
+
+test("a whole-tooth legend click writes the pieza and clears every face", () => {
+    for (const selected of ["occlusal", "mesial", "buccal", "lingual", "distal", "tooth"]) {
+        const plan = legendPaintPlan(selected, true);
+        assert.deepEqual(plan.write, ["tooth"], selected);
+        assert.deepEqual(plan.clear, FACE_SURFACES, selected);
+        assert.equal(plan.clear.includes("tooth"), false, selected);
+    }
+    const tooth = "implant";
+    for (const surface of FACE_SURFACES) {
+        assert.equal(paintCondition(surface, "", tooth), tooth, surface);
+    }
+    // Una cara con marca propia sigue tapando el color de la pieza:
+    // por eso el plan la borra antes de pintar.
+    assert.equal(paintCondition("mesial", "caries", tooth), "caries");
+});
+
+test("a face condition from the legend paints only the selected face", () => {
+    assert.deepEqual(legendPaintPlan("occlusal", false), {
+        write: ["occlusal"],
+        clear: [],
+    });
+    assert.deepEqual(legendPaintPlan("mesial", false), {
+        write: ["mesial"],
+        clear: [],
+    });
+    assert.deepEqual(legendPaintPlan("tooth", false), {
+        write: ["tooth"],
+        clear: [],
+    });
+});
+
+test("the legend button stays active on an inherited whole-tooth color", () => {
+    assert.equal(legendShowsActive("", "implant", "implant", true), true);
+    assert.equal(legendShowsActive("implant", "implant", "implant", true), true);
+    assert.equal(legendShowsActive("caries", "implant", "implant", true), false);
+    assert.equal(legendShowsActive("caries", "implant", "caries", false), true);
+    assert.equal(legendShowsActive("", "caries", "caries", false), false);
+    assert.equal(legendShowsActive("", "", "sound", true), false);
+});
+
+test("the second click blanks a whole-tooth color that lives on the pieza", () => {
+    assert.deepEqual(clearTargets("occlusal", "", "implant", true), ["tooth"]);
+    assert.deepEqual(clearTargets("mesial", "", "crown", true), ["tooth"]);
+    assert.deepEqual(clearTargets("occlusal", "caries", "implant", true), ["occlusal"]);
+    assert.deepEqual(clearTargets("tooth", "crown", "crown", true), ["tooth"]);
+    assert.deepEqual(clearTargets("occlusal", "", "caries", false), []);
+    assert.deepEqual(clearTargets("occlusal", "", "", false), []);
 });
 
 test("a face click selects, and the next click on that same face clears", () => {

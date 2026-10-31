@@ -114,11 +114,18 @@ class EmrEncounterOdontology(models.Model):
         la misma cara, queda la última. Una nota vacía no borra la nota que
         ya tenía el mapa —el clic del mapa crea líneas sin nota, y no tiene
         que limpiar lo que alguien escribió antes.
+
+        Si la línea es la pieza entera, el estado es de pieza entera
+        (implante, corona, …) y la condición cambia, se borran las caras
+        de esa pieza. Si no, una marca vieja de una cara tapa el color
+        nuevo. Volver a guardar la visita sin cambiar la condición no
+        toca esas caras: una corrección hecha después en el mapa queda.
         """
         if self.env.context.get("emr_odontogram_no_sync"):
             return
         Odontogram = self.env["emr.odontogram"]
         Tooth = self.env["emr.odontogram.tooth"]
+        whole_codes = self.env["emr.odontogram.condition"]._whole_tooth_code_set()
         for rec in self:
             if not rec.partner_id or not rec.active or not rec.encounter_id:
                 continue
@@ -136,6 +143,7 @@ class EmrEncounterOdontology(models.Model):
                 if line.notes:
                     vals["notes"] = line.notes
                 tooth = by_key.get((line.fdi, line.surface))
+                previous_condition = tooth.condition if tooth else None
                 if tooth:
                     same = (
                         tooth.condition == line.condition
@@ -152,7 +160,30 @@ class EmrEncounterOdontology(models.Model):
                         "surface": line.surface,
                     })
                     by_key[(line.fdi, line.surface)] = Tooth.create(vals)
+                if (
+                    line.surface == "tooth"
+                    and line.condition in whole_codes
+                    and previous_condition != line.condition
+                ):
+                    self._clear_other_surfaces(by_key, line.fdi)
         self._sync_sale_order_lines()
+
+    def _clear_other_surfaces(self, by_key, fdi):
+        """Borra las caras de esa pieza en el mapa.
+
+        La marca de la pieza entera se hereda en las caras que no tienen
+        marca propia. Si queda una caries en mesial, tapa el implante.
+        """
+        gone = [
+            tooth
+            for (tooth_fdi, surface), tooth in list(by_key.items())
+            if tooth_fdi == fdi and surface != "tooth"
+        ]
+        if not gone:
+            return
+        for tooth in gone:
+            by_key.pop((tooth.fdi, tooth.surface), None)
+        gone[0].browse([tooth.id for tooth in gone]).unlink()
 
     def _sync_sale_order_lines(self):
         """Pone en el turno una línea por cada marca que es una práctica.

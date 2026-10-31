@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.9.0",
+    "version": "19.0.1.10.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -60,11 +60,14 @@ condiciones (sano, caries, obturación, …) es más grande.
 
 En el mapa el primer clic selecciona la cara y el segundo la deja
 en blanco, sin recorrer colores. El color (sano, caries, corona, …)
-se elige después, en la leyenda. Si la marca es de la pieza, ese
-color pinta el diente entero: una corona se ve amarilla.
-En Configuración, Estados deja cambiar el nombre y el color de cada
-uno. El código técnico no se toca, así las marcas ya guardadas
-siguen pintando.
+se elige después, en la leyenda. Si el estado es de la pieza entera,
+ese color pinta todas las caras: corona, implante, prótesis, ausente,
+sano y extracción indicada vienen así. Caries, obturación y el resto
+pintan solo la cara elegida. Una marca de la pieza se sigue viendo en
+las caras que no tienen marca propia.
+En Configuración, Estados deja cambiar el nombre, el color y si el
+estado es de la pieza entera. El código técnico no se toca, así las
+marcas ya guardadas siguen pintando.
 
 En Configuración, Estados de la marca deja cambiar el nombre de la
 columna Estado (Presente, A tratar, Tratado, Ausente, No erupcionado).

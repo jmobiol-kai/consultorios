@@ -5,7 +5,16 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
-import { cssColor, faceClickAction, nextMark, paintCondition } from "./odontogram_chart_logic";
+import {
+    clearTargets,
+    conditionIsWholeTooth,
+    cssColor,
+    faceClickAction,
+    legendPaintPlan,
+    legendShowsActive,
+    nextMark,
+    paintCondition,
+} from "./odontogram_chart_logic";
 
 /**
  * Mapa FDI. Cada pieza es un círculo de cinco zonas: oclusal al centro y
@@ -15,8 +24,11 @@ import { cssColor, faceClickAction, nextMark, paintCondition } from "./odontogra
  * El primer clic en una cara la selecciona. Otro clic en la misma cara
  * borra la marca y la deja en blanco. No se recorren colores al hacer
  * clic. Con la cara seleccionada, el color se elige en la leyenda
- * (sano, caries, corona, …). La pieza entera se elige con el botón
- * Pieza y el número; otro clic en el mismo número borra esa marca.
+ * (sano, caries, corona, …). Si el estado es de la pieza entera
+ * (`whole_tooth` en el catálogo: corona, implante, prótesis, ausente,
+ * sano, extracción indicada), se pinta el diente completo. El resto
+ * pinta solo la cara elegida. La pieza entera también se elige con el
+ * botón Pieza y el número; otro clic en el mismo número borra esa marca.
  * Se escribe al guardar, que es cuando la visita actualiza el odontograma.
  */
 
@@ -137,6 +149,7 @@ export class OdontogramChartField extends Component {
                     "color",
                     "sequence",
                     "active",
+                    "whole_tooth",
                 ]),
                 load("emr.odontogram.status", ["code", "name", "sequence", "active"]),
             ]);
@@ -351,9 +364,22 @@ export class OdontogramChartField extends Component {
         return `${fdi} · ${face}`;
     }
 
+    isWholeTooth(condition) {
+        const row = (this.state.conditions || []).find((item) => item.code === condition);
+        return conditionIsWholeTooth(row, condition);
+    }
+
     isLegendActive(condition) {
         const sel = this.state.selection;
-        return Boolean(sel && this.conditionOfSurface(sel.fdi, sel.surface) === condition);
+        if (!sel) {
+            return false;
+        }
+        return legendShowsActive(
+            this.conditionOfSurface(sel.fdi, sel.surface),
+            this.conditionOfSurface(sel.fdi, "tooth"),
+            condition,
+            this.isWholeTooth(condition)
+        );
     }
 
     legendClass(condition) {
@@ -366,6 +392,9 @@ export class OdontogramChartField extends Component {
         const sel = this.state.selection;
         if (!sel) {
             return `${label}. ${NEED_SELECTION_HINT}`;
+        }
+        if (this.isWholeTooth(condition)) {
+            return `Marcar ${label} en toda la pieza ${sel.fdi}`;
         }
         const face = SURFACE_LABELS[sel.surface] || sel.surface;
         return `Marcar ${label} en la pieza ${sel.fdi} · ${face}`;
@@ -397,7 +426,7 @@ export class OdontogramChartField extends Component {
             ev.stopPropagation();
         }
         if (faceClickAction(this.isSelected(fdi, surface)) === "clear") {
-            await this.clearMark(fdi, surface);
+            await this.clearSelectionMark(fdi, surface);
             return;
         }
         this.select(fdi, surface);
@@ -410,10 +439,24 @@ export class OdontogramChartField extends Component {
         }
         const surface = this.state.surface;
         if (faceClickAction(this.isSelected(fdi, surface)) === "clear") {
-            await this.clearMark(fdi, surface);
+            await this.clearSelectionMark(fdi, surface);
             return;
         }
         this.select(fdi, surface);
+    }
+
+    async clearSelectionMark(fdi, surface) {
+        const own = this.conditionOfSurface(fdi, surface);
+        const tooth = surface === "tooth" ? own : this.conditionOfSurface(fdi, "tooth");
+        const targets = clearTargets(
+            surface,
+            own,
+            tooth,
+            Boolean(tooth) && this.isWholeTooth(tooth)
+        );
+        for (const target of targets) {
+            await this.clearMark(fdi, target);
+        }
     }
 
     async clearMark(fdi, surface) {
@@ -440,7 +483,13 @@ export class OdontogramChartField extends Component {
             return;
         }
         this.state.hint = "";
-        await this.applyCondition(sel.fdi, sel.surface, condition);
+        const plan = legendPaintPlan(sel.surface, this.isWholeTooth(condition));
+        for (const surface of plan.clear) {
+            await this.clearMark(sel.fdi, surface);
+        }
+        for (const surface of plan.write) {
+            await this.applyCondition(sel.fdi, surface, condition);
+        }
     }
 
     async applyCondition(fdi, surface, condition) {

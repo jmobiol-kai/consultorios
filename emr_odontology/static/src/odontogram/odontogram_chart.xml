@@ -79,9 +79,12 @@
                 El centro del círculo es oclusal y alrededor están las caras.
                 El primer clic en una cara la selecciona, sin cambiar el color.
                 Otro clic en esa misma cara borra la marca y la deja en blanco.
+                Si el color es de la pieza entera, ese clic deja el diente en blanco.
                 Con la cara seleccionada, el color se elige en la leyenda
-                (sano, caries, corona, endodoncia, …). La pieza entera se
-                elige con el botón Pieza y el número; otro clic en el mismo
+                (sano, caries, corona, endodoncia, …). Si el estado es de
+                la pieza entera, pinta todas las caras de ese diente; si
+                no, solo la cara elegida. La pieza entera también se elige
+                con el botón Pieza y el número; otro clic en el mismo
                 número borra esa marca. Hay que guardar el formulario.
             </p>
             <p t-if="state.hint" class="o_emr_odontogram_hint" role="status" t-esc="state.hint"/>
