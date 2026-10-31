@@ -160,6 +160,8 @@
                     Para el paciente que llegó sin turno: se crea el turno y se
                     abre la consulta odontológica. Lo que marques en la consulta
                     como práctica (A tratar o Tratado) pasa solo al presupuesto.
+                    Si hay un solo profesional, queda elegido. Si hay varios,
+                    se recuerda el último que confirmó este usuario.
                 </p>
                 <group>
                     <field name="partner_id" options="{'no_quick_create': True}"/>
