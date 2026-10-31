@@ -1,0 +1,40 @@
+// La historia del paciente se cuelga al costado de la hoja, igual que el
+// chatter: en pantallas anchas el renderer es una fila y el panel lleva
+// .o-aside. Acá el mapa de piezas necesita ese ancho, así que la consulta
+// odontológica apila el panel debajo de la hoja, a todo el ancho.
+.o_form_view.o_emr_odontology_encounter {
+    .o_form_renderer {
+        flex-direction: column !important;
+        // h-100 dejaría el panel compartiendo el alto de la pantalla, al
+        // costado o pegado al borde de abajo. Con alto de contenido, la
+        // hoja termina y la historia sigue, y scrollea .o_content.
+        height: auto !important;
+    }
+
+    .o_form_sheet_bg {
+        // Sin el tope de la hoja, el odontograma ocupa el ancho que antes
+        // se llevaba la columna de historia.
+        max-width: none;
+    }
+
+    &.o_xxl_form_view .o_form_sheet_bg {
+        // En XXL la hoja es un ítem de fila (base 990px). En columna esa
+        // base pasa a ser alto y deja un hueco antes de la historia.
+        flex: 0 0 auto;
+        overflow: visible;
+    }
+
+    .o-emr-PatientHistoryContainer {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin-top: 1rem;
+        overflow: visible !important;
+        flex: 0 0 auto !important;
+    }
+
+    .o-emr-PatientHistory {
+        max-height: none;
+    }
+}
