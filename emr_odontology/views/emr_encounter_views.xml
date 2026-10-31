@@ -21,17 +21,30 @@
                         invisible="not order_id"
                         help="Abre el turno de esta visita: las prácticas marcadas como A tratar o Tratado ya están cargadas."/>
             </xpath>
+            <!-- Fecha de atención sale de la columna izquierda y queda en la
+                 misma fila que el turno, a la derecha. Seis columnas: cada
+                 campo con rótulo ocupa dos, así entran tres por fila. -->
+            <xpath expr="//sheet/group" position="replace">
+                <div class="o_emr_odontology_header">
+                    <group col="6">
+                        <field name="partner_id" readonly="1"/>
+                        <field name="order_id" readonly="1"/>
+                        <field name="date" readonly="1"/>
+                        <field name="practitioner_id" readonly="1"/>
+                        <field name="location_id" readonly="1"/>
+                        <field name="company_id" readonly="1"
+                               groups="base.group_multi_company"/>
+                    </group>
+                </div>
+            </xpath>
             <page name="attachments" position="before">
                 <page name="odontology" string="Odontología">
-                    <div class="alert alert-info" role="alert">
-                        Lo que se anota en las piezas actualiza el odontograma
-                        del paciente al guardar o al cerrar la consulta. Esta
-                        atención queda como el registro de la visita.
+                    <div class="o_emr_odontology_clinical">
+                        <group>
+                            <field name="reason" placeholder="Motivo de consulta" rows="1"/>
+                            <field name="notes" placeholder="Evolución" rows="1"/>
+                        </group>
                     </div>
-                    <group>
-                        <field name="reason" placeholder="Motivo de consulta"/>
-                        <field name="notes" placeholder="Evolución"/>
-                    </group>
                     <field name="line_ids" widget="odontogram_chart" mode="list"
                            nolabel="1" readonly="state == 'signed'">
                         <list limit="1000">
