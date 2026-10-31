@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.5.0",
+    "version": "19.0.1.6.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -50,8 +50,9 @@ Esa columna es más angosta que el panel habitual (cerca de un 30%
 menos) y el odontograma se dibuja un 25% más chico, para que el mapa
 y la historia quepan en la misma fila.
 
-La cabecera de la consulta es más compacta: la fecha de atención va
-en la misma fila que el turno, motivo y evolución ocupan menos alto,
+La cabecera de la consulta es más compacta. Paciente y locación
+quedan a la izquierda; turno, fecha de atención y profesional van
+en la columna de la derecha. Motivo y evolución ocupan menos alto,
 y no se muestra el aviso azul sobre el odontograma. La leyenda de
 condiciones (sano, caries, obturación, …) es más grande.
 

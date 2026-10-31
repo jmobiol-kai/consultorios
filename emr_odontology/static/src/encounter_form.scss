@@ -25,6 +25,25 @@
         margin-bottom: 0.25rem;
     }
 
+    // El grupo de la derecha no ocupa la mitad: se corre al borde de la
+    // hoja y deja un hueco después del paciente.
+    .o_emr_odontology_header > .o_group.row {
+        @media (min-width: 992px) {
+            > .o_inner_group:first-child {
+                flex: 0 0 34% !important;
+                width: 34% !important;
+                max-width: 34% !important;
+            }
+
+            > .o_inner_group:last-child {
+                flex: 0 0 40% !important;
+                width: 40% !important;
+                max-width: 40% !important;
+                margin-left: auto !important;
+            }
+        }
+    }
+
     // El textarea vacío arranca en 50px por el autoresize de Odoo. Con alto
     // automático y una fila, el hueco queda cerca de la mitad y crece si
     // escriben más de una línea.
