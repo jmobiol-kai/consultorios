@@ -5,9 +5,9 @@
 """Catálogo de situaciones de la marca (la columna Estado).
 
 Presente, a tratar, tratado, ausente y no erupcionado no están fijos
-en el código: el nombre se edita en Configuración → Estados de la
-marca. El código técnico sí queda fijo, porque es lo que se guarda en
-cada marca y lo que el presupuesto reconoce.
+en el código: el nombre se edita en Configuración →
+Estados del procedimiento. El código técnico sí queda fijo, porque
+es lo que se guarda en cada marca y lo que el presupuesto reconoce.
 
 `pending` y `treated` van al turno aunque se les cambie el nombre.
 Renombrar «A tratar» no deja de cobrarlo, y renombrar «Presente» no

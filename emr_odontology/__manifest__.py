@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.11.0",
+    "version": "19.0.1.12.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -69,7 +69,7 @@ En Configuración, Estados de la pieza deja cambiar el nombre, el color y si el
 estado es de la pieza entera. El código técnico no se toca, así las
 marcas ya guardadas siguen pintando.
 
-En Configuración, Estados de la marca deja cambiar el nombre de la
+En Configuración, Estados del procedimiento deja cambiar el nombre de la
 columna Estado (Presente, A tratar, Tratado, Ausente, No erupcionado).
 El código técnico no se toca. Al presupuesto siguen yendo pending y
 treated, aunque el nombre visible sea otro. Al elegir una condición
