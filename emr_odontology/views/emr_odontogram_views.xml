@@ -166,4 +166,81 @@
               action="emr_odontogram_condition_action" sequence="45"
               groups="emr.group_emr_manager"/>
 
+    <!-- La columna Estado de cada marca: Presente, A tratar, Tratado,
+         Ausente, No erupcionado. No es la leyenda (eso es Estados). -->
+    <record id="emr_odontogram_status_view_list" model="ir.ui.view">
+        <field name="name">emr.odontogram.status.list</field>
+        <field name="model">emr.odontogram.status</field>
+        <field name="arch" type="xml">
+            <list string="Estados de la marca" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code" readonly="id"/>
+                <field name="billable" readonly="1"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_status_view_form" model="ir.ui.view">
+        <field name="name">emr.odontogram.status.form</field>
+        <field name="model">emr.odontogram.status</field>
+        <field name="arch" type="xml">
+            <form string="Estado de la marca">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code" readonly="id"/>
+                        <field name="sequence"/>
+                        <field name="billable" readonly="1"/>
+                        <field name="active"/>
+                    </group>
+                    <p class="text-muted">
+                        El nombre es el de la columna Estado del odontograma
+                        (Presente, A tratar, Tratado, Ausente, No erupcionado).
+                        El color de la leyenda se cambia en Estados.
+                        El código no se cambia: es el que queda guardado en
+                        cada marca. Al presupuesto van los códigos pending y
+                        treated, aunque el nombre diga otra cosa. Desactivar
+                        esconde la fila de este listado; las marcas viejas
+                        siguen mostrando el nombre.
+                    </p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_status_view_search" model="ir.ui.view">
+        <field name="name">emr.odontogram.status.search</field>
+        <field name="model">emr.odontogram.status</field>
+        <field name="arch" type="xml">
+            <search string="Estados de la marca">
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="inactive" string="Archivados"
+                        domain="[('active', '=', False)]"
+                        context="{'active_test': False}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_status_action" model="ir.actions.act_window">
+        <field name="name">Estados de la marca</field>
+        <field name="res_model">emr.odontogram.status</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Definir un estado de la marca</p>
+            <p>
+                El nombre sale en la columna Estado de cada pieza. El código
+                técnico no se cambia: pending y treated siguen yendo al
+                presupuesto.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_emr_odontogram_status" name="Estados de la marca"
+              parent="emr.menu_emr_config_section"
+              action="emr_odontogram_status_action" sequence="46"
+              groups="emr.group_emr_manager"/>
+
 </odoo>

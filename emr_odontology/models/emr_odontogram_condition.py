@@ -2,12 +2,15 @@
 # For copyright and license notices, see __manifest__.py file in module root
 # directory
 ##############################################################################
-"""Catálogo de estados del odontograma.
+"""Catálogo de estados del odontograma (la leyenda: sano, caries, corona).
 
 Sano, caries, corona y el resto no están fijos en el código: el nombre
 y el color se editan en Configuración → Estados. El código técnico sí
 queda fijo, porque es lo que se guarda en cada marca. Cambiarlo
 rompería las piezas ya cargadas.
+
+La situación de la marca (Presente, A tratar, Tratado) es otro
+catálogo, `emr.odontogram.status`, en Configuración → Estados de la marca.
 """
 import re
 

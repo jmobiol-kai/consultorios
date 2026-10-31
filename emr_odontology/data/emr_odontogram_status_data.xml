@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- noupdate: el nombre se edita en Configuración → Estados de la marca.
+         El código es la clave que ya está guardada en las marcas y la que
+         el presupuesto usa (pending y treated). -->
+    <record id="status_present" model="emr.odontogram.status">
+        <field name="sequence">10</field>
+        <field name="code">present</field>
+        <field name="name">Presente</field>
+    </record>
+    <record id="status_pending" model="emr.odontogram.status">
+        <field name="sequence">20</field>
+        <field name="code">pending</field>
+        <field name="name">A tratar</field>
+    </record>
+    <record id="status_treated" model="emr.odontogram.status">
+        <field name="sequence">30</field>
+        <field name="code">treated</field>
+        <field name="name">Tratado</field>
+    </record>
+    <record id="status_missing" model="emr.odontogram.status">
+        <field name="sequence">40</field>
+        <field name="code">missing</field>
+        <field name="name">Ausente</field>
+    </record>
+    <record id="status_unerupted" model="emr.odontogram.status">
+        <field name="sequence">50</field>
+        <field name="code">unerupted</field>
+        <field name="name">No erupcionado</field>
+    </record>
+
+</odoo>

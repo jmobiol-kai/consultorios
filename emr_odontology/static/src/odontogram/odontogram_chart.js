@@ -116,19 +116,32 @@ export class OdontogramChartField extends Component {
             selection: null,
             hint: "",
             conditions: [],
+            statuses: [],
         });
         onWillStart(async () => {
-            try {
-                const rows = await this.orm.searchRead(
-                    "emr.odontogram.condition",
-                    [],
-                    ["code", "name", "color", "sequence", "active"],
-                    { context: { active_test: false } }
-                );
-                this.state.conditions = rows || [];
-            } catch {
-                this.state.conditions = [];
-            }
+            const load = async (model, fields) => {
+                try {
+                    return (
+                        (await this.orm.searchRead(model, [], fields, {
+                            context: { active_test: false },
+                        })) || []
+                    );
+                } catch {
+                    return [];
+                }
+            };
+            const [conditions, statuses] = await Promise.all([
+                load("emr.odontogram.condition", [
+                    "code",
+                    "name",
+                    "color",
+                    "sequence",
+                    "active",
+                ]),
+                load("emr.odontogram.status", ["code", "name", "sequence", "active"]),
+            ]);
+            this.state.conditions = conditions;
+            this.state.statuses = statuses;
         });
     }
 
@@ -152,6 +165,14 @@ export class OdontogramChartField extends Component {
             return row.name;
         }
         return CONDITION_LABELS[code] || code;
+    }
+
+    statusName(code) {
+        const row = (this.state.statuses || []).find((item) => item.code === code);
+        if (row && row.name) {
+            return row.name;
+        }
+        return STATUS_LABELS[code] || code || "";
     }
 
     colorOf(code) {
@@ -317,7 +338,7 @@ export class OdontogramChartField extends Component {
         const rec = this.mark(fdi, surface);
         if (rec && rec.data.condition) {
             const cond = this.conditionName(rec.data.condition);
-            const status = STATUS_LABELS[rec.data.status] || rec.data.status || "";
+            const status = this.statusName(rec.data.status);
             return status ? `${fdi} · ${face}: ${cond} (${status})` : `${fdi} · ${face}: ${cond}`;
         }
         if (surface !== "tooth") {

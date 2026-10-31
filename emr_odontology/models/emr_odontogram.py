@@ -97,7 +97,10 @@ class EmrOdontogramMark(models.AbstractModel):
         default="sound",
     )
     status = fields.Selection(
-        STATUS_SELECTION, string="Estado", required=True, default="present"
+        selection="_selection_status",
+        string="Estado",
+        required=True,
+        default="present",
     )
     notes = fields.Text("Notas")
 
@@ -113,6 +116,29 @@ class EmrOdontogramMark(models.AbstractModel):
         try:
             rows = (
                 self.env["emr.odontogram.condition"]
+                .sudo()
+                .with_context(active_test=False)
+                .search([])
+            )
+        except Exception:
+            return fallback
+        if not rows:
+            return fallback
+        return [(row.code, row.name) for row in rows]
+
+    @api.model
+    def _selection_status(self):
+        """Nombre visible de cada situación, tomado de Configuración.
+
+        El valor guardado sigue siendo el código (`pending`, `treated`,
+        …). El presupuesto compara esos códigos, no el nombre. Si el
+        catálogo todavía no está (instalación) se usan los nombres de
+        fábrica, que coinciden con los datos iniciales.
+        """
+        fallback = list(STATUS_SELECTION)
+        try:
+            rows = (
+                self.env["emr.odontogram.status"]
                 .sudo()
                 .with_context(active_test=False)
                 .search([])

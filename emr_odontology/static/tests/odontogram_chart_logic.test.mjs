@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+    STATUS_FOR_CONDITION,
     cssColor,
     faceClickAction,
     nextMark,
@@ -88,6 +89,18 @@ test("legend choice sets the condition and never clears it", () => {
     assert.equal(statusForCondition("prosthesis"), "pending");
     assert.equal(statusForCondition("sealant"), "treated");
     assert.equal(statusForCondition("no-such"), "pending");
+});
+
+test("legend statuses are stable codes, not the editable labels", () => {
+    const codes = new Set(["present", "pending", "treated", "missing"]);
+    for (const [condition, status] of Object.entries(STATUS_FOR_CONDITION)) {
+        assert.equal(codes.has(status), true, condition);
+        assert.equal(status.includes(" "), false, condition);
+    }
+    assert.equal(STATUS_FOR_CONDITION.caries, "pending");
+    assert.equal(STATUS_FOR_CONDITION.restoration, "treated");
+    assert.equal(STATUS_FOR_CONDITION.sound, "present");
+    assert.equal(STATUS_FOR_CONDITION.missing, "missing");
 });
 
 test("a face click selects, and the next click on that same face clears", () => {
