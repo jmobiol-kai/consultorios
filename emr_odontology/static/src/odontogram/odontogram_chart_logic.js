@@ -1,9 +1,11 @@
 /** @odoo-module **/
 
 // Estado con el que nace cada condición al elegirla en la leyenda.
-// Sano y ausente no se cobran. La obturación y el sellador quedan como
-// hecho (es el acto). El resto entra "A tratar": es la práctica que la
-// visita manda al presupuesto. En la lista de abajo se puede cambiar.
+// Los valores son códigos (`pending`, `treated`), no el nombre que se
+// edita en Configuración → Estados de la marca. Sano y ausente no se
+// cobran. La obturación y el sellador quedan como hecho (es el acto).
+// El resto entra "A tratar" (`pending`): es la práctica que la visita
+// manda al presupuesto. En la lista de abajo se puede cambiar.
 export const STATUS_FOR_CONDITION = {
     sound: "present",
     caries: "pending",

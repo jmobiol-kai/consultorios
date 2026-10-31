@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.8.0",
+    "version": "19.0.1.9.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -66,6 +66,13 @@ En Configuración, Estados deja cambiar el nombre y el color de cada
 uno. El código técnico no se toca, así las marcas ya guardadas
 siguen pintando.
 
+En Configuración, Estados de la marca deja cambiar el nombre de la
+columna Estado (Presente, A tratar, Tratado, Ausente, No erupcionado).
+El código técnico no se toca. Al presupuesto siguen yendo pending y
+treated, aunque el nombre visible sea otro. Al elegir una condición
+en la leyenda, el estado inicial sigue siendo el de ese código
+(caries queda pending).
+
 La notación es FDI. Las piezas temporarias están en el mismo esquema y se
 muestran aparte en el mapa.
     """,
@@ -82,6 +89,7 @@ muestran aparte en el mapa.
         "views/product_template_views.xml",
         "report/emr_encounter_reports.xml",
         "data/emr_odontogram_condition_data.xml",
+        "data/emr_odontogram_status_data.xml",
         "data/emr_odontology_data.xml",
         "data/emr_odontology_sale_data.xml",
     ],

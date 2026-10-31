@@ -8,7 +8,9 @@ Cada renglón de la consulta odontológica que es una práctica —una caries a
 tratar, una obturación hecha, una endodoncia— se vuelve una línea del turno
 (`sale.order`) de esa atención, con un producto de servicio por condición
 ("Tratamiento de caries", "Obturación", ...) y la descripción de la marca:
-"Caries distal pieza 14 (A tratar)".
+"Caries distal pieza 14 (A tratar)". El paréntesis es el nombre del
+catálogo; entra al presupuesto por el código (`pending`, `treated`), así
+que renombrarlo en Configuración no deja de cobrarlo.
 
 El producto es uno por condición, no uno por pieza y cara: el precio es el
 de la práctica, y la pieza y la cara van en la descripción de la línea. Qué
@@ -38,6 +40,8 @@ ODONTOLOGY_PRODUCT_NAMES = {
 }
 # Solo lo que se hizo o hay que hacer. "Presente" es trabajo que el paciente
 # ya traía (una corona vieja, por ejemplo) y no se presupuesta.
+# La clave es el código, no el nombre de Configuración → Estados de la marca:
+# renombrar «A tratar» sigue siendo `pending` y se cobra igual.
 BILLABLE_STATUSES = ("pending", "treated")
 
 
