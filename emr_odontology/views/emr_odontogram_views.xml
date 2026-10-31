@@ -99,7 +99,7 @@
         <field name="name">emr.odontogram.condition.list</field>
         <field name="model">emr.odontogram.condition</field>
         <field name="arch" type="xml">
-            <list string="Estados" editable="bottom">
+            <list string="Estados de la pieza" editable="bottom">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="code" readonly="id"/>
@@ -114,7 +114,7 @@
         <field name="name">emr.odontogram.condition.form</field>
         <field name="model">emr.odontogram.condition</field>
         <field name="arch" type="xml">
-            <form string="Estado">
+            <form string="Estado de la pieza">
                 <sheet>
                     <group>
                         <field name="name"/>
@@ -142,7 +142,7 @@
         <field name="name">emr.odontogram.condition.search</field>
         <field name="model">emr.odontogram.condition</field>
         <field name="arch" type="xml">
-            <search string="Estados">
+            <search string="Estados de la pieza">
                 <field name="name"/>
                 <field name="code"/>
                 <filter name="whole_tooth" string="Pieza entera"
@@ -155,7 +155,7 @@
     </record>
 
     <record id="emr_odontogram_condition_action" model="ir.actions.act_window">
-        <field name="name">Estados del odontograma</field>
+        <field name="name">Estados de la pieza</field>
         <field name="res_model">emr.odontogram.condition</field>
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
@@ -167,13 +167,13 @@
         </field>
     </record>
 
-    <menuitem id="menu_emr_odontogram_condition" name="Estados"
+    <menuitem id="menu_emr_odontogram_condition" name="Estados de la pieza"
               parent="emr.menu_emr_config_section"
               action="emr_odontogram_condition_action" sequence="45"
               groups="emr.group_emr_manager"/>
 
     <!-- La columna Estado de cada marca: Presente, A tratar, Tratado,
-         Ausente, No erupcionado. No es la leyenda (eso es Estados). -->
+         Ausente, No erupcionado. No es la leyenda (eso es Estados de la pieza). -->
     <record id="emr_odontogram_status_view_list" model="ir.ui.view">
         <field name="name">emr.odontogram.status.list</field>
         <field name="model">emr.odontogram.status</field>
@@ -204,7 +204,7 @@
                     <p class="text-muted">
                         El nombre es el de la columna Estado del odontograma
                         (Presente, A tratar, Tratado, Ausente, No erupcionado).
-                        El color de la leyenda se cambia en Estados.
+                        El color de la leyenda se cambia en Estados de la pieza.
                         El código no se cambia: es el que queda guardado en
                         cada marca. Al presupuesto van los códigos pending y
                         treated, aunque el nombre diga otra cosa. Desactivar
