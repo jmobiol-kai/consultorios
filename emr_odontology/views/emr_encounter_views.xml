@@ -21,25 +21,40 @@
                         invisible="not order_id"
                         help="Abre el turno de esta visita: las prácticas marcadas como A tratar o Tratado ya están cargadas."/>
             </xpath>
-            <!-- Un solo grupo interno es siempre rótulo + valor, así que
-                 col="6" igual apilaba todo a la izquierda. Dos grupos: el
-                 paciente queda a la izquierda y turno, fecha y profesional
-                 van en la columna de la derecha. -->
+            <!-- Cada campo va en su propio grupo: el grupo interno de Odoo
+                 es siempre rótulo + valor y no puede partir una fila.
+                 Paciente y locación a la izquierda. Turno, corrido unos 5 cm
+                 desde el borde derecho, y la fecha a su derecha. Profesional
+                 en la misma fila que locación. -->
             <xpath expr="//sheet/group" position="replace">
                 <div class="o_emr_odontology_header">
-                    <group>
+                    <div class="o_emr_header_partner">
                         <group>
                             <field name="partner_id" readonly="1"/>
-                            <field name="location_id" readonly="1"/>
                         </group>
+                    </div>
+                    <div class="o_emr_header_order">
                         <group>
                             <field name="order_id" readonly="1"/>
+                        </group>
+                    </div>
+                    <div class="o_emr_header_date">
+                        <group>
                             <field name="date" readonly="1"/>
+                        </group>
+                    </div>
+                    <div class="o_emr_header_location">
+                        <group>
+                            <field name="location_id" readonly="1"/>
+                        </group>
+                    </div>
+                    <div class="o_emr_header_practitioner">
+                        <group>
                             <field name="practitioner_id" readonly="1"/>
                             <field name="company_id" readonly="1"
                                    groups="base.group_multi_company"/>
                         </group>
-                    </group>
+                    </div>
                 </div>
             </xpath>
             <page name="attachments" position="before">

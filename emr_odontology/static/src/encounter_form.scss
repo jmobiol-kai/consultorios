@@ -25,21 +25,34 @@
         margin-bottom: 0.25rem;
     }
 
-    // El grupo de la derecha no ocupa la mitad: se corre al borde de la
-    // hoja y deja un hueco después del paciente.
-    .o_emr_odontology_header > .o_group.row {
+    // Antes el bloque derecho arrancaba al 60% y llegaba al borde.
+    // Turno se corre 5 cm a la izquierda de ese punto, sin pasar a la
+    // mitad izquierda. La fecha queda a la derecha de turno. Profesional
+    // sube a la fila de locación.
+    .o_emr_odontology_header {
         @media (min-width: 992px) {
-            > .o_inner_group:first-child {
-                flex: 0 0 34% !important;
-                width: 34% !important;
-                max-width: 34% !important;
-            }
+            display: grid;
+            grid-template-columns:
+                minmax(0, 34%)
+                minmax(16%, calc(26% - 5cm))
+                minmax(0, 1fr)
+                minmax(0, 1fr);
+            grid-template-areas:
+                "partner gap order date"
+                "location gap practitioner date2";
+            column-gap: 0;
+            align-items: start;
 
-            > .o_inner_group:last-child {
-                flex: 0 0 40% !important;
-                width: 40% !important;
-                max-width: 40% !important;
-                margin-left: auto !important;
+            .o_emr_header_partner { grid-area: partner; }
+            .o_emr_header_order { grid-area: order; }
+            .o_emr_header_date { grid-area: date; }
+            .o_emr_header_location { grid-area: location; }
+            .o_emr_header_practitioner { grid-area: practitioner; }
+
+            .o_emr_header_order,
+            .o_emr_header_date,
+            .o_emr_header_practitioner {
+                padding-left: 0.75rem;
             }
         }
     }
