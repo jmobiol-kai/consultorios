@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Turnos e Historia Clínica",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -62,6 +62,7 @@
         "views/account_payment_views.xml",
         "views/emr_encounter_form_base.xml",
         "views/emr_encounter_views.xml",
+        "views/emr_patient_history_views.xml",
         "views/emr_menus.xml",
         # Después de los menús: cuelga de menu_emr_config, y un menú tiene
         # que existir antes de que alguien se le cuelgue.

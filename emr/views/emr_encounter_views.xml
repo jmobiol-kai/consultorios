@@ -2,11 +2,13 @@
 <odoo>
 
     <!-- ================================================================
-         La lista unificada.
+         La lista unificada de atenciones.
 
          Gracias a la herencia por delegación, esta tabla tiene una fila por
-         atención sea del tipo que sea. Ver todas las atenciones de un paciente
-         es filtrar acá: no hay ninguna vista que una modelos.
+         atención sea del tipo que sea. El menú Historias clínicas no abre
+         esta lista: abre un paciente por historia
+         (`action_emr_patient_history`). Acá queda la lista plana, que es
+         la que usan los menús de cada tipo.
          ================================================================ -->
     <record id="emr_encounter_view_search" model="ir.ui.view">
         <field name="name">emr.encounter.search</field>
@@ -62,16 +64,19 @@
         </field>
     </record>
 
+    <!-- Lista plana de visitas. El menú Historias clínicas apunta a
+         action_emr_patient_history; este xmlid queda por si algo lo
+         llama directo. -->
     <record id="emr_encounter_action" model="ir.actions.act_window">
-        <field name="name">Historias clínicas</field>
+        <field name="name">Atenciones</field>
         <field name="res_model">emr.encounter</field>
         <field name="view_mode">list</field>
         <field name="search_view_id" ref="emr_encounter_view_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Todavía no hay atenciones</p>
             <p>
-                Las historias clínicas se crean al atender un turno. Acá se ven
-                todas juntas, sin importar de qué tipo sean.
+                Una fila por visita, del tipo que sea. Las historias clínicas
+                del menú agrupan estas visitas por paciente.
             </p>
         </field>
     </record>

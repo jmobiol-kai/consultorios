@@ -26,4 +26,39 @@
             </xpath>
         </field>
     </record>
+
+    <!-- El odontograma actual, dentro de la historia del paciente.
+         La lista del menú Historias clínicas es el paciente; el mapa no
+         es una fila más. Las visitas, con el mapa de ese día, se abren
+         desde Atenciones. Este mapa es solo lectura: corregirlo acá no
+         pasaría por la visita y no se cobraría. Para anotarlo, Atender
+         ahora o la consulta. Para corregir el mapa, Odontogramas. -->
+    <record id="res_partner_view_form_patient_history_odontogram" model="ir.ui.view">
+        <field name="name">res.partner.form.patient.history.odontogram</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="emr.res_partner_view_form_patient_history"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='emr_patient_history_chart']" position="replace">
+                <field name="odontogram_id" invisible="1"/>
+                <div name="emr_patient_history_odontogram" invisible="not odontogram_id">
+                    <separator string="Odontograma"/>
+                    <p class="text-muted">
+                        Estado actual de la boca. Cada visita, con lo que se
+                        marcó ese día, está en Atenciones.
+                    </p>
+                    <field name="odontogram_tooth_ids" widget="odontogram_chart"
+                           mode="list" nolabel="1" readonly="1">
+                        <list limit="1000">
+                            <field name="fdi"/>
+                            <field name="surface"/>
+                            <field name="condition"/>
+                            <field name="status"/>
+                            <field name="notes"/>
+                            <field name="last_encounter_id"/>
+                        </list>
+                    </field>
+                </div>
+            </xpath>
+        </field>
+    </record>
 </odoo>

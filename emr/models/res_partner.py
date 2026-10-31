@@ -106,6 +106,33 @@ class ResPartner(models.Model):
     )
 
     # ------------------------------------------------------------------
+    # Historia clínica
+    #
+    # La historia es del paciente, no de una visita. `encounter_ids` es
+    # la lista unificada (consulta, odontología, endoscopía, receta):
+    # cada tipo delega en emr.encounter. El menú Historias clínicas
+    # filtra partners que tienen al menos una.
+    # ------------------------------------------------------------------
+    encounter_ids = fields.One2many(
+        "emr.encounter",
+        "partner_id",
+        string="Atenciones",
+        copy=False,
+    )
+    emr_encounter_count = fields.Integer(
+        string="Atenciones",
+        compute="_compute_emr_encounter_stats",
+    )
+    emr_draft_encounter_count = fields.Integer(
+        string="En elaboración",
+        compute="_compute_emr_encounter_stats",
+    )
+    emr_last_encounter_date = fields.Datetime(
+        string="Última atención",
+        compute="_compute_emr_encounter_stats",
+    )
+
+    # ------------------------------------------------------------------
     # Cálculos
     # ------------------------------------------------------------------
     def _compute_emr_slot_count(self):
@@ -127,6 +154,61 @@ class ResPartner(models.Model):
             counts = {partner.id: count for partner, count in data}
         for partner in self:
             partner.emr_slot_count = counts.get(partner.id, 0)
+
+    @api.depends("encounter_ids.state", "encounter_ids.date", "encounter_ids.active")
+    def _compute_emr_encounter_stats(self):
+        """Cuántas atenciones ve este usuario, y cuál es la última.
+
+        No se guarda. Las reglas de `emr.encounter` recortan por
+        profesional: un número almacenado quedaría del usuario que
+        escribió último y en la lista de los demás no coincidiría con
+        las filas que se pueden abrir.
+        """
+        totals = {}
+        drafts = {}
+        lasts = {}
+        partners = self.filtered("id")
+        if partners:
+            grouped = self.env["emr.encounter"]._read_group(
+                [("partner_id", "in", partners.ids)],
+                groupby=["partner_id", "state"],
+                aggregates=["__count", "date:max"],
+            )
+            for partner, state, count, last in grouped:
+                if not partner:
+                    continue
+                pid = partner.id
+                totals[pid] = totals.get(pid, 0) + count
+                if state == "draft":
+                    drafts[pid] = count
+                current = lasts.get(pid)
+                if last and (current is None or last > current):
+                    lasts[pid] = last
+        for partner in self:
+            partner.emr_encounter_count = totals.get(partner.id, 0)
+            partner.emr_draft_encounter_count = drafts.get(partner.id, 0)
+            partner.emr_last_encounter_date = lasts.get(partner.id) or False
+
+    def action_open_clinical_history(self):
+        """Abre la historia completa de este paciente.
+
+        No es la ficha de contacto. El formulario se fija por xmlid para
+        no caer en la vista estándar de `res.partner`, que es el padrón
+        y no la historia.
+        """
+        self.ensure_one()
+        if not self.is_patient:
+            raise UserError(_("%s no es un paciente.", self.display_name))
+        view = self.env.ref("emr.res_partner_view_form_patient_history")
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Historia clínica"),
+            "res_model": "res.partner",
+            "res_id": self.id,
+            "view_mode": "form",
+            "views": [(view.id, "form")],
+            "target": "current",
+        }
 
     def action_view_emr_slots(self):
         self.ensure_one()
