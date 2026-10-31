@@ -91,12 +91,37 @@ class EmrOdontogramMark(models.AbstractModel):
         SURFACE_SELECTION, string="Cara", required=True, default="tooth"
     )
     condition = fields.Selection(
-        CONDITION_SELECTION, string="Condición", required=True, default="sound"
+        selection="_selection_condition",
+        string="Condición",
+        required=True,
+        default="sound",
     )
     status = fields.Selection(
         STATUS_SELECTION, string="Estado", required=True, default="present"
     )
     notes = fields.Text("Notas")
+
+    @api.model
+    def _selection_condition(self):
+        """Nombre visible de cada estado, tomado de Configuración.
+
+        El valor guardado sigue siendo el código (`crown`, `caries`, …).
+        Si el catálogo todavía no está (instalación) se usan los nombres
+        de fábrica, que coinciden con los datos iniciales.
+        """
+        fallback = list(CONDITION_SELECTION)
+        try:
+            rows = (
+                self.env["emr.odontogram.condition"]
+                .sudo()
+                .with_context(active_test=False)
+                .search([])
+            )
+        except Exception:
+            return fallback
+        if not rows:
+            return fallback
+        return [(row.code, row.name) for row in rows]
 
     display_name = fields.Char(compute="_compute_display_name")
 

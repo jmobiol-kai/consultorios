@@ -35,18 +35,24 @@
                                             <div t-att-class="conditionOfSurface(fdi, 'tooth') === 'missing' ? 'o_emr_odontogram_tooth o_emr_odontogram_tooth_missing' : 'o_emr_odontogram_tooth'">
                                                 <span class="o_emr_odontogram_pos" t-esc="positionOf(fdi)"/>
                                                 <svg viewBox="0 0 100 100" class="o_emr_odontogram_svg">
-                                                    <circle cx="50" cy="50" r="47" t-att-class="piezaClass(fdi)"/>
+                                                    <circle cx="50" cy="50" r="47"
+                                                            t-att-class="piezaClass(fdi)"
+                                                            t-att-style="piezaStyle(fdi)"/>
                                                     <t t-foreach="facesFor(fdi, jaw.lower)" t-as="face" t-key="face.surface">
                                                         <path t-att-d="face.d"
                                                               t-att-class="regionClass(fdi, face.surface)"
+                                                              t-att-style="regionStyle(fdi, face.surface)"
                                                               t-att-aria-label="regionTitle(fdi, face.surface)"
+                                                              t-att-aria-pressed="isSelected(fdi, face.surface) ? 'true' : 'false'"
                                                               t-on-click="(ev) => this.onRegion(fdi, face.surface, ev)">
                                                             <title><t t-esc="regionTitle(fdi, face.surface)"/></title>
                                                         </path>
                                                     </t>
                                                     <circle cx="50" cy="50" r="20"
                                                             t-att-class="regionClass(fdi, 'occlusal')"
+                                                            t-att-style="regionStyle(fdi, 'occlusal')"
                                                             t-att-aria-label="regionTitle(fdi, 'occlusal')"
+                                                            t-att-aria-pressed="isSelected(fdi, 'occlusal') ? 'true' : 'false'"
                                                             t-on-click="(ev) => this.onRegion(fdi, 'occlusal', ev)">
                                                         <title><t t-esc="regionTitle(fdi, 'occlusal')"/></title>
                                                     </circle>
@@ -54,6 +60,7 @@
                                                 <button type="button"
                                                         t-att-class="fdiClass(fdi)"
                                                         t-att-title="regionTitle(fdi, state.surface)"
+                                                        t-att-aria-pressed="isToothSelected(fdi) ? 'true' : 'false'"
                                                         t-att-disabled="props.readonly or undefined"
                                                         t-on-click="(ev) => this.onTooth(fdi, ev)"
                                                         t-esc="fdi"/>
@@ -70,17 +77,28 @@
             </div>
             <p class="o_emr_odontogram_help text-muted">
                 El centro del círculo es oclusal y alrededor están las caras.
-                Un clic ahí marca esa cara de esa pieza: caries, obturación,
-                ausente, sano, y otra vez queda sin marca. Los botones eligen
-                la cara —también la pieza entera— y el número de abajo la
-                aplica. Hay que guardar el formulario.
+                El primer clic en una cara la selecciona, sin cambiar el color.
+                Otro clic en esa misma cara borra la marca y la deja en blanco.
+                Con la cara seleccionada, el color se elige en la leyenda
+                (sano, caries, corona, endodoncia, …). La pieza entera se
+                elige con el botón Pieza y el número; otro clic en el mismo
+                número borra esa marca. Hay que guardar el formulario.
             </p>
+            <p t-if="state.hint" class="o_emr_odontogram_hint" role="status" t-esc="state.hint"/>
+            <p t-elif="selectionLabel" class="o_emr_odontogram_selection text-muted" t-esc="selectionLabel"/>
             <div class="o_emr_odontogram_legend">
                 <t t-foreach="legend" t-as="item" t-key="item.condition">
-                    <span class="o_emr_odontogram_legend_item">
-                        <i t-attf-class="o_emr_odontogram_swatch o_emr_odontogram_cond_{{ item.condition }}"/>
+                    <button type="button"
+                            t-att-class="legendClass(item.condition)"
+                            t-att-title="legendTitle(item.condition)"
+                            t-att-disabled="props.readonly or undefined"
+                            t-att-aria-pressed="isLegendActive(item.condition) ? 'true' : 'false'"
+                            t-on-click="() => this.onLegend(item.condition)">
+                        <i t-attf-class="o_emr_odontogram_swatch o_emr_odontogram_cond_{{ item.condition }}"
+                           t-att-style="swatchStyle(item.condition)"
+                           aria-hidden="true"/>
                         <t t-esc="item.label"/>
-                    </span>
+                    </button>
                 </t>
             </div>
         </div>

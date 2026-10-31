@@ -1,21 +1,23 @@
 /** @odoo-module **/
 
-import { Component, useState } from "@odoo/owl";
+import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+
+import { cssColor, faceClickAction, nextMark, paintCondition } from "./odontogram_chart_logic";
 
 /**
  * Mapa FDI. Cada pieza es un círculo de cinco zonas: oclusal al centro y
  * las cuatro caras alrededor. Mesial mira a la línea media; vestibular
  * mira afuera de la arcada (arriba en el maxilar, abajo en la mandíbula).
  *
- * Un clic en una zona marca esa cara de esa pieza. Los botones siguen
- * eligiendo la cara —incluida la pieza entera, que no es una zona del
- * dibujo— y el número FDI de abajo la aplica.
- *
- * El clic recorre un atajo (caries, obturación, ausente, sano, sin marca).
- * Corona, implante y el resto se cargan en la lista. Se escribe al guardar,
- * que es cuando la visita actualiza el odontograma.
+ * El primer clic en una cara la selecciona. Otro clic en la misma cara
+ * borra la marca y la deja en blanco. No se recorren colores al hacer
+ * clic. Con la cara seleccionada, el color se elige en la leyenda
+ * (sano, caries, corona, …). La pieza entera se elige con el botón
+ * Pieza y el número; otro clic en el mismo número borra esa marca.
+ * Se escribe al guardar, que es cuando la visita actualiza el odontograma.
  */
 
 const PERMANENT = {
@@ -43,13 +45,6 @@ const SURFACES = [
 
 const SURFACE_LABELS = Object.fromEntries(SURFACES);
 
-const CYCLE = [
-    { condition: "caries", status: "pending" },
-    { condition: "restoration", status: "treated" },
-    { condition: "missing", status: "missing" },
-    { condition: "sound", status: "present" },
-];
-
 const CONDITION_LABELS = {
     sound: "Sano",
     caries: "Caries",
@@ -76,6 +71,8 @@ const LEGEND = Object.keys(CONDITION_LABELS).map((condition) => ({
     condition,
     label: CONDITION_LABELS[condition],
 }));
+
+const NEED_SELECTION_HINT = "Primero hay que elegir una cara o la pieza en el mapa.";
 
 // Círculo en viewBox 0 0 100 100. 0° es la derecha y crece en sentido
 // horario, que es el sentido del arco SVG con y hacia abajo.
@@ -112,8 +109,77 @@ export class OdontogramChartField extends Component {
 
     setup() {
         this.surfaces = SURFACES;
-        this.legend = LEGEND;
-        this.state = useState({ deciduous: false, surface: "tooth" });
+        this.orm = useService("orm");
+        this.state = useState({
+            deciduous: false,
+            surface: "tooth",
+            selection: null,
+            hint: "",
+            conditions: [],
+        });
+        onWillStart(async () => {
+            try {
+                const rows = await this.orm.searchRead(
+                    "emr.odontogram.condition",
+                    [],
+                    ["code", "name", "color", "sequence", "active"],
+                    { context: { active_test: false } }
+                );
+                this.state.conditions = rows || [];
+            } catch {
+                this.state.conditions = [];
+            }
+        });
+    }
+
+    get legend() {
+        const rows = (this.state.conditions || [])
+            .filter((row) => row.active !== false && row.code && row.name)
+            .slice()
+            .sort(
+                (a, b) =>
+                    (a.sequence || 0) - (b.sequence || 0) || (a.id || 0) - (b.id || 0)
+            );
+        if (!this.state.conditions.length) {
+            return LEGEND;
+        }
+        return rows.map((row) => ({ condition: row.code, label: row.name }));
+    }
+
+    conditionName(code) {
+        const row = (this.state.conditions || []).find((item) => item.code === code);
+        if (row && row.name) {
+            return row.name;
+        }
+        return CONDITION_LABELS[code] || code;
+    }
+
+    colorOf(code) {
+        if (!code || code === "empty") {
+            return "";
+        }
+        const row = (this.state.conditions || []).find((item) => item.code === code);
+        return row ? cssColor(row.color) : "";
+    }
+
+    regionStyle(fdi, surface) {
+        const cond = paintCondition(
+            surface,
+            this.conditionOfSurface(fdi, surface),
+            this.conditionOfSurface(fdi, "tooth")
+        );
+        const color = this.colorOf(cond);
+        return color ? `fill:${color}` : "";
+    }
+
+    piezaStyle(fdi) {
+        const color = this.colorOf(this.conditionOfSurface(fdi, "tooth") || "empty");
+        return color ? `fill:${color};color:${color}` : "";
+    }
+
+    swatchStyle(code) {
+        const color = this.colorOf(code);
+        return color ? `background-color:${color}` : "";
     }
 
     get arches() {
@@ -158,6 +224,25 @@ export class OdontogramChartField extends Component {
         return this.props.record.data[this.props.name];
     }
 
+    get selectionLabel() {
+        const sel = this.state.selection;
+        if (!sel) {
+            return "";
+        }
+        const face = SURFACE_LABELS[sel.surface] || sel.surface;
+        const own = this.conditionOfSurface(sel.fdi, sel.surface);
+        const ownLabel = own ? this.conditionName(own) : "sin marca";
+        const tooth = this.conditionOfSurface(sel.fdi, "tooth");
+        const painted = paintCondition(sel.surface, own, tooth);
+        let text = `Seleccionada: pieza ${sel.fdi} · ${face} (${ownLabel}).`;
+        if (!own && painted !== "empty") {
+            const paintedLabel = this.conditionName(painted);
+            text += ` En el dibujo se ve ${paintedLabel} de la pieza.`;
+        }
+        text += " La condición se elige en la leyenda.";
+        return text;
+    }
+
     positionOf(fdi) {
         return fdi.slice(1);
     }
@@ -192,21 +277,37 @@ export class OdontogramChartField extends Component {
         ];
     }
 
+    isSelected(fdi, surface) {
+        const sel = this.state.selection;
+        return Boolean(sel && sel.fdi === fdi && sel.surface === surface);
+    }
+
+    isToothSelected(fdi) {
+        return Boolean(this.state.selection && this.state.selection.fdi === fdi);
+    }
+
     regionClass(fdi, surface) {
-        const cond = this.conditionOfSurface(fdi, surface) || "empty";
-        const active = this.state.surface === surface ? " o_emr_odontogram_region_active" : "";
+        const cond = paintCondition(
+            surface,
+            this.conditionOfSurface(fdi, surface),
+            this.conditionOfSurface(fdi, "tooth")
+        );
+        const active =
+            this.isSelected(fdi, surface) || this.isSelected(fdi, "tooth")
+                ? " o_emr_odontogram_region_active"
+                : "";
         return `o_emr_odontogram_region o_emr_odontogram_cond_${cond}${active}`;
     }
 
     piezaClass(fdi) {
         const cond = this.conditionOfSurface(fdi, "tooth") || "empty";
-        const active = this.state.surface === "tooth" ? " o_emr_odontogram_region_active" : "";
+        const active = this.isSelected(fdi, "tooth") ? " o_emr_odontogram_region_active" : "";
         return `o_emr_odontogram_pieza o_emr_odontogram_cond_${cond}${active}`;
     }
 
     fdiClass(fdi) {
         const missing = this.conditionOfSurface(fdi, "tooth") === "missing";
-        const active = this.state.surface === "tooth" ? " o_emr_odontogram_fdi_active" : "";
+        const active = this.isToothSelected(fdi) ? " o_emr_odontogram_fdi_active" : "";
         const gone = missing ? " o_emr_odontogram_fdi_missing" : "";
         return `o_emr_odontogram_fdi${active}${gone}`;
     }
@@ -214,20 +315,59 @@ export class OdontogramChartField extends Component {
     regionTitle(fdi, surface) {
         const face = SURFACE_LABELS[surface] || surface;
         const rec = this.mark(fdi, surface);
-        if (!rec || !rec.data.condition) {
-            return `${fdi} · ${face}`;
+        if (rec && rec.data.condition) {
+            const cond = this.conditionName(rec.data.condition);
+            const status = STATUS_LABELS[rec.data.status] || rec.data.status || "";
+            return status ? `${fdi} · ${face}: ${cond} (${status})` : `${fdi} · ${face}: ${cond}`;
         }
-        const cond = CONDITION_LABELS[rec.data.condition] || rec.data.condition;
-        const status = STATUS_LABELS[rec.data.status] || rec.data.status || "";
-        return status ? `${fdi} · ${face}: ${cond} (${status})` : `${fdi} · ${face}: ${cond}`;
+        if (surface !== "tooth") {
+            const tooth = this.mark(fdi, "tooth");
+            if (tooth && tooth.data.condition) {
+                const cond = this.conditionName(tooth.data.condition);
+                return `${fdi} · ${face}. La pieza está en ${cond}.`;
+            }
+        }
+        return `${fdi} · ${face}`;
+    }
+
+    isLegendActive(condition) {
+        const sel = this.state.selection;
+        return Boolean(sel && this.conditionOfSurface(sel.fdi, sel.surface) === condition);
+    }
+
+    legendClass(condition) {
+        const active = this.isLegendActive(condition) ? " o_emr_odontogram_legend_item_active" : "";
+        return `o_emr_odontogram_legend_item${active}`;
+    }
+
+    legendTitle(condition) {
+        const label = this.conditionName(condition);
+        const sel = this.state.selection;
+        if (!sel) {
+            return `${label}. ${NEED_SELECTION_HINT}`;
+        }
+        const face = SURFACE_LABELS[sel.surface] || sel.surface;
+        return `Marcar ${label} en la pieza ${sel.fdi} · ${face}`;
+    }
+
+    select(fdi, surface) {
+        this.state.surface = surface;
+        this.state.selection = { fdi, surface };
+        this.state.hint = "";
     }
 
     setSurface(surface) {
         this.state.surface = surface;
+        if (this.state.selection) {
+            this.state.selection = { fdi: this.state.selection.fdi, surface };
+            this.state.hint = "";
+        }
     }
 
     toggleDeciduous() {
         this.state.deciduous = !this.state.deciduous;
+        this.state.selection = null;
+        this.state.hint = "";
     }
 
     async onRegion(fdi, surface, ev) {
@@ -235,8 +375,11 @@ export class OdontogramChartField extends Component {
             ev.preventDefault();
             ev.stopPropagation();
         }
-        this.state.surface = surface;
-        await this.applyMark(fdi, surface);
+        if (faceClickAction(this.isSelected(fdi, surface)) === "clear") {
+            await this.clearMark(fdi, surface);
+            return;
+        }
+        this.select(fdi, surface);
     }
 
     async onTooth(fdi, ev) {
@@ -244,10 +387,15 @@ export class OdontogramChartField extends Component {
             ev.preventDefault();
             ev.stopPropagation();
         }
-        await this.applyMark(fdi, this.state.surface);
+        const surface = this.state.surface;
+        if (faceClickAction(this.isSelected(fdi, surface)) === "clear") {
+            await this.clearMark(fdi, surface);
+            return;
+        }
+        this.select(fdi, surface);
     }
 
-    async applyMark(fdi, surface) {
+    async clearMark(fdi, surface) {
         if (this.props.readonly) {
             return;
         }
@@ -256,18 +404,42 @@ export class OdontogramChartField extends Component {
             return;
         }
         const existing = this.mark(fdi, surface);
-        const index = existing
-            ? CYCLE.findIndex((step) => step.condition === existing.data.condition)
-            : -1;
-        if (existing && index === CYCLE.length - 1) {
+        if (existing) {
             await list.delete(existing);
+        }
+    }
+
+    async onLegend(condition) {
+        if (this.props.readonly) {
             return;
         }
-        const step = CYCLE[index + 1] || CYCLE[0];
+        const sel = this.state.selection;
+        if (!sel) {
+            this.state.hint = NEED_SELECTION_HINT;
+            return;
+        }
+        this.state.hint = "";
+        await this.applyCondition(sel.fdi, sel.surface, condition);
+    }
+
+    async applyCondition(fdi, surface, condition) {
+        if (this.props.readonly) {
+            return;
+        }
+        const list = this.lines;
+        if (!list) {
+            return;
+        }
+        const existing = this.mark(fdi, surface);
+        const next = nextMark(existing ? existing.data.condition : "", condition);
+        // La leyenda pinta. No borra: eso es el segundo clic en la cara.
+        if (next.same) {
+            return;
+        }
         if (existing) {
             await existing.update({
-                condition: step.condition,
-                status: step.status,
+                condition: next.condition,
+                status: next.status,
             });
             return;
         }
@@ -277,22 +449,22 @@ export class OdontogramChartField extends Component {
             context: {
                 default_fdi: fdi,
                 default_surface: surface,
-                default_condition: step.condition,
-                default_status: step.status,
+                default_condition: next.condition,
+                default_status: next.status,
             },
         });
         if (
             created &&
             (created.data.fdi !== fdi ||
                 created.data.surface !== surface ||
-                created.data.condition !== step.condition ||
-                created.data.status !== step.status)
+                created.data.condition !== next.condition ||
+                created.data.status !== next.status)
         ) {
             await created.update({
                 fdi,
                 surface,
-                condition: step.condition,
-                status: step.status,
+                condition: next.condition,
+                status: next.status,
             });
         }
     }

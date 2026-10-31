@@ -21,9 +21,7 @@ historia clínica, que es lo que corresponde a una práctica distinta hecha en
 el mismo turno. Acá la marca es parte de la misma atención y va en la misma
 orden.
 """
-from odoo import fields, models
-
-from .emr_odontogram import CONDITION_SELECTION
+from odoo import api, fields, models
 
 # Condición del odontograma -> nombre del producto que se crea si no hay
 # ninguno configurado. "Sano" y "Ausente" no son prácticas: no se cobran.
@@ -47,12 +45,16 @@ class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     odontology_condition = fields.Selection(
-        CONDITION_SELECTION,
+        selection="_selection_odontology_condition",
         string="Condición del odontograma",
         index=True,
         help="Si se marca esta condición en el odontograma de una consulta "
         "odontológica, este producto se agrega al turno de la atención.",
     )
+
+    @api.model
+    def _selection_odontology_condition(self):
+        return self.env["emr.odontogram.mark"]._selection_condition()
 
 
 class SaleOrderLine(models.Model):
