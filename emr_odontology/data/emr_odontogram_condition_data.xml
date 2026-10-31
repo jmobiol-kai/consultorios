@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- noupdate: el nombre y el color se editan en Configuración.
+         El código es la clave que ya está guardada en las marcas. -->
+    <record id="condition_sound" model="emr.odontogram.condition">
+        <field name="sequence">10</field>
+        <field name="code">sound</field>
+        <field name="name">Sano</field>
+        <field name="color">#c8e6c9</field>
+    </record>
+    <record id="condition_caries" model="emr.odontogram.condition">
+        <field name="sequence">20</field>
+        <field name="code">caries</field>
+        <field name="name">Caries</field>
+        <field name="color">#ef9a9a</field>
+    </record>
+    <record id="condition_restoration" model="emr.odontogram.condition">
+        <field name="sequence">30</field>
+        <field name="code">restoration</field>
+        <field name="name">Obturación</field>
+        <field name="color">#90caf9</field>
+    </record>
+    <record id="condition_crown" model="emr.odontogram.condition">
+        <field name="sequence">40</field>
+        <field name="code">crown</field>
+        <field name="name">Corona</field>
+        <field name="color">#fff59d</field>
+    </record>
+    <record id="condition_endodontics" model="emr.odontogram.condition">
+        <field name="sequence">50</field>
+        <field name="code">endodontics</field>
+        <field name="name">Endodoncia</field>
+        <field name="color">#ffcc80</field>
+    </record>
+    <record id="condition_implant" model="emr.odontogram.condition">
+        <field name="sequence">60</field>
+        <field name="code">implant</field>
+        <field name="name">Implante</field>
+        <field name="color">#ce93d8</field>
+    </record>
+    <record id="condition_fracture" model="emr.odontogram.condition">
+        <field name="sequence">70</field>
+        <field name="code">fracture</field>
+        <field name="name">Fractura</field>
+        <field name="color">#ffab91</field>
+    </record>
+    <record id="condition_extraction" model="emr.odontogram.condition">
+        <field name="sequence">80</field>
+        <field name="code">extraction</field>
+        <field name="name">Extracción indicada</field>
+        <field name="color">#f48fb1</field>
+    </record>
+    <record id="condition_missing" model="emr.odontogram.condition">
+        <field name="sequence">90</field>
+        <field name="code">missing</field>
+        <field name="name">Ausente</field>
+        <field name="color">#cfd8dc</field>
+    </record>
+    <record id="condition_prosthesis" model="emr.odontogram.condition">
+        <field name="sequence">100</field>
+        <field name="code">prosthesis</field>
+        <field name="name">Prótesis</field>
+        <field name="color">#b39ddb</field>
+    </record>
+    <record id="condition_sealant" model="emr.odontogram.condition">
+        <field name="sequence">110</field>
+        <field name="code">sealant</field>
+        <field name="name">Sellador</field>
+        <field name="color">#80cbc4</field>
+    </record>
+
+</odoo>

@@ -95,4 +95,75 @@
               action="emr_odontogram_action" sequence="44"
               groups="emr.group_emr_manager"/>
 
+    <record id="emr_odontogram_condition_view_list" model="ir.ui.view">
+        <field name="name">emr.odontogram.condition.list</field>
+        <field name="model">emr.odontogram.condition</field>
+        <field name="arch" type="xml">
+            <list string="Estados" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code" readonly="id"/>
+                <field name="color" placeholder="#fff59d"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_condition_view_form" model="ir.ui.view">
+        <field name="name">emr.odontogram.condition.form</field>
+        <field name="model">emr.odontogram.condition</field>
+        <field name="arch" type="xml">
+            <form string="Estado">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code" readonly="id"/>
+                        <field name="color" placeholder="#fff59d"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                    <p class="text-muted">
+                        El código no se cambia: es el que queda guardado en
+                        cada marca. El color es un hexadecimal de seis
+                        dígitos, como #fff59d para la corona. Desactivar
+                        esconde el estado de la leyenda; las marcas viejas
+                        siguen viéndose.
+                    </p>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_condition_view_search" model="ir.ui.view">
+        <field name="name">emr.odontogram.condition.search</field>
+        <field name="model">emr.odontogram.condition</field>
+        <field name="arch" type="xml">
+            <search string="Estados">
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="inactive" string="Archivados"
+                        domain="[('active', '=', False)]"
+                        context="{'active_test': False}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_odontogram_condition_action" model="ir.actions.act_window">
+        <field name="name">Estados del odontograma</field>
+        <field name="res_model">emr.odontogram.condition</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Definir un estado del odontograma</p>
+            <p>
+                El nombre y el color salen en la leyenda del mapa. El código
+                técnico no se cambia.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_emr_odontogram_condition" name="Estados"
+              parent="emr.menu_emr_config_section"
+              action="emr_odontogram_condition_action" sequence="45"
+              groups="emr.group_emr_manager"/>
+
 </odoo>

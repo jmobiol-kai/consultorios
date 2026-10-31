@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.7.0",
+    "version": "19.0.1.8.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -58,6 +58,14 @@ menos alto,
 y no se muestra el aviso azul sobre el odontograma. La leyenda de
 condiciones (sano, caries, obturación, …) es más grande.
 
+En el mapa el primer clic selecciona la cara y el segundo la deja
+en blanco, sin recorrer colores. El color (sano, caries, corona, …)
+se elige después, en la leyenda. Si la marca es de la pieza, ese
+color pinta el diente entero: una corona se ve amarilla.
+En Configuración, Estados deja cambiar el nombre y el color de cada
+uno. El código técnico no se toca, así las marcas ya guardadas
+siguen pintando.
+
 La notación es FDI. Las piezas temporarias están en el mismo esquema y se
 muestran aparte en el mapa.
     """,
@@ -73,11 +81,13 @@ muestran aparte en el mapa.
         "views/res_partner_views.xml",
         "views/product_template_views.xml",
         "report/emr_encounter_reports.xml",
+        "data/emr_odontogram_condition_data.xml",
         "data/emr_odontology_data.xml",
         "data/emr_odontology_sale_data.xml",
     ],
     "assets": {
         "web.assets_backend": [
+            "emr_odontology/static/src/odontogram/odontogram_chart_logic.js",
             "emr_odontology/static/src/odontogram/odontogram_chart.js",
             "emr_odontology/static/src/odontogram/odontogram_chart.xml",
             "emr_odontology/static/src/odontogram/odontogram_chart.scss",
