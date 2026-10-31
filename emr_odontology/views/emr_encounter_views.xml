@@ -9,9 +9,9 @@
         <field name="inherit_id" ref="emr.emr_encounter_view_form_base"/>
         <field name="mode">primary</field>
         <field name="arch" type="xml">
-            <!-- El panel de historia se compila al costado, como el chatter.
-                 En esta consulta el odontograma necesita el ancho: la clase
-                 pide el acomodo en columna (ver encounter_form.scss). -->
+            <!-- La historia sigue al costado. La clase marca esta consulta
+                 para achicar esa columna y el odontograma
+                 (encounter_form.scss). -->
             <xpath expr="//form" position="attributes">
                 <attribute name="class" add="o_emr_odontology_encounter" separator=" "/>
             </xpath>
