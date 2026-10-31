@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.4.0",
+    "version": "19.0.1.5.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -49,6 +49,11 @@ En la consulta, la historia clínica sigue al costado del formulario.
 Esa columna es más angosta que el panel habitual (cerca de un 30%
 menos) y el odontograma se dibuja un 25% más chico, para que el mapa
 y la historia quepan en la misma fila.
+
+La cabecera de la consulta es más compacta: la fecha de atención va
+en la misma fila que el turno, motivo y evolución ocupan menos alto,
+y no se muestra el aviso azul sobre el odontograma. La leyenda de
+condiciones (sano, caries, obturación, …) es más grande.
 
 La notación es FDI. Las piezas temporarias están en el mismo esquema y se
 muestran aparte en el mapa.

@@ -16,4 +16,27 @@
     .o_emr_odontogram_board {
         zoom: 0.75;
     }
+
+    // El hueco entre filas del grupo es $spacer * 0.5 (8px). Acá va a la
+    // mitad, en la cabecera y en motivo/evolución.
+    .o_emr_odontology_header .o_inner_group,
+    .o_emr_odontology_clinical .o_inner_group {
+        --inner-group-row-gap: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    // El textarea vacío arranca en 50px por el autoresize de Odoo. Con alto
+    // automático y una fila, el hueco queda cerca de la mitad y crece si
+    // escriben más de una línea.
+    .o_emr_odontology_clinical .o_field_text > div {
+        height: auto !important;
+
+        > textarea {
+            height: auto !important;
+            min-height: 1.6em;
+            field-sizing: content;
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+    }
 }
