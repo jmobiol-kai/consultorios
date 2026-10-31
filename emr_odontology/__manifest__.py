@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.10.0",
+    "version": "19.0.1.11.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -65,7 +65,7 @@ ese color pinta todas las caras: corona, implante, prótesis, ausente,
 sano y extracción indicada vienen así. Caries, obturación y el resto
 pintan solo la cara elegida. Una marca de la pieza se sigue viendo en
 las caras que no tienen marca propia.
-En Configuración, Estados deja cambiar el nombre, el color y si el
+En Configuración, Estados de la pieza deja cambiar el nombre, el color y si el
 estado es de la pieza entera. El código técnico no se toca, así las
 marcas ya guardadas siguen pintando.
 

@@ -6,7 +6,7 @@
 
 Sano, caries, corona y el resto no están fijos en el código: el nombre,
 el color y si pintan la pieza entera se editan en Configuración →
-Estados. El código técnico sí queda fijo, porque es lo que se guarda
+Estados de la pieza. El código técnico sí queda fijo, porque es lo que se guarda
 en cada marca. Cambiarlo rompería las piezas ya cargadas.
 
 La situación de la marca (Presente, A tratar, Tratado) es otro
@@ -125,7 +125,7 @@ class EmrOdontogramCondition(models.Model):
         El xml de datos es noupdate: un -u no reescribe el nombre, el
         color, ni un campo nuevo. Corre una sola vez (instalación o
         primer -u). Si después se apaga la marca en Configuración →
-        Estados, no se vuelve a prender.
+        Estados de la pieza, no se vuelve a prender.
         """
         key = "emr_odontology.whole_tooth_seeded"
         params = self.env["ir.config_parameter"].sudo()

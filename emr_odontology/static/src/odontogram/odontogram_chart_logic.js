@@ -73,7 +73,7 @@ export const WHOLE_TOOTH_CODES = new Set([
 /**
  * Si este estado pinta la pieza entera.
  *
- * Manda `row.whole_tooth` (Configuración → Estados). El nombre no se
+ * Manda `row.whole_tooth` (Configuración → Estados de la pieza). El nombre no se
  * mira. Sin fila, o sin el campo, se usan los códigos de fábrica.
  *
  * @param {{ whole_tooth?: boolean | number } | null | undefined} row
