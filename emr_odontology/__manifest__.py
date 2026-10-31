@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.3.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -45,6 +45,10 @@ odontológica en atención, sin pasar por el cobro. Lo que se marca en la
 consulta pasa solo al presupuesto, que se abre con "Ver presupuesto".
 Las correcciones hechas directo en el odontograma no se cobran.
 
+En la consulta, la historia clínica del paciente queda debajo del
+formulario, a todo el ancho. El odontograma no comparte la fila con
+ese panel.
+
 La notación es FDI. Las piezas temporarias están en el mismo esquema y se
 muestran aparte en el mapa.
     """,
@@ -68,6 +72,7 @@ muestran aparte en el mapa.
             "emr_odontology/static/src/odontogram/odontogram_chart.js",
             "emr_odontology/static/src/odontogram/odontogram_chart.xml",
             "emr_odontology/static/src/odontogram/odontogram_chart.scss",
+            "emr_odontology/static/src/encounter_form.scss",
         ],
     },
     "installable": True,
