@@ -104,6 +104,7 @@
                 <field name="name"/>
                 <field name="code" readonly="id"/>
                 <field name="color" placeholder="#fff59d"/>
+                <field name="whole_tooth" widget="boolean_toggle"/>
                 <field name="active" widget="boolean_toggle"/>
             </list>
         </field>
@@ -119,15 +120,18 @@
                         <field name="name"/>
                         <field name="code" readonly="id"/>
                         <field name="color" placeholder="#fff59d"/>
+                        <field name="whole_tooth"/>
                         <field name="sequence"/>
                         <field name="active"/>
                     </group>
                     <p class="text-muted">
                         El código no se cambia: es el que queda guardado en
                         cada marca. El color es un hexadecimal de seis
-                        dígitos, como #fff59d para la corona. Desactivar
-                        esconde el estado de la leyenda; las marcas viejas
-                        siguen viéndose.
+                        dígitos, como #fff59d para la corona. Pieza entera
+                        pinta todas las caras al elegirlo en la leyenda;
+                        si no, se pinta solo la cara seleccionada.
+                        Desactivar esconde el estado de la leyenda; las
+                        marcas viejas siguen viéndose.
                     </p>
                 </sheet>
             </form>
@@ -141,6 +145,8 @@
             <search string="Estados">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="whole_tooth" string="Pieza entera"
+                        domain="[('whole_tooth', '=', True)]"/>
                 <filter name="inactive" string="Archivados"
                         domain="[('active', '=', False)]"
                         context="{'active_test': False}"/>
@@ -156,7 +162,7 @@
             <p class="o_view_nocontent_smiling_face">Definir un estado del odontograma</p>
             <p>
                 El nombre y el color salen en la leyenda del mapa. El código
-                técnico no se cambia.
+                técnico no se cambia. Pieza entera pinta todas las caras.
             </p>
         </field>
     </record>
