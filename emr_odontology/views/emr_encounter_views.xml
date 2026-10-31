@@ -21,19 +21,24 @@
                         invisible="not order_id"
                         help="Abre el turno de esta visita: las prácticas marcadas como A tratar o Tratado ya están cargadas."/>
             </xpath>
-            <!-- Fecha de atención sale de la columna izquierda y queda en la
-                 misma fila que el turno, a la derecha. Seis columnas: cada
-                 campo con rótulo ocupa dos, así entran tres por fila. -->
+            <!-- Un solo grupo interno es siempre rótulo + valor, así que
+                 col="6" igual apilaba todo a la izquierda. Dos grupos: el
+                 paciente queda a la izquierda y turno, fecha y profesional
+                 van en la columna de la derecha. -->
             <xpath expr="//sheet/group" position="replace">
                 <div class="o_emr_odontology_header">
-                    <group col="6">
-                        <field name="partner_id" readonly="1"/>
-                        <field name="order_id" readonly="1"/>
-                        <field name="date" readonly="1"/>
-                        <field name="practitioner_id" readonly="1"/>
-                        <field name="location_id" readonly="1"/>
-                        <field name="company_id" readonly="1"
-                               groups="base.group_multi_company"/>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="location_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="order_id" readonly="1"/>
+                            <field name="date" readonly="1"/>
+                            <field name="practitioner_id" readonly="1"/>
+                            <field name="company_id" readonly="1"
+                                   groups="base.group_multi_company"/>
+                        </group>
                     </group>
                 </div>
             </xpath>
