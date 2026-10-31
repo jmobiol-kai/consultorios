@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.12.0",
+    "version": "19.0.1.13.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -44,6 +44,12 @@ hueco de demanda si el profesional tiene franja abierta) y abre la consulta
 odontológica en atención, sin pasar por el cobro. Lo que se marca en la
 consulta pasa solo al presupuesto, que se abre con "Ver presupuesto".
 Las correcciones hechas directo en el odontograma no se cobran.
+
+En el asistente, si el dominio deja un solo profesional, ese queda
+elegido desde la primera vez. Si hay varios, el campo arranca vacío y
+después recuerda el último que ese usuario confirmó con «Atender ahora».
+Cada usuario de Odoo guarda el suyo (no se comparte entre recepciones)
+y el campo se puede cambiar antes de atender.
 
 En la consulta, la historia clínica sigue al costado del formulario.
 Esa columna es más angosta que el panel habitual (cerca de un 30%
