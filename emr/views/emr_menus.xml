@@ -16,8 +16,10 @@
               sequence="20" groups="group_emr_practitioner"/>
     <menuitem id="menu_emr_queue" name="Mis turnos" parent="menu_emr_atencion"
               action="sale_order_action_queue" sequence="10"/>
+    <!-- Un paciente por historia, no una fila por visita. Las visitas
+         siguen en el menú de cada tipo (Odontología, etc.). -->
     <menuitem id="menu_emr_encounters" name="Historias clínicas" parent="menu_emr_atencion"
-              action="emr_encounter_action" sequence="20"/>
+              action="action_emr_patient_history" sequence="20"/>
 
     <!-- Rendir: contar lo cobrado a nombre de un profesional y entregarselo. -->
     <menuitem id="menu_emr_settlement" name="Rendir a un profesional"

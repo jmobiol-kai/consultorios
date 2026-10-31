@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Historias clínicas: un paciente por fila.
+
+         La visita sigue siendo emr.encounter (y el hijo del tipo). Esta
+         pantalla es el encabezado: quién tiene historia, y al abrirla,
+         todas sus atenciones. No es la ficha de contacto.
+         ================================================================ -->
+    <record id="res_partner_view_search_patient_history" model="ir.ui.view">
+        <field name="name">res.partner.search.patient.history</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search string="Historias clínicas">
+                <field name="name" string="Paciente"
+                       filter_domain="['|', '|', ('name', 'ilike', self), ('vat', 'ilike', self), ('phone', 'ilike', self)]"/>
+                <field name="vat" string="Documento"/>
+                <field name="insurer_id"/>
+                <separator/>
+                <filter name="mine" string="Las mías"
+                        domain="[('encounter_ids.practitioner_id.user_ids', 'in', [uid])]"/>
+                <separator/>
+                <filter name="with_draft" string="Con atención en elaboración"
+                        domain="[('encounter_ids.state', '=', 'draft')]"/>
+                <filter name="with_signed" string="Con atención firmada"
+                        domain="[('encounter_ids.state', '=', 'signed')]"/>
+                <separator/>
+                <filter name="group_insurer" string="Obra social"
+                        context="{'group_by': 'insurer_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="res_partner_view_list_patient_history" model="ir.ui.view">
+        <field name="name">res.partner.list.patient.history</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="Historias clínicas" create="false" edit="false"
+                  delete="false" duplicate="false" default_order="name, id">
+                <field name="name" string="Paciente"/>
+                <field name="vat" string="Documento"/>
+                <field name="emr_last_encounter_date"/>
+                <field name="emr_encounter_count"/>
+                <field name="emr_draft_encounter_count"
+                       decoration-warning="emr_draft_encounter_count &gt; 0"/>
+                <field name="birthdate_date" optional="hide"/>
+                <field name="insurer_id" optional="hide"/>
+                <button name="action_open_clinical_history" type="object"
+                        string="Abrir" icon="fa-external-link"
+                        title="Abrir la historia clínica"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="res_partner_view_form_patient_history" model="ir.ui.view">
+        <field name="name">res.partner.form.patient.history</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <!-- Sin edición: esta ficha se consulta. La visita se modifica
+                 en su propio formulario, que es donde viven cerrar y firmar
+                 y, en odontología, el volcado al odontograma. -->
+            <form string="Historia clínica" create="false" edit="false"
+                  delete="false" duplicate="false">
+                <header>
+                    <button name="action_print_history" type="object"
+                            string="Imprimir" icon="fa-file-pdf-o"
+                            title="Descargar la historia clínica completa del paciente"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="vat" string="Documento" readonly="1"/>
+                            <field name="birthdate_date" readonly="1"/>
+                            <field name="gender" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="insurer_id" readonly="1"/>
+                            <field name="insurance_member_number" readonly="1"/>
+                            <field name="phone" readonly="1"/>
+                        </group>
+                    </group>
+                    <!-- emr_odontology reemplaza este grupo por el
+                         odontograma actual. Vacío, el núcleo no tiene mapa. -->
+                    <group name="emr_patient_history_chart" invisible="1"/>
+                    <separator name="emr_patient_history_encounters" string="Atenciones"/>
+                    <!-- no_open: un clic en la fila no abre el formulario
+                         genérico de emr.encounter. Ese formulario no tiene
+                         el detalle del tipo, y cerrar desde ahí se saltea
+                         lo que el hijo hace al cerrar (el odontograma, en
+                         odontología). Abrir llama action_open, que va al
+                         hijo: ahí siguen en elaboración, cerrada y firmada. -->
+                    <field name="encounter_ids" nolabel="1" readonly="1">
+                        <list create="false" delete="false" edit="false"
+                              no_open="1" default_order="date desc, id desc"
+                              limit="80">
+                            <field name="date"/>
+                            <field name="encounter_type_id"/>
+                            <field name="practitioner_id"/>
+                            <field name="state" widget="badge" string="Estado"
+                                   decoration-warning="state == 'draft'"
+                                   decoration-info="state == 'closed'"
+                                   decoration-success="state == 'signed'"/>
+                            <button name="action_open" type="object"
+                                    string="Abrir" icon="fa-external-link"
+                                    title="Abrir la atención"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_emr_patient_history" model="ir.actions.act_window">
+        <field name="name">Historias clínicas</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_patient', '=', True), ('encounter_ids', '!=', False)]</field>
+        <field name="search_view_id" ref="res_partner_view_search_patient_history"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Todavía no hay historias clínicas</p>
+            <p>
+                Acá aparece un paciente por cada historia. La historia se crea
+                al atender un turno y junta todas sus atenciones.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_emr_patient_history_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="res_partner_view_list_patient_history"/>
+        <field name="act_window_id" ref="action_emr_patient_history"/>
+    </record>
+
+    <record id="action_emr_patient_history_view_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="res_partner_view_form_patient_history"/>
+        <field name="act_window_id" ref="action_emr_patient_history"/>
+    </record>
+
+</odoo>

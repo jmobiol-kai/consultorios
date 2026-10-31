@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.13.0",
+    "version": "19.0.1.14.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -37,6 +37,13 @@ Cada marca que es una práctica (condición distinta de sano/ausente, en
 estado "A tratar" o "Tratado") agrega una línea al turno de la atención,
 con el producto de servicio de su condición y una descripción como
 "Caries distal pieza 14 (A tratar)".
+
+Historias clínicas (Atención) lista un paciente por fila: quien ya
+tiene al menos una atención. Abrirla muestra la historia completa, con
+el odontograma actual y todas las visitas. Cada visita conserva su
+estado (en elaboración, cerrada, firmada) y se abre con el formulario
+de la consulta. Odontología sigue siendo la lista de visitas, y
+Atender ahora no cambia.
 
 Atender ahora: para el paciente que llega sin turno. Desde el menú
 Atención, la ficha del paciente o su odontograma, crea el turno (con el

@@ -11,6 +11,31 @@ from odoo.exceptions import UserError
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
+    # El mapa es uno por paciente. La historia clínica lo muestra adentro;
+    # no es la lista del menú. `copy=False`: duplicar un paciente no duplica
+    # la boca, y el odontograma tampoco se deja copiar.
+    odontogram_ids = fields.One2many(
+        "emr.odontogram",
+        "partner_id",
+        string="Odontogramas",
+        copy=False,
+    )
+    odontogram_id = fields.Many2one(
+        "emr.odontogram",
+        string="Odontograma",
+        compute="_compute_odontogram_id",
+    )
+    odontogram_tooth_ids = fields.One2many(
+        related="odontogram_id.tooth_ids",
+        string="Piezas",
+        readonly=True,
+    )
+
+    @api.depends("odontogram_ids")
+    def _compute_odontogram_id(self):
+        for partner in self:
+            partner.odontogram_id = partner.odontogram_ids[:1]
+
     def action_open_odontogram(self):
         """Abre el odontograma del paciente y lo crea si no existe.
 
