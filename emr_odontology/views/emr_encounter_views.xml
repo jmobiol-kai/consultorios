@@ -22,13 +22,13 @@
                  cierra la visita. Nuevo es el único que arma el presupuesto. -->
             <xpath expr="//header/button[@name='action_close']" position="before">
                 <button name="action_new_quotation" type="object" string="Nuevo"
-                        invisible="state != 'draft'"
+                        invisible="context.get('emr_history_readonly') or state != 'draft'"
                         help="Crea un presupuesto para este paciente. Elegir el paciente solo muestra la historia clínica. Si esta visita ya tiene presupuesto, abre otra con uno nuevo."/>
             </xpath>
             <xpath expr="//header/field[@name='state']" position="before">
                 <button name="action_view_sale_order" type="object"
                         string="Ver presupuesto" icon="fa-file-text-o"
-                        invisible="not order_id"
+                        invisible="context.get('emr_history_readonly') or not order_id"
                         help="Abre el turno de esta visita: las prácticas marcadas como A tratar o Tratado ya están cargadas."/>
             </xpath>
             <!-- Cada campo va en su propio grupo: el grupo interno de Odoo
@@ -75,12 +75,14 @@
                 <page name="odontology" string="Odontología">
                     <div class="o_emr_odontology_clinical">
                         <group>
-                            <field name="reason" placeholder="Motivo de consulta" rows="1"/>
-                            <field name="notes" placeholder="Evolución" rows="1"/>
+                            <field name="reason" placeholder="Motivo de consulta" rows="1"
+                                   readonly="state != 'draft'"/>
+                            <field name="notes" placeholder="Evolución" rows="1"
+                                   readonly="state != 'draft'"/>
                         </group>
                     </div>
                     <field name="line_ids" widget="odontogram_chart" mode="list"
-                           nolabel="1" readonly="state == 'signed'">
+                           nolabel="1" readonly="state != 'draft'">
                         <list limit="1000">
                             <field name="fdi"/>
                             <field name="surface"/>
@@ -90,7 +92,7 @@
                             <field name="sequence" column_invisible="1"/>
                         </list>
                     </field>
-                    <field name="line_ids" readonly="state == 'signed'" nolabel="1">
+                    <field name="line_ids" readonly="state != 'draft'" nolabel="1">
                         <list editable="bottom" limit="1000">
                             <field name="sequence" widget="handle"/>
                             <field name="fdi"/>
@@ -100,7 +102,8 @@
                             <field name="notes"/>
                         </list>
                     </field>
-                    <field name="diagnosis_ids" widget="many2many_tags"/>
+                    <field name="diagnosis_ids" widget="many2many_tags"
+                           readonly="state != 'draft'"/>
                 </page>
             </page>
         </field>

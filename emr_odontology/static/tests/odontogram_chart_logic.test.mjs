@@ -7,6 +7,7 @@ import {
     clearTargets,
     conditionIsWholeTooth,
     cssColor,
+    chartEditsAllowed,
     faceClickAction,
     legendPaintPlan,
     legendShowsActive,
@@ -178,6 +179,12 @@ test("the second click blanks a whole-tooth color that lives on the pieza", () =
     assert.deepEqual(clearTargets("tooth", "crown", "crown", true), ["tooth"]);
     assert.deepEqual(clearTargets("occlusal", "", "caries", false), []);
     assert.deepEqual(clearTargets("occlusal", "", "", false), []);
+});
+
+test("a readonly chart does not take face or legend edits", () => {
+    assert.equal(chartEditsAllowed(false), true);
+    assert.equal(chartEditsAllowed(undefined), true);
+    assert.equal(chartEditsAllowed(true), false);
 });
 
 test("a face click selects, and the next click on that same face clears", () => {

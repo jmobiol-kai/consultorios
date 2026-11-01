@@ -58,6 +58,52 @@ class AttentionScreenTest(unittest.TestCase):
         self.assertEqual(fields["target"], "current")
         self.assertNotIn("emr.odontology.walkin", ET.tostring(self.root, encoding="unicode"))
 
+    def test_past_visit_locks_the_clinical_fields(self):
+        locked = {}
+        for field in self.root.iter("field"):
+            name = field.get("name")
+            if name in {"reason", "notes", "diagnosis_ids", "line_ids"} and field.get("readonly"):
+                locked.setdefault(name, []).append(field.get("readonly"))
+        self.assertEqual(
+            locked,
+            {
+                "reason": ["state != 'draft'"],
+                "notes": ["state != 'draft'"],
+                "line_ids": ["state != 'draft'", "state != 'draft'"],
+                "diagnosis_ids": ["state != 'draft'"],
+            },
+        )
+
+    def test_history_card_hides_nuevo_and_the_quote(self):
+        invisible = {
+            button.get("name"): button.get("invisible")
+            for button in self.root.iter("button")
+            if button.get("name") in {"action_new_quotation", "action_view_sale_order"}
+        }
+        self.assertEqual(
+            invisible["action_new_quotation"],
+            "context.get('emr_history_readonly') or state != 'draft'",
+        )
+        self.assertIn("state != 'draft'", invisible["action_new_quotation"])
+        self.assertIn("emr_history_readonly", invisible["action_view_sale_order"])
+
+    def test_odontogram_faces_do_not_select_when_readonly(self):
+        source = (
+            _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.js"
+        ).read_text(encoding="utf-8")
+        region = source.split("async onRegion", 1)[1].split("async onTooth", 1)[0]
+        tooth = source.split("async onTooth", 1)[1].split("async clearSelectionMark", 1)[0]
+        legend = source.split("async onLegend", 1)[1].split("async applyCondition", 1)[0]
+        for handler in (region, tooth, legend):
+            self.assertLess(
+                handler.index("chartEditsAllowed"),
+                handler.index("return;"),
+            )
+        chart = (
+            _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.xml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Consulta registrada", chart)
+
     def test_patient_is_chosen_on_the_screen_until_there_is_a_quote(self):
         readonly = [
             field.get("readonly")
