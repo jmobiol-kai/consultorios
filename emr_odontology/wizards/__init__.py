@@ -3,4 +3,5 @@
 # directory
 ##############################################################################
 
-from . import emr_odontology_walkin
+# walkin_default no es un modelo. Lo importa res.partner: el profesional
+# inicial de la atención, sin el asistente que pedía paciente y odontólogo.

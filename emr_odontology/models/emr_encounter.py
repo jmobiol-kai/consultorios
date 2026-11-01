@@ -48,6 +48,10 @@ class EmrEncounterOdontology(models.Model):
         res = super().default_get(fields_list)
         if "encounter_type_id" in fields_list and not res.get("encounter_type_id"):
             res["encounter_type_id"] = self._default_encounter_type().id
+        if "practitioner_id" in fields_list and not res.get("practitioner_id"):
+            practitioner = self.env["res.partner"]._emr_odontology_default_practitioner()
+            if practitioner:
+                res["practitioner_id"] = practitioner.id
         return res
 
     @api.model
@@ -89,6 +93,38 @@ class EmrEncounterOdontology(models.Model):
         # la última edición no haya pasado por write del hijo.
         self._sync_odontogram()
         return super().action_close()
+
+    def action_new_quotation(self):
+        """«Nuevo»: el presupuesto de esta visita.
+
+        Elegir el paciente no lo crea. Si esta visita ya tiene uno, abre
+        otra visita del mismo paciente con un presupuesto nuevo: Nuevo es
+        un presupuesto más, no el mismo.
+        """
+        self.ensure_one()
+        if self.state != "draft":
+            raise UserError(_("Esta atención ya está cerrada."))
+        if not self.partner_id:
+            raise UserError(_("Elegí el paciente para crear el presupuesto."))
+        practitioner = (
+            self.practitioner_id
+            or self.env["res.partner"]._emr_odontology_default_practitioner()
+        )
+        if not practitioner:
+            raise UserError(_(
+                "Elegí el profesional en esta pantalla. Si hay varios, la "
+                "próxima vez queda el último que uses en Nuevo."
+            ))
+        self.env["res.partner"]._emr_odontology_remember_practitioner(practitioner)
+        target = self
+        if self.order_id:
+            target = self.create({
+                "partner_id": self.partner_id.id,
+                "practitioner_id": practitioner.id,
+            })
+        elif self.practitioner_id != practitioner:
+            self.practitioner_id = practitioner
+        return self.partner_id._emr_odontology_attach_quotation(practitioner, target)
 
     def action_view_sale_order(self):
         """«Ver presupuesto»: el turno de esta visita, con las prácticas."""

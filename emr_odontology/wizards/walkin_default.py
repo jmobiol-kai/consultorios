@@ -2,10 +2,11 @@
 # For copyright and license notices, see __manifest__.py file in module root
 # directory
 ##############################################################################
-"""Qué profesional preseleccionar en Atender ahora, y dónde se guarda.
+"""Qué profesional preseleccionar en la atención, y dónde se guarda.
 
-No importa Odoo: el asistente hace las búsquedas y este módulo decide.
-Así se puede probar la regla sin levantar el servidor.
+No importa Odoo: quien llama hace las búsquedas y este módulo decide.
+Así se puede probar la regla sin levantar el servidor. Ya no hay
+asistente: el valor entra directo en la pantalla de la atención.
 """
 
 # Una clave de ir.config_parameter por usuario de Odoo. El valor es el

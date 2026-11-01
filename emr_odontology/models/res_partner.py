@@ -2,10 +2,14 @@
 # For copyright and license notices, see __manifest__.py file in module root
 # directory
 ##############################################################################
-from datetime import timedelta
-
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+from ..wizards.walkin_default import (
+    choose_walkin_practitioner,
+    parse_stored_practitioner_id,
+    walkin_practitioner_param_key,
+)
 
 
 class ResPartner(models.Model):
@@ -56,7 +60,7 @@ class ResPartner(models.Model):
         }
 
     # ------------------------------------------------------------------
-    # Atender ahora: paciente sin turno
+    # Atención sin turno: la pantalla, y el presupuesto aparte
     # ------------------------------------------------------------------
     @api.model
     def _emr_current_practitioner(self):
@@ -69,26 +73,80 @@ class ResPartner(models.Model):
             limit=1,
         )
 
-    def action_odontology_walkin(self):
-        """Botón «Atender ahora» de la ficha y del odontograma.
+    @api.model
+    def _emr_odontology_practitioner_domain(self):
+        return [("is_practitioner", "=", True)]
 
-        Si quien aprieta es un profesional, arranca la consulta de una. Si
-        no, abre el asistente para elegir quién atiende.
+    @api.model
+    def _emr_odontology_remembered_practitioner_id(self):
+        raw = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param(walkin_practitioner_param_key(self.env.uid))
+        )
+        return parse_stored_practitioner_id(raw)
+
+    @api.model
+    def _emr_odontology_remember_practitioner(self, practitioner):
+        """Guarda la elección de este usuario, no la de la clínica."""
+        if not practitioner:
+            return
+        self.env["ir.config_parameter"].sudo().set_param(
+            walkin_practitioner_param_key(self.env.uid),
+            str(practitioner.id),
+        )
+
+    @api.model
+    def _emr_odontology_default_practitioner(self):
+        """Profesional de la atención, sin pedir una pantalla previa.
+
+        Si quien opera es profesional, es ese. Si no, el único de la lista.
+        Con varios, el último que este usuario confirmó con Nuevo, si sigue
+        pudiendo elegirse. Si no hay ninguno, el campo queda vacío.
+        """
+        current = self._emr_current_practitioner()
+        if current:
+            return current
+        Partner = self.env["res.partner"]
+        domain = self._emr_odontology_practitioner_domain()
+        available_count = Partner.search_count(domain)
+        sole_id = False
+        remembered_id = False
+        remembered_allowed = False
+        if available_count == 1:
+            sole_id = Partner.search(domain, limit=1).id
+        elif available_count > 1:
+            remembered_id = self._emr_odontology_remembered_practitioner_id()
+            if remembered_id:
+                remembered_allowed = bool(
+                    Partner.search_count(domain + [("id", "=", remembered_id)])
+                )
+        chosen = choose_walkin_practitioner(
+            available_count,
+            sole_id=sole_id,
+            remembered_id=remembered_id,
+            remembered_allowed=remembered_allowed,
+        )
+        return Partner.browse(chosen) if chosen else Partner.browse()
+
+    def action_odontology_walkin(self):
+        """Abre la atención de este paciente, sin crear un presupuesto.
+
+        La historia clínica se ve en esa pantalla. El presupuesto lo crea
+        Nuevo, al lado de Atendido.
         """
         self.ensure_one()
         if not self.is_patient:
             raise UserError(_("Solo se atiende a un paciente."))
-        practitioner = self._emr_current_practitioner()
-        if practitioner:
-            return self._emr_odontology_walkin(practitioner)
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Atender ahora"),
-            "res_model": "emr.odontology.walkin",
-            "view_mode": "form",
-            "target": "new",
-            "context": {"default_partner_id": self.id},
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "emr_odontology.emr_odontology_walkin_action"
+        )
+        action["context"] = {
+            "default_partner_id": self.id,
+            "form_view_initial_mode": "edit",
         }
+        action["target"] = "current"
+        return action
 
     def _emr_odontology_walkin_template(self):
         template = self.env.ref(
@@ -114,43 +172,18 @@ class ResPartner(models.Model):
             )
         return template
 
-    def _emr_odontology_walkin(self, practitioner):
-        """Turno + consulta odontológica para el paciente que llegó sin turno.
+    def _emr_odontology_prepare_walkin_order(self, practitioner):
+        """Presupuesto de demanda espontánea, ya en atención, sin abrir visita.
 
-        Reusa el camino de la demanda espontánea: el hueco sale de
-        `emr.slot._create_demand_slot` si el profesional tiene franja de
-        demanda abierta, y si no el turno queda sin hueco (demanda
-        espontánea). La orden se arma con el mismo asistente de asignación,
-        sin pasar por el cobro: el turno queda como presupuesto y pasa
-        directo a «En atención». Lo que se marque en la visita se suma solo
-        a ese presupuesto.
-
-        Si ya hay una consulta odontológica abierta hoy para este paciente y
-        este profesional, se abre esa en lugar de duplicar el turno.
+        Es el mismo efecto que tenía «Atender ahora» sobre la orden: hueco de
+        demanda si el profesional tiene franja abierta, y si no el turno queda
+        sin hueco. No se cobra. Lo que después se marque en la consulta se
+        suma solo a este presupuesto.
         """
         self.ensure_one()
         practitioner.ensure_one()
         if not self.is_patient:
             raise UserError(_("Solo se atiende a un paciente."))
-        SaleOrder = self.env["sale.order"]
-
-        since = fields.Datetime.now() - timedelta(hours=12)
-        open_order = SaleOrder.search(
-            [
-                ("is_appointment", "=", True),
-                ("partner_id", "=", self.id),
-                ("practitioner_id", "=", practitioner.id),
-                ("appointment_state", "=", "in_progress"),
-                ("encounter_id.state", "=", "draft"),
-                ("encounter_id.res_model", "=", "emr.encounter.odontology"),
-                ("appointment_start", ">=", since),
-            ],
-            order="id desc",
-            limit=1,
-        )
-        if open_order:
-            return open_order._open_encounter()
-
         slot = self.env["emr.slot"]
         try:
             with self.env.cr.savepoint():
@@ -170,10 +203,39 @@ class ResPartner(models.Model):
                 "appointment_mode": "walkin",
             }
         )
-        order = SaleOrder.create(book._prepare_order_vals())
+        order = self.env["sale.order"].create(book._prepare_order_vals())
         book._apply_template(order)
         if slot:
             slot.write({"order_id": order.id})
         order.write({"confirmed_datetime": fields.Datetime.now()})
         order._set_appointment_state("in_progress")
-        return order._open_encounter()
+        return order
+
+    def _emr_odontology_attach_quotation(self, practitioner, encounter):
+        """Crea el presupuesto y lo deja en esta visita.
+
+        No abre otra historia: la pantalla ya es la atención. Si la visita
+        ya tiene presupuesto, el que llama abre una visita nueva antes.
+        """
+        self.ensure_one()
+        order = self._emr_odontology_prepare_walkin_order(practitioner)
+        vals = {
+            "order_id": order.id,
+            "practitioner_id": practitioner.id,
+        }
+        if order.location_id:
+            vals["location_id"] = order.location_id.id
+        if order.company_id:
+            vals["company_id"] = order.company_id.id
+        encounter.write(vals)
+        order.encounter_id = encounter.encounter_id
+        view = self.env.ref("emr_odontology.emr_encounter_odontology_view_form")
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Atención"),
+            "res_model": "emr.encounter.odontology",
+            "res_id": encounter.id,
+            "view_mode": "form",
+            "views": [(view.id, "form")],
+            "target": "current",
+        }

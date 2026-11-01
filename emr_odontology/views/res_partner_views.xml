@@ -10,7 +10,7 @@
                         class="oe_stat_button" icon="fa-user-md"
                         invisible="not is_patient"
                         groups="emr.group_emr_practitioner"
-                        help="Paciente sin turno: crea el turno y abre la consulta odontológica">
+                        help="Abre la atención de este paciente con la historia clínica. El presupuesto se crea con Nuevo, a la izquierda de Atendido.">
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_text">Atender ahora</span>
                     </div>
