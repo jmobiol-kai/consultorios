@@ -18,28 +18,24 @@
                       t-esc="state.entries.length"/>
             </div>
 
-            <div class="flex-grow-1 overflow-auto px-3">
-                <div t-if="!state.loaded" class="text-muted small py-3">
+            <div class="flex-grow-1 overflow-auto">
+                <div t-if="!state.loaded" class="text-muted small py-3 px-3">
                     Buscando…
                 </div>
-                <div t-elif="!state.entries.length" class="text-muted fst-italic py-3">
+                <div t-elif="!state.entries.length" class="text-muted fst-italic py-3 px-3">
                     Es la primera atención de este paciente.
                 </div>
                 <t t-else="">
+                    <!-- El renglón entero abre la atención. El PDF de la
+                         historia completa queda en el encabezado del panel. -->
                     <div t-foreach="state.entries" t-as="entry" t-key="entry.id"
-                         class="o-emr-PatientHistory-entry py-2 border-bottom">
+                         class="o-emr-PatientHistory-entry py-2 px-3 border-bottom"
+                         role="button"
+                         tabindex="0"
+                         aria-label="Abrir esta atención"
+                         t-on-click="() => this.openEncounter(entry)"
+                         t-on-keydown="(ev) => this.onEntryKeydown(ev, entry)">
                         <div t-out="entry.html"/>
-                        <div class="mt-1 d-flex gap-3">
-                            <button class="btn btn-link btn-sm p-0"
-                                    t-on-click="() => this.openEncounter(entry)">
-                                Abrir
-                            </button>
-                            <button class="btn btn-link btn-sm p-0"
-                                    title="Descargar el informe de esta atención"
-                                    t-on-click="() => this.printEncounter(entry)">
-                                <i class="fa fa-file-pdf-o me-1"/>PDF
-                            </button>
-                        </div>
                     </div>
                 </t>
             </div>

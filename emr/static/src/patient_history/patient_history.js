@@ -10,8 +10,8 @@ import { useService } from "@web/core/utils/hooks";
  * cuando hay ancho, abajo cuando no.
  *
  * El resumen de cada atención lo dibuja el servidor con la plantilla del tipo
- * que corresponda; acá se agregan las acciones sobre cada una, que es la razón
- * de que sea un componente y no un campo html.
+ * que corresponda. El renglón entero abre esa atención, en solo lectura; el
+ * PDF de la historia completa queda en el encabezado del panel.
  */
 export class EmrPatientHistory extends Component {
     static template = "emr.PatientHistory";
@@ -71,12 +71,13 @@ export class EmrPatientHistory extends Component {
         await this.action.doAction(action);
     }
 
-    async printEncounter(entry) {
-        // El informe lo resuelve `emr.encounter.action_print`, que sabe cual es
-        // el del tipo. Aca no se conoce el nombre del informe de cada tipo, ni
-        // tiene que conocerse: los tipos los traen sus modulos.
-        const action = await this.orm.call("emr.encounter", "action_print", [[entry.id]]);
-        await this.action.doAction(action);
+    onEntryKeydown(ev, entry) {
+        // El renglón es un botón: Enter y Espacio hacen lo mismo que el clic.
+        if (ev.key !== "Enter" && ev.key !== " ") {
+            return;
+        }
+        ev.preventDefault();
+        this.openEncounter(entry);
     }
 
     openEncounter(entry) {

@@ -2,6 +2,25 @@
     max-height: 100%;
 
     &-entry {
+        cursor: pointer;
+
+        // El html del resumen va dentro de un div (t-out) y cada tipo le
+        // pone borde inferior. El separador de la tarjeta es el de este
+        // renglón.
+        > div > .border-bottom {
+            border-bottom: 0 !important;
+        }
+
+        &:hover,
+        &:focus-visible {
+            background-color: rgba(var(--bs-emphasis-color-rgb, 0, 0, 0), 0.06);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--primary, #714b67);
+            outline-offset: -2px;
+        }
+
         &:last-child {
             border-bottom: 0 !important;
         }
