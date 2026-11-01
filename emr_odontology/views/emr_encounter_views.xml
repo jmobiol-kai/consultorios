@@ -12,8 +12,18 @@
             <!-- La historia sigue al costado. La clase marca esta consulta
                  para achicar esa columna y el odontograma
                  (encounter_form.scss). -->
+            <xpath expr="//field[@name='active']" position="after">
+                <field name="encounter_id" invisible="1"/>
+            </xpath>
             <xpath expr="//form" position="attributes">
                 <attribute name="class" add="o_emr_odontology_encounter" separator=" "/>
+            </xpath>
+            <!-- Nuevo queda a la izquierda de Atendido. Atendido no se toca:
+                 cierra la visita. Nuevo es el único que arma el presupuesto. -->
+            <xpath expr="//header/button[@name='action_close']" position="before">
+                <button name="action_new_quotation" type="object" string="Nuevo"
+                        invisible="state != 'draft'"
+                        help="Crea un presupuesto para este paciente. Elegir el paciente solo muestra la historia clínica. Si esta visita ya tiene presupuesto, abre otra con uno nuevo."/>
             </xpath>
             <xpath expr="//header/field[@name='state']" position="before">
                 <button name="action_view_sale_order" type="object"
@@ -30,7 +40,9 @@
                 <div class="o_emr_odontology_header">
                     <div class="o_emr_header_partner">
                         <group>
-                            <field name="partner_id" readonly="1"/>
+                            <field name="partner_id"
+                                   readonly="order_id or state != 'draft'"
+                                   options="{'no_quick_create': True}"/>
                         </group>
                     </div>
                     <div class="o_emr_header_order">
@@ -50,7 +62,9 @@
                     </div>
                     <div class="o_emr_header_practitioner">
                         <group>
-                            <field name="practitioner_id" readonly="1"/>
+                            <field name="practitioner_id"
+                                   readonly="order_id or state != 'draft'"
+                                   options="{'no_create': True}"/>
                             <field name="company_id" readonly="1"
                                    groups="base.group_multi_company"/>
                         </group>
@@ -151,36 +165,16 @@
               action="emr_encounter_odontology_action" sequence="22"
               groups="emr.group_emr_practitioner"/>
 
-    <record id="emr_odontology_walkin_view_form" model="ir.ui.view">
-        <field name="name">emr.odontology.walkin.form</field>
-        <field name="model">emr.odontology.walkin</field>
-        <field name="arch" type="xml">
-            <form string="Atender ahora">
-                <p class="text-muted">
-                    Para el paciente que llegó sin turno: se crea el turno y se
-                    abre la consulta odontológica. Lo que marques en la consulta
-                    como práctica (A tratar o Tratado) pasa solo al presupuesto.
-                    Si hay un solo profesional, queda elegido. Si hay varios,
-                    se recuerda el último que confirmó este usuario.
-                </p>
-                <group>
-                    <field name="partner_id" options="{'no_quick_create': True}"/>
-                    <field name="practitioner_id" options="{'no_create': True}"/>
-                </group>
-                <footer>
-                    <button name="action_start" type="object" string="Atender ahora"
-                            class="btn-primary"/>
-                    <button string="Cancelar" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
+    <!-- Sin asistente: Atención abre esta consulta vacía. El paciente se
+         elige en el formulario y la historia aparece al costado. El
+         presupuesto no existe hasta Nuevo. -->
     <record id="emr_odontology_walkin_action" model="ir.actions.act_window">
-        <field name="name">Atender ahora</field>
-        <field name="res_model">emr.odontology.walkin</field>
+        <field name="name">Atención</field>
+        <field name="res_model">emr.encounter.odontology</field>
         <field name="view_mode">form</field>
-        <field name="target">new</field>
+        <field name="view_id" ref="emr_encounter_odontology_view_form"/>
+        <field name="target">current</field>
+        <field name="context">{'form_view_initial_mode': 'edit'}</field>
     </record>
 
     <menuitem id="menu_emr_odontology_walkin" name="Atender ahora"

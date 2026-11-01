@@ -1,7 +1,8 @@
 /** @odoo-module **/
 
-import { Component, markup, onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, markup, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { useRecordObserver } from "@web/model/relational_model/utils";
 
 /**
  * La historia del paciente, al costado de la atención que se está cargando.
@@ -12,6 +13,10 @@ import { useService } from "@web/core/utils/hooks";
  * El resumen de cada atención lo dibuja el servidor con la plantilla del tipo
  * que corresponda. El renglón entero abre esa atención, en solo lectura; el
  * PDF de la historia completa queda en el encabezado del panel.
+ *
+ * El paciente se puede elegir en la misma pantalla, antes de que exista un
+ * presupuesto. El panel se vuelve a armar cuando cambia ese campo: el
+ * formulario no redibuja todo el costado por sí solo.
  */
 export class EmrPatientHistory extends Component {
     static template = "emr.PatientHistory";
@@ -24,31 +29,80 @@ export class EmrPatientHistory extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.state = useState({ entries: [], loaded: false, partnerId: false });
+        this._loadSeq = 0;
+        this._loadedKey = undefined;
+        this._inflight = undefined;
 
-        onWillStart(() => this.load(this.props));
-        onWillUpdateProps((next) => this.load(next));
+        // Lee partner_id (y la visita, si está en el formulario) para
+        // suscribirse: cuando la secretaria elige otro paciente, esto corre
+        // de nuevo y el costado muestra esa historia.
+        useRecordObserver((record) => {
+            this.load(this.many2oneId(record, "partner_id"), this.many2oneId(record, "encounter_id"));
+        });
     }
 
-    async load(props) {
-        const data = props.record.data;
-        const partner = data.partner_id;
-        const partnerId = Array.isArray(partner) ? partner[0] : partner && partner.id;
+    many2oneId(record, name) {
+        // La receta también usa este panel y no tiene encounter_id en la
+        // vista. No se lee un campo que el formulario no cargó.
+        try {
+            const active = record.activeFields;
+            if (active && !active[name]) {
+                return false;
+            }
+            const value = record.data[name];
+            if (!value) {
+                return false;
+            }
+            if (Array.isArray(value)) {
+                return value[0] || false;
+            }
+            return value.id || false;
+        } catch {
+            return false;
+        }
+    }
+
+    async load(partnerId, encounterId) {
+        const key = `${partnerId || 0}:${encounterId || 0}`;
+        if (this._loadedKey === key && (this.state.loaded || this._inflight === key)) {
+            return;
+        }
+        this._loadedKey = key;
+        this._inflight = key;
+        const seq = ++this._loadSeq;
         this.state.partnerId = partnerId || false;
         if (!partnerId) {
             this.state.entries = [];
             this.state.loaded = true;
+            this._inflight = undefined;
             return;
         }
-        const encounter = data.encounter_id;
-        const encounterId = Array.isArray(encounter)
-            ? encounter[0]
-            : encounter && encounter.id;
-
-        const entries = await this.orm.call(
-            "emr.encounter",
-            "get_patient_history",
-            [partnerId, encounterId || false]
-        );
+        // Mientras llega la historia nueva no se dejan las tarjetas del
+        // paciente anterior.
+        this.state.loaded = false;
+        let entries;
+        try {
+            entries = await this.orm.call(
+                "emr.encounter",
+                "get_patient_history",
+                [partnerId, encounterId || false]
+            );
+        } catch {
+            if (seq !== this._loadSeq) {
+                return;
+            }
+            // El servicio RPC ya mostró el error. Se suelta la carga para
+            // que elegir de nuevo al paciente vuelva a pedir la historia.
+            this._inflight = undefined;
+            this._loadedKey = undefined;
+            this.state.entries = [];
+            this.state.loaded = true;
+            return;
+        }
+        if (seq !== this._loadSeq) {
+            return;
+        }
+        this._inflight = undefined;
         // El resumen viaja como texto por RPC y t-out escapa las cadenas. Se
         // marca como markup para que se dibuje: el html lo genera el servidor
         // con nuestras propias plantillas, que ya escapan los valores.

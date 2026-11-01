@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.14.0",
+    "version": "19.0.1.15.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -42,21 +42,28 @@ Historias clínicas (Atención) lista un paciente por fila: quien ya
 tiene al menos una atención. Abrirla muestra la historia completa, con
 el odontograma actual y todas las visitas. Cada visita conserva su
 estado (en elaboración, cerrada, firmada) y se abre con el formulario
-de la consulta. Odontología sigue siendo la lista de visitas, y
-Atender ahora no cambia.
+de la consulta. Odontología sigue siendo la lista de visitas.
 
-Atender ahora: para el paciente que llega sin turno. Desde el menú
-Atención, la ficha del paciente o su odontograma, crea el turno (con el
-hueco de demanda si el profesional tiene franja abierta) y abre la consulta
-odontológica en atención, sin pasar por el cobro. Lo que se marca en la
-consulta pasa solo al presupuesto, que se abre con "Ver presupuesto".
+Atender ahora abre directo la pantalla de la atención, sin el asistente
+que pedía paciente y profesional. El paciente se elige ahí —también
+desde la ficha o el odontograma, que abren la misma pantalla con el
+paciente ya puesto— y al costado se ve la historia clínica. Elegir el
+paciente no crea un presupuesto.
+
+Nuevo, a la izquierda de Atendido, crea el presupuesto de demanda
+espontánea: el turno (con el hueco de demanda si el profesional tiene
+franja abierta, y si no sin hueco), en atención y sin pasar por el
+cobro. Queda en esta visita. Si la visita ya tiene presupuesto, Nuevo
+abre otra del mismo paciente con uno nuevo. Lo que se marca en la
+consulta pasa solo a ese presupuesto, que se abre con "Ver presupuesto".
 Las correcciones hechas directo en el odontograma no se cobran.
+Atendido no se saca: cierra la visita.
 
-En el asistente, si el dominio deja un solo profesional, ese queda
-elegido desde la primera vez. Si hay varios, el campo arranca vacío y
-después recuerda el último que ese usuario confirmó con «Atender ahora».
-Cada usuario de Odoo guarda el suyo (no se comparte entre recepciones)
-y el campo se puede cambiar antes de atender.
+El profesional de esa pantalla arranca solo. Si quien opera es
+profesional, es ese. Si no, y hay uno solo, es ese. Si hay varios, queda
+el último que ese usuario confirmó con Nuevo. Cada usuario de Odoo
+guarda el suyo (no se comparte entre recepciones) y el campo se puede
+cambiar antes de apretar Nuevo.
 
 En la consulta, la historia clínica sigue al costado del formulario.
 Esa columna es más angosta que el panel habitual (cerca de un 30%

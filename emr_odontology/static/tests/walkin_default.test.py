@@ -1,6 +1,6 @@
-"""Profesional inicial de Atender ahora, sin Odoo.
+"""Profesional inicial de la atención, sin Odoo.
 
-El asistente importa odoo. Esta regla no: se carga el archivo suelto.
+La pantalla importa odoo. Esta regla no: se carga el archivo suelto.
 """
 import importlib.util
 import pathlib
