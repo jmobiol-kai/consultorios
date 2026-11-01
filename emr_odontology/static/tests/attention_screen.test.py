@@ -115,6 +115,26 @@ class AttentionScreenTest(unittest.TestCase):
     def test_walkin_wizard_is_gone(self):
         self.assertFalse(_WIZARD.exists())
 
+    def test_generic_create_is_off_on_the_form(self):
+        found = False
+        for xpath in self.root.iter("xpath"):
+            if xpath.get("expr") != "//form" or xpath.get("position") != "attributes":
+                continue
+            for attribute in xpath.findall("attribute"):
+                if attribute.get("name") != "create":
+                    continue
+                self.assertEqual((attribute.text or "").strip(), "false")
+                found = True
+        self.assertTrue(found)
+
+    def test_header_nuevo_is_not_the_generic_create(self):
+        for button in self.root.iter("button"):
+            if button.get("string") != "Nuevo":
+                continue
+            self.assertEqual(button.get("name"), "action_new_quotation")
+            self.assertEqual(button.get("type"), "object")
+            self.assertNotEqual(button.get("name"), "create")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,6 +17,7 @@ esta atención.
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from .encounter_title import FALLBACK_TITLE, encounter_control_panel_title
 from .sale_order import BILLABLE_STATUSES, ODONTOLOGY_PRODUCT_NAMES
 
 
@@ -42,6 +43,19 @@ class EmrEncounterOdontology(models.Model):
         "odontology_id",
         string="Tratamientos",
     )
+    # El automático de Odoo, sin _rec_name, es «emr.encounter.odontology,<id>».
+    # Eso es lo que el panel recorta a «emr.encounter.odontol…» en una consulta
+    # nueva. El display_name del padre no llega: la delegación no pisa este
+    # campo mágico.
+    display_name = fields.Char(compute="_compute_display_name")
+
+    @api.depends("partner_id.name")
+    def _compute_display_name(self):
+        for record in self:
+            record.display_name = encounter_control_panel_title(
+                record.partner_id.name,
+                fallback=_(FALLBACK_TITLE),
+            )
 
     @api.model
     def default_get(self, fields_list):

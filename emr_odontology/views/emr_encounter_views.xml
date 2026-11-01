@@ -15,8 +15,12 @@
             <xpath expr="//field[@name='active']" position="after">
                 <field name="encounter_id" invisible="1"/>
             </xpath>
+            <!-- create=false saca el + Nuevo del panel. Ese botón abre otra
+                 consulta vacía, sin paciente ni presupuesto, y se confunde
+                 con Nuevo de la cabecera (el presupuesto). -->
             <xpath expr="//form" position="attributes">
                 <attribute name="class" add="o_emr_odontology_encounter" separator=" "/>
+                <attribute name="create">false</attribute>
             </xpath>
             <!-- Nuevo queda a la izquierda de Atendido. Atendido no se toca:
                  cierra la visita. Nuevo es el único que arma el presupuesto. -->

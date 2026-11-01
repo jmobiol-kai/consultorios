@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.16.0",
+    "version": "19.0.1.16.1",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -57,7 +57,11 @@ cobro. Queda en esta visita. Si la visita ya tiene presupuesto, Nuevo
 abre otra del mismo paciente con uno nuevo. Lo que se marca en la
 consulta pasa solo a ese presupuesto, que se abre con "Ver presupuesto".
 Las correcciones hechas directo en el odontograma no se cobran.
-Atendido no se saca: cierra la visita.
+Atendido no se saca: cierra la visita. El + Nuevo del panel de Odoo
+no se muestra: abría una consulta vacía, sin paciente ni presupuesto,
+al lado del Nuevo de la cabecera. El título del panel es el paciente;
+mientras la consulta está vacía dice «Nueva consulta» y no el nombre
+técnico del modelo.
 
 Una consulta cerrada o firmada no se edita: motivo, evolución,
 diagnósticos y el odontograma quedan bloqueados. En el mapa las caras
