@@ -56,6 +56,17 @@ export function faceClickAction(alreadySelected) {
     return alreadySelected ? "clear" : "select";
 }
 
+/**
+ * Una consulta cerrada, firmada o abierta desde la historia no selecciona
+ * caras ni aplica la leyenda. `readonly` es el del campo (o del formulario).
+ *
+ * @param {boolean} readonly
+ * @returns {boolean}
+ */
+export function chartEditsAllowed(readonly) {
+    return !readonly;
+}
+
 // Caras anatómicas. "tooth" es la pieza entera, no una cara.
 export const FACE_SURFACES = ["mesial", "distal", "occlusal", "buccal", "lingual"];
 

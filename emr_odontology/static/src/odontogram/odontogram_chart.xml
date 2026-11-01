@@ -75,7 +75,10 @@
                     </t>
                 </div>
             </div>
-            <p class="o_emr_odontogram_help text-muted">
+            <p t-if="props.readonly" class="o_emr_odontogram_help text-muted">
+                Consulta registrada. Las caras no se pueden seleccionar ni cambiar.
+            </p>
+            <p t-else="" class="o_emr_odontogram_help text-muted">
                 El centro del círculo es oclusal y alrededor están las caras.
                 El primer clic en una cara la selecciona, sin cambiar el color.
                 Otro clic en esa misma cara borra la marca y la deja en blanco.

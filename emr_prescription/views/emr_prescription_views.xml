@@ -19,12 +19,13 @@
             <form string="Receta">
                 <header>
                     <button name="action_authorize" type="object" string="Autorizar"
-                            class="btn-primary" invisible="state != 'draft'"
+                            class="btn-primary"
+                            invisible="context.get('emr_history_readonly') or state != 'draft'"
                             groups="emr.group_emr_practitioner"
                             help="Firma la receta a tu nombre y la deja lista para entregar"/>
                     <button name="action_deliver" type="object" string="Entregar"
                             class="btn-primary"
-                            invisible="state != 'signed' or delivered_date"/>
+                            invisible="context.get('emr_history_readonly') or state != 'signed' or delivered_date"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,signed"/>
                 </header>

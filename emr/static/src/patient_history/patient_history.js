@@ -3,6 +3,7 @@
 import { Component, markup, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { useRecordObserver } from "@web/model/relational_model/utils";
+import { FormViewDialog } from "@web/views/view_dialogs/form_view_dialog";
 
 /**
  * La historia del paciente, al costado de la atención que se está cargando.
@@ -28,6 +29,7 @@ export class EmrPatientHistory extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
+        this.dialog = useService("dialog");
         this.state = useState({ entries: [], loaded: false, partnerId: false });
         this._loadSeq = 0;
         this._loadedKey = undefined;
@@ -142,17 +144,23 @@ export class EmrPatientHistory extends Component {
         // atención, y perderla de vista para mirar otra es peor que abrirla
         // al frente.
         //
-        // Y en solo lectura: acá se viene a consultar qué le pasó antes al
-        // paciente, no a corregirlo. Editar de paso una atención anterior,
-        // desde el costado y sin haberla buscado, es la clase de cambio que
-        // después nadie sabe explicar.
-        this.action.doAction({
-            type: "ir.actions.act_window",
-            res_model: entry.res_model,
-            res_id: entry.res_id,
-            views: [[false, "form"]],
-            target: "new",
-            context: { form_view_initial_mode: "readonly" },
+        // Y en solo lectura de verdad. Odoo 19 ya no mira
+        // form_view_initial_mode, y un act_window con target "new" abre el
+        // formulario en edición: por eso se veían Guardar y Descartar y el
+        // odontograma seguía seleccionando caras. Esta tarjeta es para
+        // consultar qué le pasó antes al paciente, aunque la visita haya
+        // quedado en elaboración. No se expande: expandir abriría el mismo
+        // formulario en edición y se perdería la atención de abajo.
+        this.dialog.add(FormViewDialog, {
+            resModel: entry.res_model,
+            resId: entry.res_id,
+            title: "Consulta",
+            readonly: true,
+            preventCreate: true,
+            preventEdit: true,
+            canExpand: false,
+            size: "xl",
+            context: { emr_history_readonly: true },
         });
     }
 }

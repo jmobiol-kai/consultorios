@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.15.0",
+    "version": "19.0.1.16.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -58,6 +58,14 @@ abre otra del mismo paciente con uno nuevo. Lo que se marca en la
 consulta pasa solo a ese presupuesto, que se abre con "Ver presupuesto".
 Las correcciones hechas directo en el odontograma no se cobran.
 Atendido no se saca: cierra la visita.
+
+Una consulta cerrada o firmada no se edita: motivo, evolución,
+diagnósticos y el odontograma quedan bloqueados. En el mapa las caras
+no se seleccionan y la leyenda no pinta. Abrirla desde una tarjeta de
+la historia clínica es solo consulta, aunque hubiera quedado en
+elaboración: no hay Guardar, Descartar ni Nuevo, y Atendido y Firmar
+no se ofrecen. Atender ahora, con la visita en elaboración, sigue
+igual.
 
 El profesional de esa pantalla arranca solo. Si quien opera es
 profesional, es ese. Si no, y hay uno solo, es ese. Si hay varios, queda

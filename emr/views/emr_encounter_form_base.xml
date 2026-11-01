@@ -19,23 +19,29 @@
         <field name="model">emr.encounter</field>
         <field name="arch" type="xml">
             <form string="Atención">
+                <!-- Cerrada o firmada, o abierta desde una tarjeta de la
+                     historia: el formulario pasa a solo lectura. -->
+                <widget name="emr_encounter_readonly" class="d-none"/>
                 <header>
                     <!-- Las tres formas de salir de una atención. Solo una es
-                         haber atendido. -->
+                         haber atendido. Desde una tarjeta de la historia no
+                         se ofrecen: esa apertura es para consultar. -->
                     <button name="action_close" type="object" string="Atendido"
-                            class="btn-primary" invisible="state != 'draft'"/>
+                            class="btn-primary"
+                            invisible="context.get('emr_history_readonly') or state != 'draft'"/>
                     <button name="action_wait" type="object" string="Espera"
-                            invisible="state != 'draft'"
+                            invisible="context.get('emr_history_readonly') or state != 'draft'"
                             help="Vuelve a la sala de espera y sigue con otro paciente"/>
                     <button name="action_no_show" type="object" string="Ausente"
-                            invisible="state != 'draft'"
+                            invisible="context.get('emr_history_readonly') or state != 'draft'"
                             confirm="Se va a descartar esta historia clínica y el turno queda como ausente. ¿Seguimos?"
                             help="No entró al consultorio"/>
                     <button name="action_retype" type="object" string="Cambiar el tipo"
-                            invisible="state != 'draft'"
+                            invisible="context.get('emr_history_readonly') or state != 'draft'"
                             help="Registrar esta atención en otro tipo de historia clínica"/>
                     <button name="action_sign" type="object" string="Firmar"
-                            class="btn-primary" invisible="state != 'closed'"/>
+                            class="btn-primary"
+                            invisible="context.get('emr_history_readonly') or state != 'closed'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,closed,signed"/>
                 </header>
@@ -76,7 +82,8 @@
                         <!-- Cada tipo mete sus páginas antes de estas dos,
                              que son iguales para todos. -->
                         <page name="attachments" string="Imágenes y estudios">
-                            <field name="attachment_ids" widget="many2many_binary"/>
+                            <field name="attachment_ids" widget="many2many_binary"
+                                   readonly="state != 'draft'"/>
                         </page>
                         <page name="addenda" string="Agregados">
                             <field name="addendum_ids" readonly="1">

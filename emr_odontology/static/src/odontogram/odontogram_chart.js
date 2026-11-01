@@ -6,6 +6,7 @@ import { useService } from "@web/core/utils/hooks";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
 import {
+    chartEditsAllowed,
     clearTargets,
     conditionIsWholeTooth,
     cssColor,
@@ -425,6 +426,9 @@ export class OdontogramChartField extends Component {
             ev.preventDefault();
             ev.stopPropagation();
         }
+        if (!chartEditsAllowed(this.props.readonly)) {
+            return;
+        }
         if (faceClickAction(this.isSelected(fdi, surface)) === "clear") {
             await this.clearSelectionMark(fdi, surface);
             return;
@@ -436,6 +440,9 @@ export class OdontogramChartField extends Component {
         if (ev) {
             ev.preventDefault();
             ev.stopPropagation();
+        }
+        if (!chartEditsAllowed(this.props.readonly)) {
+            return;
         }
         const surface = this.state.surface;
         if (faceClickAction(this.isSelected(fdi, surface)) === "clear") {
@@ -460,7 +467,7 @@ export class OdontogramChartField extends Component {
     }
 
     async clearMark(fdi, surface) {
-        if (this.props.readonly) {
+        if (!chartEditsAllowed(this.props.readonly)) {
             return;
         }
         const list = this.lines;
@@ -474,7 +481,7 @@ export class OdontogramChartField extends Component {
     }
 
     async onLegend(condition) {
-        if (this.props.readonly) {
+        if (!chartEditsAllowed(this.props.readonly)) {
             return;
         }
         const sel = this.state.selection;
@@ -493,7 +500,7 @@ export class OdontogramChartField extends Component {
     }
 
     async applyCondition(fdi, surface, condition) {
-        if (this.props.readonly) {
+        if (!chartEditsAllowed(this.props.readonly)) {
             return;
         }
         const list = this.lines;
