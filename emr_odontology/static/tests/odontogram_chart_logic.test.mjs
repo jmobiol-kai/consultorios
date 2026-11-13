@@ -3,16 +3,23 @@ import test from "node:test";
 
 import {
     FACE_SURFACES,
+    STATE_BLUE,
+    STATE_RED,
     STATUS_FOR_CONDITION,
+    alignPrimarySlots,
     clearTargets,
     conditionIsWholeTooth,
+    conditionSymbol,
     cssColor,
     chartEditsAllowed,
     faceClickAction,
+    faceLayout,
     legendPaintPlan,
     legendShowsActive,
     nextMark,
     paintCondition,
+    stateColor,
+    stateKey,
     statusForCondition,
 } from "../src/odontogram/odontogram_chart_logic.js";
 
@@ -89,6 +96,17 @@ test("legend choice sets the condition and never clears it", () => {
         same: false,
     });
     assert.equal(nextMark(YELLOW, YELLOW).same, true);
+    assert.deepEqual(nextMark(YELLOW, YELLOW, "pending"), {
+        condition: YELLOW,
+        status: "treated",
+        same: false,
+    });
+    assert.deepEqual(nextMark("caries", "caries", "treated"), {
+        condition: "caries",
+        status: "pending",
+        same: false,
+    });
+    assert.equal(nextMark("crown", "crown", "present").same, true);
     assert.equal(statusForCondition("endodontics"), "pending");
     assert.equal(statusForCondition("implant"), "pending");
     assert.equal(statusForCondition("extraction"), "pending");
@@ -179,6 +197,50 @@ test("the second click blanks a whole-tooth color that lives on the pieza", () =
     assert.deepEqual(clearTargets("tooth", "crown", "crown", true), ["tooth"]);
     assert.deepEqual(clearTargets("occlusal", "", "caries", false), []);
     assert.deepEqual(clearTargets("occlusal", "", "", false), []);
+});
+
+test("state paints red to treat and blue when done or already restored", () => {
+    assert.equal(stateKey("crown", "pending"), "pending");
+    assert.equal(stateKey("crown", "treated"), "treated");
+    assert.equal(stateKey("crown", "present"), "treated");
+    assert.equal(stateColor("crown", "pending"), STATE_RED);
+    assert.equal(stateColor("crown", "treated"), STATE_BLUE);
+    assert.equal(stateColor("crown", "present"), STATE_BLUE);
+    assert.notEqual(stateColor("crown", "pending"), stateColor("crown", "treated"));
+    assert.equal(stateColor("caries", "pending"), STATE_RED);
+    assert.equal(stateColor("restoration", "treated"), STATE_BLUE);
+    assert.equal(stateColor("restoration", "present"), STATE_BLUE);
+    assert.equal(stateColor("implant", "present"), STATE_BLUE);
+    assert.equal(stateColor("sound", "present"), "");
+    assert.equal(stateKey("missing", "missing"), "missing");
+    assert.equal(stateColor("missing", "missing"), "");
+    assert.equal(stateKey("sound", "unerupted"), "unerupted");
+    assert.equal(conditionSymbol("crown"), "CR");
+    assert.equal(conditionSymbol("caries"), "C");
+    assert.equal(conditionSymbol("sound"), "");
+    assert.equal(conditionSymbol("sound", true), "○");
+});
+
+test("primary teeth sit inside the permanent arch, on the midline side", () => {
+    const upperRight = alignPrimarySlots(["55", "54", "53", "52", "51"], true);
+    assert.deepEqual(upperRight, [null, null, null, "55", "54", "53", "52", "51"]);
+    const upperLeft = alignPrimarySlots(["61", "62", "63", "64", "65"], false);
+    assert.deepEqual(upperLeft, ["61", "62", "63", "64", "65", null, null, null]);
+    const lowerRight = alignPrimarySlots(["85", "84", "83", "82", "81"], true);
+    assert.equal(lowerRight[3], "85");
+    assert.equal(lowerRight[7], "81");
+    assert.equal(lowerRight[0], null);
+});
+
+test("each tooth exposes five faces and keeps mesial toward the midline", () => {
+    const upperRight = faceLayout("16", false).map((face) => face.surface);
+    assert.deepEqual(upperRight.sort(), ["buccal", "distal", "lingual", "mesial"].sort());
+    const right = faceLayout("16", false).find((face) => face.surface === "mesial");
+    const left = faceLayout("21", false).find((face) => face.surface === "mesial");
+    assert.ok(right.x > 50);
+    assert.ok(left.x < 50);
+    assert.ok(faceLayout("55", false).every((face) => face.d.includes("M ")));
+    assert.equal(faceLayout("75", true).find((face) => face.y > 60).surface, "buccal");
 });
 
 test("a readonly chart does not take face or legend edits", () => {

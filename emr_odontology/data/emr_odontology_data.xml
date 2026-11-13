@@ -37,4 +37,11 @@
         <field name="product_id" ref="product_consulta_odontologica"/>
         <field name="product_uom_qty">1</field>
     </record>
+
+    <!-- noupdate: si en Ajustes se apaga el perfil, un -u no lo vuelve a prender.
+         Vacío no es perfil dental; el menú trata la ausencia como prendido. -->
+    <record id="config_emr_odontology_dental_profile" model="ir.config_parameter">
+        <field name="key">emr_odontology.dental_profile</field>
+        <field name="value">True</field>
+    </record>
 </odoo>

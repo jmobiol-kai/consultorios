@@ -101,7 +101,7 @@ class ResPartner(models.Model):
         """Profesional de la atención, sin pedir una pantalla previa.
 
         Si quien opera es profesional, es ese. Si no, el único de la lista.
-        Con varios, el último que este usuario confirmó con Nuevo, si sigue
+        Con varios, el último que este usuario confirmó con Presupuesto, si sigue
         pudiendo elegirse. Si no hay ninguno, el campo queda vacío.
         """
         current = self._emr_current_practitioner()
@@ -129,15 +129,54 @@ class ResPartner(models.Model):
         )
         return Partner.browse(chosen) if chosen else Partner.browse()
 
+    def _emr_odontology_reusable_draft(self):
+        """Un borrador vacío de este paciente, si hay, para no abrir otro.
+
+        El más nuevo se reabre. Los demás vacíos del mismo usuario se
+        descartan: son consultas que se abrieron y no se cargaron.
+        """
+        self.ensure_one()
+        Encounter = self.env["emr.encounter.odontology"]
+        drafts = Encounter.search(
+            [
+                ("partner_id", "=", self.id),
+                ("state", "=", "draft"),
+                ("order_id", "=", False),
+                ("create_uid", "=", self.env.uid),
+            ],
+            order="id desc",
+        ).filtered(lambda rec: rec._is_empty_draft())
+        if len(drafts) > 1:
+            extra = drafts[1:].mapped("encounter_id").filtered(
+                lambda enc: enc.state == "draft"
+            )
+            if extra:
+                extra.unlink()
+        return drafts[:1]
+
     def action_odontology_walkin(self):
         """Abre la atención de este paciente, sin crear un presupuesto.
 
         La historia clínica se ve en esa pantalla. El presupuesto lo crea
-        Nuevo, al lado de Atendido.
+        Presupuesto, o Atendido si hay prácticas. Si ya hay un borrador
+        vacío de este paciente, se reabre en lugar de dejar otro.
         """
         self.ensure_one()
         if not self.is_patient:
             raise UserError(_("Solo se atiende a un paciente."))
+        existing = self._emr_odontology_reusable_draft()
+        if existing:
+            view = self.env.ref("emr_odontology.emr_encounter_odontology_view_form")
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Atención"),
+                "res_model": "emr.encounter.odontology",
+                "res_id": existing.id,
+                "view_mode": "form",
+                "views": [(view.id, "form")],
+                "target": "current",
+                "context": {"form_view_initial_mode": "edit"},
+            }
         action = self.env["ir.actions.act_window"]._for_xml_id(
             "emr_odontology.emr_odontology_walkin_action"
         )
@@ -214,8 +253,8 @@ class ResPartner(models.Model):
     def _emr_odontology_attach_quotation(self, practitioner, encounter):
         """Crea el presupuesto y lo deja en esta visita.
 
-        No abre otra historia: la pantalla ya es la atención. Si la visita
-        ya tiene presupuesto, el que llama abre una visita nueva antes.
+        No abre otra historia: la pantalla ya es la atención. Quien llama
+        no crea una consulta nueva si esta ya tiene pedido.
         """
         self.ensure_one()
         order = self._emr_odontology_prepare_walkin_order(practitioner)

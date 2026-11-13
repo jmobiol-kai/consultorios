@@ -5,7 +5,8 @@
 // edita en Configuración → Estados del procedimiento. Sano y ausente no se
 // cobran. La obturación y el sellador quedan como hecho (es el acto).
 // El resto entra "A tratar" (`pending`): es la práctica que la visita
-// manda al presupuesto. En la lista de abajo se puede cambiar.
+// manda al presupuesto. Otro clic en la misma condición pasa de
+// `pending` a `treated` (y al revés). No hace falta la grilla.
 export const STATUS_FOR_CONDITION = {
     sound: "present",
     caries: "pending",
@@ -20,6 +21,38 @@ export const STATUS_FOR_CONDITION = {
     sealant: "treated",
 };
 
+// Convención clásica del odontograma: el estado pinta, la condición se lee
+// en el símbolo. Rojo = a tratar. Azul = tratado, o presente con una
+// restauración (corona, obturación, implante, etc. que el paciente ya trae).
+export const STATE_RED = "#c62828";
+export const STATE_BLUE = "#1565c0";
+
+// Presente y además es trabajo ya hecho en la boca (no patología nueva).
+export const RESTORATIVE_CONDITIONS = new Set([
+    "restoration",
+    "crown",
+    "endodontics",
+    "implant",
+    "prosthesis",
+    "sealant",
+]);
+
+// Letra corta sobre la pieza. La X de ausente y de extracción se dibuja
+// aparte, con dos trazos.
+export const CONDITION_SYMBOL = {
+    sound: "",
+    caries: "C",
+    restoration: "O",
+    crown: "CR",
+    endodontics: "E",
+    implant: "I",
+    fracture: "F",
+    extraction: "",
+    missing: "",
+    prosthesis: "P",
+    sealant: "S",
+};
+
 export function cssColor(value) {
     const color = String(value || "").trim().toLowerCase();
     return /^#[0-9a-f]{6}$/.test(color) ? color : "";
@@ -30,18 +63,112 @@ export function statusForCondition(condition) {
 }
 
 /**
- * Qué guarda un clic en la leyenda. Siempre aplica esa condición:
- * borrar es el segundo clic en la cara, no otro clic en la leyenda.
+ * Símbolo de la condición. En la leyenda, sano muestra un círculo vacío
+ * para que el botón no quede en blanco. En el diente, sano no lleva letra.
+ *
+ * @param {string} code
+ * @param {boolean} [legend]
+ * @returns {string}
+ */
+export function conditionSymbol(code, legend = false) {
+    if (code === "sound") {
+        return legend ? "○" : "";
+    }
+    if (Object.prototype.hasOwnProperty.call(CONDITION_SYMBOL, code)) {
+        return CONDITION_SYMBOL[code];
+    }
+    const text = String(code || "");
+    return text ? text.slice(0, 1).toUpperCase() : "";
+}
+
+export function showsCross(condition) {
+    return condition === "missing" || condition === "extraction";
+}
+
+/**
+ * Clave visual de una marca. El relleno del mapa sale de acá, no del
+ * color pastel de la condición.
+ *
+ * @param {string} condition
+ * @param {string} status
+ * @returns {"empty"|"pending"|"treated"|"missing"|"unerupted"|"sound"}
+ */
+export function stateKey(condition, status) {
+    if (!condition) {
+        return "empty";
+    }
+    if (condition === "missing" || status === "missing") {
+        return "missing";
+    }
+    if (status === "unerupted") {
+        return "unerupted";
+    }
+    if (status === "pending") {
+        return "pending";
+    }
+    if (status === "treated") {
+        return "treated";
+    }
+    if (status === "present" && RESTORATIVE_CONDITIONS.has(condition)) {
+        return "treated";
+    }
+    if (condition === "sound") {
+        return "sound";
+    }
+    // Patología presente (una caries que no se pasó a "a tratar"): se ve
+    // en rojo. El símbolo sigue diciendo qué es.
+    if (status === "present") {
+        return "pending";
+    }
+    return "sound";
+}
+
+/**
+ * Color de relleno, o "" si la zona queda en blanco (sano, ausente, vacío).
+ *
+ * @param {string} condition
+ * @param {string} status
+ * @returns {string}
+ */
+export function stateColor(condition, status) {
+    const key = stateKey(condition, status);
+    if (key === "pending") {
+        return STATE_RED;
+    }
+    if (key === "treated") {
+        return STATE_BLUE;
+    }
+    return "";
+}
+
+/**
+ * Qué guarda un clic en la leyenda.
+ *
+ * Otra condición: se aplica con el estado inicial de esa condición.
+ * La misma condición, en "a tratar" o "tratado": cambia el estado.
+ * Así una corona a tratar pasa a tratada sin la grilla. Borrar sigue
+ * siendo el segundo clic en la cara, no la leyenda.
  *
  * @param {string} existingCondition condición actual, o ""
  * @param {string} condition condición elegida
- * @returns {{condition: string, status: string}}
+ * @param {string} [existingStatus] estado actual, o ""
+ * @returns {{condition: string, status: string, same: boolean}}
  */
-export function nextMark(existingCondition, condition) {
+export function nextMark(existingCondition, condition, existingStatus) {
+    const status = statusForCondition(condition);
+    if (existingCondition !== condition) {
+        return { condition, status, same: false };
+    }
+    if (existingStatus === "pending") {
+        return { condition, status: "treated", same: false };
+    }
+    if (existingStatus === "treated") {
+        return { condition, status: "pending", same: false };
+    }
     return {
         condition,
-        status: statusForCondition(condition),
-        same: existingCondition === condition,
+        status: existingStatus || status,
+        same: true,
     };
 }
 
@@ -177,4 +304,78 @@ export function paintCondition(surface, own, tooth) {
         return tooth;
     }
     return "empty";
+}
+
+/**
+ * Las cinco temporarias de un cuadrante, en las ocho columnas de las
+ * permanentes. Quedan del lado de la línea media: los molares
+ * permanentes (18-16, 26-28, …) no tienen temporaria debajo.
+ *
+ * `distalOnLeft` es un cuadrante de la derecha del paciente (en pantalla,
+ * la izquierda): el primer FDI de la lista es el más distal.
+ *
+ * @param {string[]} teeth cinco FDI en el orden en que se dibujan
+ * @param {boolean} distalOnLeft
+ * @returns {(string|null)[]}
+ */
+export function alignPrimarySlots(teeth, distalOnLeft) {
+    const slots = [null, null, null, null, null, null, null, null];
+    const list = (teeth || []).slice(0, 5);
+    if (distalOnLeft) {
+        list.forEach((fdi, i) => {
+            slots[3 + i] = fdi;
+        });
+    } else {
+        list.forEach((fdi, i) => {
+            slots[i] = fdi;
+        });
+    }
+    return slots;
+}
+
+// Círculo en viewBox 0 0 100 100. 0° es la derecha y crece en sentido
+// horario, que es el sentido del arco SVG con y hacia abajo.
+function polar(radius, deg) {
+    const rad = (deg * Math.PI) / 180;
+    return [50 + radius * Math.cos(rad), 50 + radius * Math.sin(rad)];
+}
+
+function slice(a0, a1) {
+    const fmt = (n) => n.toFixed(2);
+    const [x0, y0] = polar(46, a0);
+    const [x1, y1] = polar(46, a1);
+    const [xi1, yi1] = polar(20, a1);
+    const [xi0, yi0] = polar(20, a0);
+    return [
+        `M ${fmt(x0)} ${fmt(y0)}`,
+        `A 46 46 0 0 1 ${fmt(x1)} ${fmt(y1)}`,
+        `L ${fmt(xi1)} ${fmt(yi1)}`,
+        `A 20 20 0 0 0 ${fmt(xi0)} ${fmt(yi0)}`,
+        "Z",
+    ].join(" ");
+}
+
+const SLICES = {
+    top: slice(225, 315),
+    right: slice(315, 405),
+    bottom: slice(45, 135),
+    left: slice(135, 225),
+};
+
+/**
+ * Caras de una pieza, con el camino SVG y el ancla del símbolo.
+ * Mesial hacia la línea media. Vestibular hacia afuera de la boca.
+ *
+ * @param {string} fdi
+ * @param {boolean} lower
+ * @returns {{surface: string, d: string, x: number, y: number}[]}
+ */
+export function faceLayout(fdi, lower) {
+    const mesialRight = ["1", "4", "5", "8"].includes(String(fdi || "")[0]);
+    return [
+        { surface: lower ? "lingual" : "buccal", d: SLICES.top, x: 50, y: 33 },
+        { surface: mesialRight ? "mesial" : "distal", d: SLICES.right, x: 68, y: 51 },
+        { surface: lower ? "buccal" : "lingual", d: SLICES.bottom, x: 50, y: 69 },
+        { surface: mesialRight ? "distal" : "mesial", d: SLICES.left, x: 32, y: 51 },
+    ];
 }
