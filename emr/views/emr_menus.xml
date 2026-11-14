@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_emr_root" name="Historia clínica"
+    <menuitem id="menu_emr_root" name="Consultorio"
               web_icon="emr,static/description/icon.svg" sequence="50"
               groups="group_emr_reception"/>
 
