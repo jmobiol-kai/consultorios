@@ -52,6 +52,17 @@
     <!-- La puerta del sobreturno: el mismo asistente, con la modalidad ya
          decidida y sin hueco. El hueco lo crea `action_book` al confirmar,
          después de validar el tope diario del profesional. -->
+    <!-- El clic en un hueco vacío del calendario. Sin hueco todavía:
+         si esa hora cae en uno libre, action_book lo usa. -->
+    <record id="emr_appointment_book_from_calendar_action" model="ir.actions.act_window">
+        <field name="name">Nuevo turno</field>
+        <field name="res_model">emr.appointment.book</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="emr_appointment_book_view_form"/>
+        <field name="target">new</field>
+        <field name="context">{'default_appointment_mode': 'scheduled'}</field>
+    </record>
+
     <record id="emr_overbooking_book_action" model="ir.actions.act_window">
         <field name="name">Dar un sobreturno</field>
         <field name="res_model">emr.appointment.book</field>

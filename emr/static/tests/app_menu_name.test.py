@@ -31,7 +31,7 @@ class AppMenuNameTest(unittest.TestCase):
     def test_apps_list_name_and_technical_name(self):
         manifest = _MANIFEST.read_text(encoding="utf-8")
         self.assertIn('"name": "Consultorio"', manifest)
-        self.assertIn('"version": "19.0.1.6.0"', manifest)
+        self.assertIn('"version": "19.0.1.7.0"', manifest)
         self.assertNotIn("emr_odontology", _MENU.read_text(encoding="utf-8"))
 
 

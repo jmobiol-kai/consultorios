@@ -2,6 +2,8 @@
 # For copyright and license notices, see __manifest__.py file in module root
 # directory
 ##############################################################################
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -56,6 +58,12 @@ class SaleOrder(models.Model):
     location_id = fields.Many2one("emr.location", string="Locación", index=True)
 
     appointment_start = fields.Datetime("Inicio", index=True)
+    # El fin lo usa el calendario para dibujar y para estirar el turno.
+    # Si hay hueco, nace con el fin de ese hueco; si no, media hora.
+    appointment_stop = fields.Datetime("Fin", index=True)
+    appointment_calendar_title = fields.Char(
+        compute="_compute_appointment_calendar_title",
+    )
     appointment_mode = fields.Selection(
         [
             ("scheduled", "Turno programado"),
@@ -115,6 +123,59 @@ class SaleOrder(models.Model):
     waitlist_period = fields.Date("Período deseado")
 
     log_ids = fields.One2many("emr.appointment.log", "order_id", string="Recorrido")
+
+    @api.depends("partner_id.name", "name", "is_appointment")
+    def _compute_appointment_calendar_title(self):
+        for order in self:
+            if order.is_appointment and order.partner_id:
+                order.appointment_calendar_title = order.partner_id.name
+            else:
+                order.appointment_calendar_title = order.name or ""
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        Slot = self.env["emr.slot"]
+        for vals in vals_list:
+            if not vals.get("is_appointment") or not vals.get("appointment_start"):
+                continue
+            if vals.get("appointment_stop"):
+                continue
+            slot_stop = False
+            if vals.get("slot_id"):
+                slot_stop = Slot.browse(vals["slot_id"]).stop
+            start = fields.Datetime.to_datetime(vals["appointment_start"])
+            vals["appointment_stop"] = slot_stop or (start + timedelta(minutes=30))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        res = super().write(vals)
+        if self.env.context.get("emr_slot_time_sync"):
+            return res
+        if {"appointment_start", "appointment_stop"} & set(vals):
+            self._emr_sync_slot_span()
+        return res
+
+    def _emr_sync_slot_span(self):
+        """Si el calendario movió el turno, el hueco se mueve con él.
+
+        El hueco es el lugar en la grilla. Sin esto, arrastrar el turno
+        deja la hora vieja ocupada y la nueva solo en la orden.
+        """
+        for order in self:
+            if not order.is_appointment or not order.slot_id or not order.appointment_start:
+                continue
+            stop = order.appointment_stop
+            if not stop or stop <= order.appointment_start:
+                stop = order.appointment_start + timedelta(minutes=order.slot_id.duration or 30)
+                order.with_context(emr_slot_time_sync=True).write({
+                    "appointment_stop": stop,
+                })
+            duration = int((stop - order.appointment_start).total_seconds() // 60) or 1
+            order.slot_id.write({
+                "start": order.appointment_start,
+                "stop": stop,
+                "duration": duration,
+            })
 
     @api.depends("additional_order_ids")
     def _compute_additional_order_count(self):

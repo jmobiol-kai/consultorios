@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- La aplicación abre el calendario de turnos, no la grilla de huecos. -->
     <menuitem id="menu_emr_root" name="Consultorio"
+              action="sale_order_action_appointment"
               web_icon="emr,static/description/icon.svg" sequence="50"
               groups="group_emr_reception"/>
 
