@@ -45,23 +45,6 @@
                                                                 t-on-click="(ev) => this.onRegion(fdi, 'occlusal', ev)">
                                                             <title><t t-esc="regionTitle(fdi, 'occlusal')"/></title>
                                                         </circle>
-                                                        <t t-foreach="faceSymbols(fdi, row.lower)" t-as="glyph" t-key="glyph.key">
-                                                            <text class="o_emr_odontogram_symbol"
-                                                                  t-att-x="glyph.x" t-att-y="glyph.y"
-                                                                  t-att-fill="glyph.fill"
-                                                                  t-esc="glyph.symbol"/>
-                                                        </t>
-                                                        <t t-set="center" t-value="centerSymbol(fdi)"/>
-                                                        <text t-if="center"
-                                                              class="o_emr_odontogram_symbol o_emr_odontogram_symbol_lg"
-                                                              x="50" y="52"
-                                                              t-att-fill="center.fill"
-                                                              t-esc="center.symbol"/>
-                                                        <g t-if="showCross(fdi)" class="o_emr_odontogram_x"
-                                                           t-att-stroke="crossStroke(fdi)">
-                                                            <line x1="28" y1="28" x2="72" y2="72"/>
-                                                            <line x1="72" y1="28" x2="28" y2="72"/>
-                                                        </g>
                                                     </svg>
                                                     <button type="button"
                                                             t-att-class="fdiClass(fdi)"
@@ -113,7 +96,9 @@
                             t-att-disabled="props.readonly or undefined"
                             t-att-aria-pressed="isLegendActive(item.condition) ? 'true' : 'false'"
                             t-on-click="() => this.onLegend(item.condition)">
-                        <span class="o_emr_odontogram_legend_symbol" t-esc="symbolOf(item.condition, true) or '•'"/>
+                        <i t-attf-class="o_emr_odontogram_swatch o_emr_odontogram_cond_{{ item.condition }}"
+                           t-att-style="swatchStyle(item.condition)"
+                           aria-hidden="true"/>
                         <t t-esc="item.label"/>
                     </button>
                 </t>

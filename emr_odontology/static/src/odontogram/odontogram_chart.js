@@ -10,16 +10,14 @@ import {
     chartEditsAllowed,
     clearTargets,
     conditionIsWholeTooth,
-    conditionSymbol,
+    cssColor,
     faceClickAction,
     faceLayout,
     legendPaintPlan,
     legendShowsActive,
     nextMark,
     paintCondition,
-    showsCross,
-    stateColor,
-    stateKey,
+    pendingOutline,
 } from "./odontogram_chart_logic";
 
 /**
@@ -30,10 +28,10 @@ import {
  *
  * El clic en una cara selecciona esa cara. El clic en el número selecciona
  * la pieza entera. Otro clic en la misma zona borra la marca. El color no
- * se recorre al hacer clic: se elige en la leyenda. El relleno es el estado
- * (rojo a tratar, azul tratado o presente con restauración). El símbolo
- * dice la condición. Otro clic en la misma condición pasa de a tratar a
- * tratado. La nota y el estado también están en el panel de la selección.
+ * se recorre al hacer clic: se elige en la leyenda y es el de la condición.
+ * A tratar lleva un borde rojo grueso; tratado y presente quedan con el
+ * relleno solo. Otro clic en la misma condición pasa de a tratar a tratado.
+ * La nota y el estado también están en el panel de la selección.
  * Se escribe al guardar, que es cuando la visita actualiza el odontograma.
  */
 
@@ -184,8 +182,17 @@ export class OdontogramChartField extends Component {
         return STATUS_LABELS[code] || code || "";
     }
 
-    symbolOf(code, legend = false) {
-        return conditionSymbol(code, legend);
+    colorOf(code) {
+        if (!code || code === "empty") {
+            return "";
+        }
+        const row = (this.state.conditions || []).find((item) => item.code === code);
+        return row ? cssColor(row.color) : "";
+    }
+
+    swatchStyle(code) {
+        const color = this.colorOf(code);
+        return color ? `background-color:${color}` : "";
     }
 
     get helpLine() {
@@ -197,10 +204,9 @@ export class OdontogramChartField extends Component {
             return "Consulta registrada. El mapa no se modifica.";
         }
         const pending = this.statusName("pending");
-        const treated = this.statusName("treated");
         let text =
             `Clic en la cara, o en el número para la pieza entera. ` +
-            `Rojo: ${pending}. Azul: ${treated}.`;
+            `El borde rojo es ${pending.toLowerCase()}.`;
         if (this.props.record.resModel === "emr.odontogram") {
             text += " Corregir acá no se cobra.";
         }
@@ -363,36 +369,43 @@ export class OdontogramChartField extends Component {
         return Boolean(sel && sel.fdi === fdi && sel.surface === surface);
     }
 
-    regionClass(fdi, surface) {
+    pendingClass(fdi, surface) {
         const src = this.paintSource(fdi, surface);
-        const key = src ? stateKey(src.data.condition, src.data.status) : "empty";
+        return src && pendingOutline(src.data.status) ? " o_emr_odontogram_pending" : "";
+    }
+
+    regionClass(fdi, surface) {
+        const cond = paintCondition(
+            surface,
+            this.conditionOfSurface(fdi, surface),
+            this.conditionOfSurface(fdi, "tooth")
+        );
         const active =
             this.isSelected(fdi, surface) || this.isSelected(fdi, "tooth")
                 ? " o_emr_odontogram_region_active"
                 : "";
-        return `o_emr_odontogram_region o_emr_odontogram_state_${key}${active}`;
+        return `o_emr_odontogram_region o_emr_odontogram_cond_${cond}${this.pendingClass(fdi, surface)}${active}`;
     }
 
     regionStyle(fdi, surface) {
-        const src = this.paintSource(fdi, surface);
-        if (!src) {
-            return "";
-        }
-        const color = stateColor(src.data.condition, src.data.status);
+        const cond = paintCondition(
+            surface,
+            this.conditionOfSurface(fdi, surface),
+            this.conditionOfSurface(fdi, "tooth")
+        );
+        const color = this.colorOf(cond);
         return color ? `fill:${color}` : "";
     }
 
     piezaClass(fdi) {
-        const src = this.paintSource(fdi, "tooth");
-        const key = src ? stateKey(src.data.condition, src.data.status) : "empty";
+        const cond = this.conditionOfSurface(fdi, "tooth") || "empty";
         const active = this.isSelected(fdi, "tooth") ? " o_emr_odontogram_region_active" : "";
-        return `o_emr_odontogram_pieza o_emr_odontogram_state_${key}${active}`;
+        return `o_emr_odontogram_pieza o_emr_odontogram_cond_${cond}${this.pendingClass(fdi, "tooth")}${active}`;
     }
 
     piezaStyle(fdi) {
-        const src = this.paintSource(fdi, "tooth");
-        const color = src ? stateColor(src.data.condition, src.data.status) : "";
-        return color ? `color:${color}` : "";
+        const color = this.colorOf(this.conditionOfSurface(fdi, "tooth") || "empty");
+        return color ? `fill:${color};color:${color}` : "";
     }
 
     fdiClass(fdi) {
@@ -420,72 +433,6 @@ export class OdontogramChartField extends Component {
             }
         }
         return `${fdi} · ${face}`;
-    }
-
-    faceSymbols(fdi, lower) {
-        return this.facesFor(fdi, lower)
-            .map((face) => {
-                const rec = this.mark(fdi, face.surface);
-                if (!rec || !rec.data.condition || showsCross(rec.data.condition)) {
-                    return null;
-                }
-                const symbol = conditionSymbol(rec.data.condition);
-                if (!symbol) {
-                    return null;
-                }
-                return {
-                    key: face.surface,
-                    symbol,
-                    x: face.x,
-                    y: face.y,
-                    fill: this.symbolInk(fdi, face.surface),
-                };
-            })
-            .filter(Boolean);
-    }
-
-    centerSymbol(fdi) {
-        if (this.conditionOfSurface(fdi, "occlusal")) {
-            return null;
-        }
-        const rec = this.mark(fdi, "tooth");
-        if (!rec || showsCross(rec.data.condition)) {
-            return null;
-        }
-        const symbol = conditionSymbol(rec.data.condition);
-        if (!symbol) {
-            return null;
-        }
-        return {
-            symbol,
-            fill: this.symbolInk(fdi, "occlusal"),
-        };
-    }
-
-    symbolInk(fdi, surface) {
-        const src = this.paintSource(fdi, surface);
-        if (!src) {
-            return "#263238";
-        }
-        return stateColor(src.data.condition, src.data.status) ? "#ffffff" : "#263238";
-    }
-
-    showCross(fdi) {
-        const tooth = this.conditionOfSurface(fdi, "tooth");
-        if (showsCross(tooth)) {
-            return true;
-        }
-        return ["mesial", "distal", "occlusal", "buccal", "lingual"].some((surface) =>
-            showsCross(this.conditionOfSurface(fdi, surface))
-        );
-    }
-
-    crossStroke(fdi) {
-        const src = this.paintSource(fdi, "tooth") || this.paintSource(fdi, "occlusal");
-        if (src && stateColor(src.data.condition, src.data.status)) {
-            return "#ffffff";
-        }
-        return "#546e7a";
     }
 
     isWholeTooth(condition) {

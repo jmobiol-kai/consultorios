@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.17.0",
+    "version": "19.0.1.17.1",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -95,10 +95,11 @@ condiciones (sano, caries, obturación, …) es más grande.
 En el mapa el primer clic selecciona la cara y el segundo la deja
 en blanco, sin recorrer colores. El número de la pieza selecciona la
 pieza entera. La condición (sano, caries, corona, …) se elige en la
-leyenda. El relleno es el estado: rojo a tratar, azul tratado o
-presente con restauración. La condición se distingue por el símbolo
-(C, O, CR, …). Otro clic en la misma condición pasa de a tratar a
-tratado; el panel de la selección también cambia el estado y la nota.
+leyenda y pinta con su color, el de Configuración. A tratar no cambia
+ese color: la zona lleva un borde rojo grueso. Tratado y presente
+quedan con el relleno solo. Otro clic en la misma condición pasa de
+a tratar a tratado; el panel de la selección también cambia el estado
+y la nota.
 Si el estado es de la pieza entera, pinta todas las caras. Caries,
 obturación y el resto pintan solo la cara elegida. Una marca de la
 pieza se sigue viendo en las caras que no tienen marca propia.

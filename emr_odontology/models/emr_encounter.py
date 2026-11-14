@@ -17,7 +17,7 @@ esta atención.
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-from .billing_rules import is_empty_draft, needs_quotation
+from .billing_rules import cleanup_partner_ids, is_empty_draft, needs_quotation
 from .encounter_title import FALLBACK_TITLE, encounter_control_panel_title
 from .sale_order import BILLABLE_STATUSES, ODONTOLOGY_PRODUCT_NAMES
 
@@ -194,25 +194,20 @@ class EmrEncounterOdontology(models.Model):
     def _discard_empty_drafts(self):
         """Tira los borradores vacíos de este usuario, del mismo paciente.
 
-        «Atender ahora» puede dejar una consulta sin marcas ni pedido.
-        No toca la visita en la que se está trabajando, ni las de otro.
+        No toca la visita en curso ni un borrador sin paciente: esa es la
+        otra pestaña de Atender ahora, y cerrar esta no tiene que hacerla
+        desaparecer.
         """
-        partners = self.mapped("partner_id")
-        domain = [
+        partner_ids = cleanup_partner_ids(self.mapped("partner_id").ids)
+        if not partner_ids:
+            return
+        empty = self.search([
             ("id", "not in", self.ids),
             ("state", "=", "draft"),
             ("order_id", "=", False),
             ("create_uid", "=", self.env.uid),
-        ]
-        if partners:
-            domain += [
-                "|",
-                ("partner_id", "=", False),
-                ("partner_id", "in", partners.ids),
-            ]
-        else:
-            domain.append(("partner_id", "=", False))
-        empty = self.search(domain).filtered(lambda rec: rec._is_empty_draft())
+            ("partner_id", "in", partner_ids),
+        ]).filtered(lambda rec: rec._is_empty_draft())
         parents = empty.mapped("encounter_id").filtered(lambda enc: enc.state == "draft")
         if parents:
             parents.unlink()

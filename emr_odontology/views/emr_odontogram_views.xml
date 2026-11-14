@@ -113,12 +113,14 @@
                     </group>
                     <p class="text-muted">
                         El código no se cambia: es el que queda guardado en
-                        cada marca. En el mapa el relleno lo da el estado
-                        (rojo a tratar, azul tratado). El símbolo distingue
-                        la condición. Pieza entera pinta todas las caras al
-                        elegirla en la leyenda; si no, solo la cara
-                        seleccionada. Desactivar esconde el estado de la
-                        leyenda; las marcas viejas siguen viéndose.
+                        cada marca. El color es un hexadecimal de seis
+                        dígitos, como #fff59d para la corona, y es el relleno
+                        del mapa y de la leyenda. A tratar se distingue con
+                        un borde rojo; el color de la condición no cambia.
+                        Pieza entera pinta todas las caras al elegirla en la
+                        leyenda; si no, solo la cara seleccionada.
+                        Desactivar esconde el estado de la leyenda; las
+                        marcas viejas siguen viéndose.
                     </p>
                 </sheet>
             </form>
@@ -190,13 +192,13 @@
                     </group>
                     <p class="text-muted">
                         El nombre es el del estado en el mapa (Presente, A tratar,
-                        Tratado, Ausente, No erupcionado). A tratar se dibuja
-                        en rojo y Tratado en azul; Presente con una
-                        restauración también queda en azul. El código no se
-                        cambia: es el que queda guardado en cada marca. Al
-                        presupuesto van pending y treated, aunque el nombre
-                        diga otra cosa. Desactivar esconde la fila de este
-                        listado; las marcas viejas siguen mostrando el nombre.
+                        Tratado, Ausente, No erupcionado). A tratar lleva un
+                        borde rojo; el relleno sigue siendo el color de la
+                        condición. El código no se cambia: es el que queda
+                        guardado en cada marca. Al presupuesto van pending y
+                        treated, aunque el nombre diga otra cosa. Desactivar
+                        esconde la fila de este listado; las marcas viejas
+                        siguen mostrando el nombre.
                     </p>
                 </sheet>
             </form>

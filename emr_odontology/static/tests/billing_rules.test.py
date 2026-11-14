@@ -23,6 +23,7 @@ _billing = _load("billing_rules", "models/billing_rules.py")
 _profile = _load("dental_profile", "models/dental_profile.py")
 needs_quotation = _billing.needs_quotation
 is_empty_draft = _billing.is_empty_draft
+cleanup_partner_ids = _billing.cleanup_partner_ids
 DENTAL_HIDDEN_MENU_XMLIDS = _profile.DENTAL_HIDDEN_MENU_XMLIDS
 dental_profile_enabled = _profile.dental_profile_enabled
 
@@ -48,6 +49,12 @@ class BillingRulesTest(unittest.TestCase):
         self.assertFalse(
             needs_quotation(False, [], ("pending", "treated"), {"caries"})
         )
+
+    def test_cleanup_stays_on_the_same_patient(self):
+        self.assertEqual(cleanup_partner_ids([5, False, 5, None]), [5])
+        self.assertEqual(cleanup_partner_ids([False]), [])
+        self.assertEqual(cleanup_partner_ids([]), [])
+        self.assertEqual(cleanup_partner_ids([8, 9]), [8, 9])
 
     def test_empty_draft_has_nothing_clinical(self):
         self.assertTrue(is_empty_draft("draft", False, 0, "", "", 0))

@@ -3,13 +3,10 @@ import test from "node:test";
 
 import {
     FACE_SURFACES,
-    STATE_BLUE,
-    STATE_RED,
     STATUS_FOR_CONDITION,
     alignPrimarySlots,
     clearTargets,
     conditionIsWholeTooth,
-    conditionSymbol,
     cssColor,
     chartEditsAllowed,
     faceClickAction,
@@ -18,8 +15,7 @@ import {
     legendShowsActive,
     nextMark,
     paintCondition,
-    stateColor,
-    stateKey,
+    pendingOutline,
     statusForCondition,
 } from "../src/odontogram/odontogram_chart_logic.js";
 
@@ -199,26 +195,15 @@ test("the second click blanks a whole-tooth color that lives on the pieza", () =
     assert.deepEqual(clearTargets("occlusal", "", "", false), []);
 });
 
-test("state paints red to treat and blue when done or already restored", () => {
-    assert.equal(stateKey("crown", "pending"), "pending");
-    assert.equal(stateKey("crown", "treated"), "treated");
-    assert.equal(stateKey("crown", "present"), "treated");
-    assert.equal(stateColor("crown", "pending"), STATE_RED);
-    assert.equal(stateColor("crown", "treated"), STATE_BLUE);
-    assert.equal(stateColor("crown", "present"), STATE_BLUE);
-    assert.notEqual(stateColor("crown", "pending"), stateColor("crown", "treated"));
-    assert.equal(stateColor("caries", "pending"), STATE_RED);
-    assert.equal(stateColor("restoration", "treated"), STATE_BLUE);
-    assert.equal(stateColor("restoration", "present"), STATE_BLUE);
-    assert.equal(stateColor("implant", "present"), STATE_BLUE);
-    assert.equal(stateColor("sound", "present"), "");
-    assert.equal(stateKey("missing", "missing"), "missing");
-    assert.equal(stateColor("missing", "missing"), "");
-    assert.equal(stateKey("sound", "unerupted"), "unerupted");
-    assert.equal(conditionSymbol("crown"), "CR");
-    assert.equal(conditionSymbol("caries"), "C");
-    assert.equal(conditionSymbol("sound"), "");
-    assert.equal(conditionSymbol("sound", true), "○");
+test("to treat is an outline, and the condition color is left alone", () => {
+    assert.equal(pendingOutline("pending"), true);
+    assert.equal(pendingOutline("treated"), false);
+    assert.equal(pendingOutline("present"), false);
+    assert.equal(pendingOutline("missing"), false);
+    assert.equal(pendingOutline(""), false);
+    // Una corona a tratar y una tratada siguen siendo la misma condición.
+    assert.equal(paintCondition("occlusal", "", "crown"), "crown");
+    assert.equal(paintCondition("occlusal", "crown", "crown"), "crown");
 });
 
 test("primary teeth sit inside the permanent arch, on the midline side", () => {

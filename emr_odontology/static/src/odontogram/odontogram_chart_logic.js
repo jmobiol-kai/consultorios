@@ -21,37 +21,10 @@ export const STATUS_FOR_CONDITION = {
     sealant: "treated",
 };
 
-// Convención clásica del odontograma: el estado pinta, la condición se lee
-// en el símbolo. Rojo = a tratar. Azul = tratado, o presente con una
-// restauración (corona, obturación, implante, etc. que el paciente ya trae).
-export const STATE_RED = "#c62828";
-export const STATE_BLUE = "#1565c0";
-
-// Presente y además es trabajo ya hecho en la boca (no patología nueva).
-export const RESTORATIVE_CONDITIONS = new Set([
-    "restoration",
-    "crown",
-    "endodontics",
-    "implant",
-    "prosthesis",
-    "sealant",
-]);
-
-// Letra corta sobre la pieza. La X de ausente y de extracción se dibuja
-// aparte, con dos trazos.
-export const CONDITION_SYMBOL = {
-    sound: "",
-    caries: "C",
-    restoration: "O",
-    crown: "CR",
-    endodontics: "E",
-    implant: "I",
-    fracture: "F",
-    extraction: "",
-    missing: "",
-    prosthesis: "P",
-    sealant: "S",
-};
+// El relleno es el color de la condición (el de la leyenda). A tratar no
+// cambia ese color: se marca con un borde rojo grueso. Tratado y presente
+// quedan con el trazo fino de siempre.
+export const PENDING_OUTLINE = "#c62828";
 
 export function cssColor(value) {
     const color = String(value || "").trim().toLowerCase();
@@ -63,82 +36,14 @@ export function statusForCondition(condition) {
 }
 
 /**
- * Símbolo de la condición. En la leyenda, sano muestra un círculo vacío
- * para que el botón no quede en blanco. En el diente, sano no lleva letra.
+ * A tratar lleva borde rojo. Tratado, presente y el resto no: el relleno
+ * de la condición alcanza para leerlos.
  *
- * @param {string} code
- * @param {boolean} [legend]
- * @returns {string}
- */
-export function conditionSymbol(code, legend = false) {
-    if (code === "sound") {
-        return legend ? "○" : "";
-    }
-    if (Object.prototype.hasOwnProperty.call(CONDITION_SYMBOL, code)) {
-        return CONDITION_SYMBOL[code];
-    }
-    const text = String(code || "");
-    return text ? text.slice(0, 1).toUpperCase() : "";
-}
-
-export function showsCross(condition) {
-    return condition === "missing" || condition === "extraction";
-}
-
-/**
- * Clave visual de una marca. El relleno del mapa sale de acá, no del
- * color pastel de la condición.
- *
- * @param {string} condition
  * @param {string} status
- * @returns {"empty"|"pending"|"treated"|"missing"|"unerupted"|"sound"}
+ * @returns {boolean}
  */
-export function stateKey(condition, status) {
-    if (!condition) {
-        return "empty";
-    }
-    if (condition === "missing" || status === "missing") {
-        return "missing";
-    }
-    if (status === "unerupted") {
-        return "unerupted";
-    }
-    if (status === "pending") {
-        return "pending";
-    }
-    if (status === "treated") {
-        return "treated";
-    }
-    if (status === "present" && RESTORATIVE_CONDITIONS.has(condition)) {
-        return "treated";
-    }
-    if (condition === "sound") {
-        return "sound";
-    }
-    // Patología presente (una caries que no se pasó a "a tratar"): se ve
-    // en rojo. El símbolo sigue diciendo qué es.
-    if (status === "present") {
-        return "pending";
-    }
-    return "sound";
-}
-
-/**
- * Color de relleno, o "" si la zona queda en blanco (sano, ausente, vacío).
- *
- * @param {string} condition
- * @param {string} status
- * @returns {string}
- */
-export function stateColor(condition, status) {
-    const key = stateKey(condition, status);
-    if (key === "pending") {
-        return STATE_RED;
-    }
-    if (key === "treated") {
-        return STATE_BLUE;
-    }
-    return "";
+export function pendingOutline(status) {
+    return status === "pending";
 }
 
 /**
@@ -363,7 +268,7 @@ const SLICES = {
 };
 
 /**
- * Caras de una pieza, con el camino SVG y el ancla del símbolo.
+ * Caras de una pieza, con el camino SVG y el centro de cada zona.
  * Mesial hacia la línea media. Vestibular hacia afuera de la boca.
  *
  * @param {string} fdi
