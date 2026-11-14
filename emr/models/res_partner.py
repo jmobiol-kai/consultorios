@@ -65,6 +65,10 @@ class ResPartner(models.Model):
         "recurso ni agenda.",
     )
     resource_id = fields.Many2one("resource.resource", string="Recurso", copy=False)
+    # El calendario de turnos pinta un color por profesional. 0 no es un
+    # color: al crear un profesional se asigna uno entre 1 y 11.
+    emr_calendar_color = fields.Integer("Color en la agenda", default=0)
+
     resource_calendar_id = fields.Many2one(
         "resource.calendar",
         string="Agenda",
@@ -300,7 +304,10 @@ class ResPartner(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         partners = super().create(vals_list)
-        partners.filtered("is_practitioner")._emr_ensure_resource()
+        practitioners = partners.filtered("is_practitioner")
+        practitioners._emr_ensure_resource()
+        for partner in practitioners.filtered(lambda item: not item.emr_calendar_color):
+            partner.emr_calendar_color = (partner.id % 11) + 1
         return partners
 
     def write(self, vals):

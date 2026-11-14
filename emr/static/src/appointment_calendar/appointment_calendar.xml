@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="emr.AppointmentCalendarButtons">
+        <div class="d-flex gap-1">
+            <button type="button" class="btn btn-secondary"
+                    t-on-click="() => this.openWindowAction('emr.emr_demand_book_action')">
+                Demanda
+            </button>
+            <button type="button" class="btn btn-secondary"
+                    t-on-click="() => this.openWindowAction('emr.emr_overbooking_book_action')">
+                Sobreturno
+            </button>
+            <button type="button" class="btn btn-secondary"
+                    t-on-click="() => this.openWindowAction('emr.emr_slot_filter_action')">
+                Agenda
+            </button>
+        </div>
+    </t>
+
+</templates>

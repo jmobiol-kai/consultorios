@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_emr_odontology" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.emr.odontology</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Odontología" string="Odontología" name="emr_odontology"
+                     groups="base.group_system">
+                    <block title="Consultorio" name="emr_odontology_profile">
+                        <setting id="emr_odontology_dental_profile_setting"
+                                 string="Perfil odontológico"
+                                 help="Oculta del menú los catálogos que un consultorio dental no usa a diario: medicamentos, alergias y rendir a un profesional. Las funciones siguen instaladas. Si esta base también atiende otra especialidad, apagá el perfil para volver a verlos.">
+                            <field name="emr_odontology_dental_profile"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

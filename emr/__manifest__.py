@@ -18,12 +18,12 @@
 #
 ##############################################################################
 {
-    "name": "EMR - Turnos e Historia Clínica",
-    "version": "19.0.1.5.0",
+    "name": "Consultorio",
+    "version": "19.0.1.7.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
-    "summary": "Agenda, turnos, historia clínica y cobro para centros de salud",
+    "summary": "Agenda, turnos, historia clínica y cobro para el consultorio",
     "depends": [
         "base",
         "resource",
@@ -79,6 +79,8 @@
             "emr/static/src/patient_history/*.xml",
             "emr/static/src/patient_history/*.scss",
             "emr/static/src/encounter_readonly/*.js",
+            "emr/static/src/appointment_calendar/*.js",
+            "emr/static/src/appointment_calendar/*.xml",
         ],
     },
     "demo": [

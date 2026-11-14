@@ -2,6 +2,8 @@
 # For copyright and license notices, see __manifest__.py file in module root
 # directory
 ##############################################################################
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -167,6 +169,11 @@ class EmrAppointmentBook(models.TransientModel):
             "slot_id": self.slot_id.id or False,
             "location_id": self.location_id.id or False,
             "appointment_start": self.start,
+            "appointment_stop": (
+                self.slot_id.stop
+                if self.slot_id
+                else self.start + timedelta(minutes=30)
+            ),
             "appointment_mode": self.appointment_mode,
             "appointment_state": "booked",
             "appointment_priority": self.appointment_priority,
@@ -177,8 +184,38 @@ class EmrAppointmentBook(models.TransientModel):
             vals["note"] = self.note
         return vals
 
+    def _match_free_slot(self):
+        """Si el clic del calendario cae dentro de un hueco libre, usa ese.
+
+        El calendario no conoce los huecos: manda una hora. Si esa hora
+        ya está en la grilla del profesional, el turno ocupa ese hueco
+        en vez de quedar flotando.
+        """
+        self.ensure_one()
+        if self.slot_id or self.appointment_mode != "scheduled":
+            return
+        if not self.practitioner_id or not self.start:
+            return
+        slot = self.env["emr.slot"].search(
+            [
+                ("practitioner_id", "=", self.practitioner_id.id),
+                ("available", "=", True),
+                ("start", "<=", self.start),
+                ("stop", ">", self.start),
+            ],
+            order="start",
+            limit=1,
+        )
+        if not slot:
+            return
+        self.slot_id = slot
+        self.start = slot.start
+        if slot.location_id:
+            self.location_id = slot.location_id
+
     def action_book(self):
         self.ensure_one()
+        self._match_free_slot()
         if self.slot_id and not self.slot_id.available:
             raise UserError(_("Ese hueco ya tiene un turno asignado."))
 

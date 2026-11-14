@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.16.1",
+    "version": "19.0.1.17.1",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -50,18 +50,20 @@ desde la ficha o el odontograma, que abren la misma pantalla con el
 paciente ya puesto— y al costado se ve la historia clínica. Elegir el
 paciente no crea un presupuesto.
 
-Nuevo, a la izquierda de Atendido, crea el presupuesto de demanda
-espontánea: el turno (con el hueco de demanda si el profesional tiene
-franja abierta, y si no sin hueco), en atención y sin pasar por el
-cobro. Queda en esta visita. Si la visita ya tiene presupuesto, Nuevo
-abre otra del mismo paciente con uno nuevo. Lo que se marca en la
-consulta pasa solo a ese presupuesto, que se abre con "Ver presupuesto".
+Presupuesto, a la izquierda de Atendido, crea el presupuesto de demanda
+espontánea de esta visita: el turno (con el hueco de demanda si el
+profesional tiene franja abierta, y si no sin hueco), en atención y
+sin pasar por el cobro. No abre otra consulta. Si la visita ya tiene
+presupuesto, el botón no está y se abre con "Ver presupuesto".
+Lo que se marca en la consulta pasa solo a ese presupuesto.
 Las correcciones hechas directo en el odontograma no se cobran.
-Atendido no se saca: cierra la visita. El + Nuevo del panel de Odoo
-no se muestra: abría una consulta vacía, sin paciente ni presupuesto,
-al lado del Nuevo de la cabecera. El título del panel es el paciente;
-mientras la consulta está vacía dice «Nueva consulta» y no el nombre
-técnico del modelo.
+Atendido cierra la visita y, si hay prácticas a tratar o tratadas y
+todavía no hay presupuesto, lo crea antes de cerrar. Sin eso la
+consulta quedaba chartada y sin cobrar. No se deja un borrador vacío
+al lado: Atender ahora reabre el vacío del mismo paciente, y al
+presupuestar o cerrar se descartan los otros vacíos de ese usuario.
+El + Nuevo del panel de Odoo no se muestra. El título del panel es el
+paciente; mientras la consulta está vacía dice «Nueva consulta».
 
 Una consulta cerrada o firmada no se edita: motivo, evolución,
 diagnósticos y el odontograma quedan bloqueados. En el mapa las caras
@@ -91,12 +93,18 @@ y no se muestra el aviso azul sobre el odontograma. La leyenda de
 condiciones (sano, caries, obturación, …) es más grande.
 
 En el mapa el primer clic selecciona la cara y el segundo la deja
-en blanco, sin recorrer colores. El color (sano, caries, corona, …)
-se elige después, en la leyenda. Si el estado es de la pieza entera,
-ese color pinta todas las caras: corona, implante, prótesis, ausente,
-sano y extracción indicada vienen así. Caries, obturación y el resto
-pintan solo la cara elegida. Una marca de la pieza se sigue viendo en
-las caras que no tienen marca propia.
+en blanco, sin recorrer colores. El número de la pieza selecciona la
+pieza entera. La condición (sano, caries, corona, …) se elige en la
+leyenda y pinta con su color, el de Configuración. A tratar no cambia
+ese color: la zona lleva un borde rojo grueso. Tratado y presente
+quedan con el relleno solo. Otro clic en la misma condición pasa de
+a tratar a tratado; el panel de la selección también cambia el estado
+y la nota.
+Si el estado es de la pieza entera, pinta todas las caras. Caries,
+obturación y el resto pintan solo la cara elegida. Una marca de la
+pieza se sigue viendo en las caras que no tienen marca propia.
+Permanentes y temporarias se ven juntas: la arcada temporaria va
+adentro de la permanente, con la numeración FDI.
 En Configuración, Estados de la pieza deja cambiar el nombre, el color y si el
 estado es de la pieza entera. El código técnico no se toca, así las
 marcas ya guardadas siguen pintando.
@@ -108,8 +116,12 @@ treated, aunque el nombre visible sea otro. Al elegir una condición
 en la leyenda, el estado inicial sigue siendo el de ese código
 (caries queda pending).
 
-La notación es FDI. Las piezas temporarias están en el mismo esquema y se
-muestran aparte en el mapa.
+La notación es FDI. Con el perfil odontológico (Ajustes, prendido al
+instalar) no se muestran en el menú Medicamentos, Alergias ni Rendir
+a un profesional. Esas funciones siguen en emr: se apaga el perfil si
+la base atiende otra especialidad. El menú Odontogramas de Atención
+no está: el mapa se abre desde el paciente. La grilla de marcas queda
+solo en modo desarrollador.
     """,
     "depends": [
         "emr",
@@ -122,6 +134,7 @@ muestran aparte en el mapa.
         "views/emr_encounter_views.xml",
         "views/res_partner_views.xml",
         "views/product_template_views.xml",
+        "views/res_config_settings_views.xml",
         "report/emr_encounter_reports.xml",
         "data/emr_odontogram_condition_data.xml",
         "data/emr_odontogram_status_data.xml",

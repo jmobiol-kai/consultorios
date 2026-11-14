@@ -1,0 +1,28 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* emr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-14 12:00+0000\n"
+"PO-Revision-Date: 2026-11-14 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Spanish (Argentina)\n"
+"Language: es_AR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: emr
+#: model:ir.module.module,shortdesc:base.module_emr
+#: model:ir.ui.menu,name:emr.menu_emr_root
+msgid "Consultorio"
+msgstr "Consultorio"
+
+#. module: emr
+#: model:ir.module.module,summary:base.module_emr
+msgid "Agenda, turnos, historia clínica y cobro para el consultorio"
+msgstr "Agenda, turnos, historia clínica y cobro para el consultorio"

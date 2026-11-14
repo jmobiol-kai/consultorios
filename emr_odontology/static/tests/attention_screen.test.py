@@ -1,6 +1,6 @@
 """La atención no pide paciente y profesional antes de mostrar la historia.
 
-Sin Odoo: se lee el XML. Nuevo tiene que quedar a la izquierda de
+Sin Odoo: se lee el XML. Presupuesto tiene que quedar a la izquierda de
 Atendido, y el menú tiene que abrir la consulta, no un asistente.
 """
 import pathlib
@@ -24,7 +24,7 @@ class AttentionScreenTest(unittest.TestCase):
     def setUp(self):
         self.root = ET.parse(_VIEW).getroot()
 
-    def test_nuevo_is_immediately_left_of_atendido(self):
+    def test_presupuesto_is_immediately_left_of_atendido(self):
         found = False
         for xpath in self.root.iter("xpath"):
             if xpath.get("expr") != "//header/button[@name='action_close']":
@@ -33,7 +33,8 @@ class AttentionScreenTest(unittest.TestCase):
             button = xpath.find("button")
             self.assertIsNotNone(button)
             self.assertEqual(button.get("name"), "action_new_quotation")
-            self.assertEqual(button.get("string"), "Nuevo")
+            self.assertEqual(button.get("string"), "Presupuesto")
+            self.assertIn("order_id", button.get("invisible") or "")
             found = True
         self.assertTrue(found)
 
@@ -73,6 +74,13 @@ class AttentionScreenTest(unittest.TestCase):
                 "diagnosis_ids": ["state != 'draft'"],
             },
         )
+        diagnosis = [
+            field
+            for field in self.root.iter("field")
+            if field.get("name") == "diagnosis_ids"
+        ]
+        self.assertEqual(len(diagnosis), 1)
+        self.assertEqual(diagnosis[0].get("invisible"), "1")
 
     def test_history_card_hides_nuevo_and_the_quote(self):
         invisible = {
@@ -82,7 +90,7 @@ class AttentionScreenTest(unittest.TestCase):
         }
         self.assertEqual(
             invisible["action_new_quotation"],
-            "context.get('emr_history_readonly') or state != 'draft'",
+            "context.get('emr_history_readonly') or state != 'draft' or order_id",
         )
         self.assertIn("state != 'draft'", invisible["action_new_quotation"])
         self.assertIn("emr_history_readonly", invisible["action_view_sale_order"])
@@ -99,10 +107,21 @@ class AttentionScreenTest(unittest.TestCase):
                 handler.index("chartEditsAllowed"),
                 handler.index("return;"),
             )
+        chart_js = (
+            _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.js"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Consulta registrada", chart_js)
         chart = (
             _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.xml"
         ).read_text(encoding="utf-8")
-        self.assertIn("Consulta registrada", chart)
+        self.assertNotIn("Ver temporarias", chart)
+        self.assertNotIn("El centro del círculo", chart)
+        self.assertIn('t-on-click="(ev) => this.onTooth(fdi, ev)"', chart)
+        odontogram_view = (_ROOT / "views" / "emr_odontogram_views.xml").read_text(
+            encoding="utf-8"
+        )
+        self.assertNotIn("alert-info", odontogram_view)
+        self.assertNotIn('id="menu_emr_odontogram"', odontogram_view)
 
     def test_patient_is_chosen_on_the_screen_until_there_is_a_quote(self):
         readonly = [
@@ -127,13 +146,25 @@ class AttentionScreenTest(unittest.TestCase):
                 found = True
         self.assertTrue(found)
 
-    def test_header_nuevo_is_not_the_generic_create(self):
+    def test_header_presupuesto_is_not_the_generic_create(self):
+        found = False
         for button in self.root.iter("button"):
-            if button.get("string") != "Nuevo":
+            self.assertNotEqual(button.get("string"), "Nuevo")
+            if button.get("string") != "Presupuesto":
                 continue
             self.assertEqual(button.get("name"), "action_new_quotation")
             self.assertEqual(button.get("type"), "object")
-            self.assertNotEqual(button.get("name"), "create")
+            found = True
+        self.assertTrue(found)
+
+    def test_mark_grid_is_debug_only_and_diagnoses_stay_hidden(self):
+        grids = [
+            field
+            for field in self.root.iter("field")
+            if field.get("name") == "line_ids" and field.get("widget") != "odontogram_chart"
+        ]
+        self.assertEqual(len(grids), 1)
+        self.assertEqual(grids[0].get("groups"), "base.group_no_one")
 
 
 if __name__ == "__main__":

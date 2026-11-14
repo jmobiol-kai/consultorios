@@ -17,17 +17,17 @@
             </xpath>
             <!-- create=false saca el + Nuevo del panel. Ese botón abre otra
                  consulta vacía, sin paciente ni presupuesto, y se confunde
-                 con Nuevo de la cabecera (el presupuesto). -->
+                 con Presupuesto de la cabecera. -->
             <xpath expr="//form" position="attributes">
                 <attribute name="class" add="o_emr_odontology_encounter" separator=" "/>
                 <attribute name="create">false</attribute>
             </xpath>
-            <!-- Nuevo queda a la izquierda de Atendido. Atendido no se toca:
-                 cierra la visita. Nuevo es el único que arma el presupuesto. -->
+            <!-- Presupuesto queda a la izquierda de Atendido. Atendido cierra
+                 la visita y, si hay prácticas, crea el presupuesto solo. -->
             <xpath expr="//header/button[@name='action_close']" position="before">
-                <button name="action_new_quotation" type="object" string="Nuevo"
-                        invisible="context.get('emr_history_readonly') or state != 'draft'"
-                        help="Crea un presupuesto para este paciente. Elegir el paciente solo muestra la historia clínica. Si esta visita ya tiene presupuesto, abre otra con uno nuevo."/>
+                <button name="action_new_quotation" type="object" string="Presupuesto"
+                        invisible="context.get('emr_history_readonly') or state != 'draft' or order_id"
+                        help="Crea el presupuesto de esta visita. Si hay prácticas a tratar o tratadas, Atendido también lo crea."/>
             </xpath>
             <xpath expr="//header/field[@name='state']" position="before">
                 <button name="action_view_sale_order" type="object"
@@ -96,7 +96,9 @@
                             <field name="sequence" column_invisible="1"/>
                         </list>
                     </field>
-                    <field name="line_ids" readonly="state != 'draft'" nolabel="1">
+                    <!-- La grilla queda para depurar. El dentista trabaja en el mapa. -->
+                    <field name="line_ids" readonly="state != 'draft'" nolabel="1"
+                           groups="base.group_no_one">
                         <list editable="bottom" limit="1000">
                             <field name="sequence" widget="handle"/>
                             <field name="fdi"/>
@@ -107,7 +109,7 @@
                         </list>
                     </field>
                     <field name="diagnosis_ids" widget="many2many_tags"
-                           readonly="state != 'draft'"/>
+                           invisible="1" readonly="state != 'draft'"/>
                 </page>
             </page>
         </field>
@@ -174,7 +176,8 @@
 
     <!-- Sin asistente: Atención abre esta consulta vacía. El paciente se
          elige en el formulario y la historia aparece al costado. El
-         presupuesto no existe hasta Nuevo. -->
+         presupuesto se crea con Presupuesto, o solo al marcar Atendido
+         si hay prácticas. -->
     <record id="emr_odontology_walkin_action" model="ir.actions.act_window">
         <field name="name">Atención</field>
         <field name="res_model">emr.encounter.odontology</field>
