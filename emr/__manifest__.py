@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "Consultorio",
-    "version": "19.0.1.7.4",
+    "version": "19.0.1.7.5",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",

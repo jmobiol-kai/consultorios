@@ -5,6 +5,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+from .patient_form import DNI_XMLID, merge_invisible, patient_identity_defaults
+
 
 class ResPartner(models.Model):
     """Paciente, profesional y obra social son roles sobre el partner.
@@ -301,9 +303,70 @@ class ResPartner(models.Model):
                 )
         return True
 
+    def _emr_dni_type(self):
+        """El tipo DNI de la localización argentina, o nada si no está instalada."""
+        return self.env.ref(DNI_XMLID, raise_if_not_found=False)
+
+    def _emr_patient_identity_vals(self, is_patient):
+        dni = self._emr_dni_type()
+        return patient_identity_defaults(
+            bool(is_patient),
+            dni.id if dni else False,
+            "l10n_latam_identification_type_id" in self._fields,
+        )
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        is_patient = res.get("is_patient") or self.env.context.get("default_is_patient")
+        extra = self._emr_patient_identity_vals(is_patient)
+        for key, value in extra.items():
+            if key in fields_list:
+                res[key] = value
+        return res
+
+    def _get_view(self, view_id=None, view_type="form", **options):
+        arch, view = super()._get_view(view_id, view_type, **options)
+        if view_type != "form" or "l10n_latam_identification_type_id" not in self._fields:
+            return arch, view
+        for node in arch.xpath("//field[@name='l10n_latam_identification_type_id']"):
+            node.set("invisible", merge_invisible(node.get("invisible")))
+        return arch, view
+
+    def _emr_set_dni_if_empty(self):
+        """Completa el tipo DNI en pacientes que todavía no tienen uno."""
+        dni = self._emr_dni_type()
+        if not dni or "l10n_latam_identification_type_id" not in self._fields:
+            return
+        missing = self.filtered(
+            lambda partner: partner.is_patient and not partner.l10n_latam_identification_type_id
+        )
+        if missing:
+            super(ResPartner, missing).write({
+                "l10n_latam_identification_type_id": dni.id,
+            })
+
     @api.model_create_multi
     def create(self, vals_list):
-        partners = super().create(vals_list)
+        prepared = []
+        for vals in vals_list:
+            vals = dict(vals)
+            # El contexto del alta de pacientes también llega al crear una
+            # dirección hija. Esa no es un paciente: tiene parent_id.
+            is_patient = vals.get("is_patient")
+            if is_patient is None and not vals.get("parent_id"):
+                is_patient = self.env.context.get("default_is_patient")
+            extra = self._emr_patient_identity_vals(is_patient)
+            for key, value in extra.items():
+                if key == "l10n_latam_identification_type_id":
+                    vals.setdefault(key, value)
+                else:
+                    vals[key] = value
+            if is_patient and "is_patient" not in vals:
+                vals["is_patient"] = True
+            prepared.append(vals)
+        partners = super().create(prepared)
+        partners.filtered("is_patient")._emr_set_dni_if_empty()
         practitioners = partners.filtered("is_practitioner")
         practitioners._emr_ensure_resource()
         for partner in practitioners.filtered(lambda item: not item.emr_calendar_color):
@@ -311,9 +374,15 @@ class ResPartner(models.Model):
         return partners
 
     def write(self, vals):
+        if vals.get("is_patient"):
+            vals = dict(vals)
+            vals["is_company"] = False
+            vals["company_type"] = "person"
         res = super().write(vals)
         # También al elegirle método: es el momento en que un profesional del
         # padrón pasa a atender acá y necesita agenda.
         if vals.get("is_practitioner") or vals.get("scheduling_method"):
             self.filtered("is_practitioner")._emr_ensure_resource()
+        if vals.get("is_patient"):
+            self.filtered("is_patient")._emr_set_dni_if_empty()
         return res

@@ -66,19 +66,36 @@
                     </span>
                 </div>
             </xpath>
-            <xpath expr="//notebook" position="inside">
-                <page name="emr_patient" string="Paciente" invisible="not is_patient">
+            <!-- Solo en pacientes. Una obra social o un contacto común
+                 conserva persona/compañía, puesto, empresa y sitio web. -->
+            <xpath expr="//field[@name='company_type']" position="attributes">
+                <attribute name="invisible">is_patient</attribute>
+            </xpath>
+            <xpath expr="//field[@name='function'][@placeholder='e.g. Sales Director']" position="attributes">
+                <attribute name="invisible">is_company or is_patient</attribute>
+            </xpath>
+            <xpath expr="//field[@name='website']" position="attributes">
+                <attribute name="invisible">is_patient</attribute>
+            </xpath>
+            <xpath expr="//field[@name='parent_id']" position="attributes">
+                <attribute name="invisible">is_patient or (((is_company and not parent_id) or company_name) and company_name != '')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='company_name']/parent::div" position="attributes">
+                <attribute name="invisible">is_patient or not company_name or company_name == '' or is_company</attribute>
+            </xpath>
+            <xpath expr="//notebook" position="before">
+                <group name="emr_patient" string="Paciente" invisible="not is_patient">
                     <group>
-                        <group>
-                            <field name="birthdate_date"/>
-                            <field name="gender"/>
-                        </group>
-                        <group>
-                            <field name="insurer_id"/>
-                            <field name="insurance_member_number"/>
-                        </group>
+                        <field name="birthdate_date"/>
+                        <field name="gender"/>
                     </group>
-                </page>
+                    <group>
+                        <field name="insurer_id"/>
+                        <field name="insurance_member_number"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
                 <page name="emr_practitioner" string="Profesional" invisible="not is_practitioner">
                     <group>
                         <group string="Matrículas">
