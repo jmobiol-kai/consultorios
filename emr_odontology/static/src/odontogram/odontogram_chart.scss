@@ -343,34 +343,3 @@
     }
 }
 
-/* La clase del formulario cae en .o_form_renderer, no en .o_form_view.
-   Tres columnas iguales a los costados: el botón queda a la izquierda
-   y el título, en una sola línea, en el centro de la fila. */
-.o_form_renderer.o_emr_odontogram_page .o_emr_odontogram_titlebar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
-    column-gap: 1rem;
-    min-height: 3rem;
-    margin-bottom: 0.75rem;
-}
-
-.o_form_renderer.o_emr_odontogram_page .o_emr_odontogram_titlebar_side {
-    justify-self: start;
-}
-
-.o_form_renderer.o_emr_odontogram_page .o_emr_odontogram_history_heading {
-    justify-self: center;
-    white-space: nowrap;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 600;
-    line-height: 1.1;
-}
-
-.o_emr_odontogram_history_date {
-    margin-left: 0.65rem;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #607d8b;
-}

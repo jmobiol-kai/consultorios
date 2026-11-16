@@ -123,7 +123,7 @@ class HistoryPagerTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("DROP TABLE IF EXISTS emr_odontogram_page", migration)
         manifest = (_ROOT / "__manifest__.py").read_text(encoding="utf-8")
-        self.assertIn('"version": "19.0.1.19.3"', manifest)
+        self.assertIn('"version": "19.0.1.19.4"', manifest)
         self.assertIn("def pager_ids_for", page)
         self.assertIn("odontogram_page_form.js", manifest)
         self.assertIn("_compute_history_ids", page)
@@ -175,25 +175,25 @@ class HistoryPagerTest(unittest.TestCase):
         )
         self.assertEqual(form.get("js_class"), "emr_odontogram_page")
         self.assertIsNone(form.find("header"))
-        self.assertIn("Historia Clínica", text)
-        bar = form.find(".//div[@class='o_emr_odontogram_titlebar']")
+        bar = next(
+            node
+            for node in form.iter("div")
+            if "display:flex" in (node.get("style") or "")
+        )
         self.assertIsNotNone(bar)
-        button = bar.find(".//button[@name='action_odontology_walkin']")
+        self.assertIn("align-items:center", bar.get("style"))
+        button = bar.find("button")
         self.assertEqual(button.get("string"), "Atender ahora")
         self.assertEqual(button.get("invisible"), "kind != 'chart'")
-        headings = bar.findall("div[@class='o_emr_odontogram_history_heading']")
+        headings = bar.findall("h1")
         self.assertEqual(len(headings), 2)
         self.assertEqual((headings[0].text or "").strip(), "Historia Clínica")
         self.assertEqual(headings[0].get("invisible"), "kind != 'chart'")
+        self.assertIn("white-space:nowrap", headings[0].get("style"))
+        self.assertIn("font-size:2rem", headings[0].get("style"))
+        self.assertIn("flex:1", headings[0].get("style"))
         self.assertEqual(headings[1].get("invisible"), "kind != 'visit'")
         self.assertEqual((headings[1].find("span").text or "").strip(), "Consulta")
-        scss = (
-            _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.scss"
-        ).read_text(encoding="utf-8")
-        self.assertIn("white-space: nowrap", scss)
-        self.assertIn("grid-template-columns", scss)
-        heading_css = scss.split(".o_emr_odontogram_history_heading")[1]
-        self.assertNotIn("position: absolute", heading_css)
         form_js = (
             _ROOT / "static" / "src" / "odontogram" / "odontogram_page_form.js"
         ).read_text(encoding="utf-8")
