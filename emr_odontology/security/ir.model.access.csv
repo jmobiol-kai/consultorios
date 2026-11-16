@@ -11,3 +11,5 @@ access_emr_odontogram_condition_practitioner,odontogram condition practitioner,m
 access_emr_odontogram_condition_manager,odontogram condition manager,model_emr_odontogram_condition,emr.group_emr_manager,1,1,1,1
 access_emr_odontogram_status_practitioner,odontogram status practitioner,model_emr_odontogram_status,emr.group_emr_practitioner,1,0,0,0
 access_emr_odontogram_status_manager,odontogram status manager,model_emr_odontogram_status,emr.group_emr_manager,1,1,1,1
+access_emr_odontogram_page_practitioner,odontogram page practitioner,model_emr_odontogram_page,emr.group_emr_practitioner,1,1,1,1
+access_emr_odontogram_page_manager,odontogram page manager,model_emr_odontogram_page,emr.group_emr_manager,1,1,1,1

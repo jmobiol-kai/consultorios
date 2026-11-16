@@ -10,5 +10,6 @@ from . import sale_order
 from . import emr_appointment_book
 from . import emr_odontogram_status
 from . import emr_encounter
+from . import emr_odontogram_page
 from . import ir_ui_menu
 from . import res_config_settings

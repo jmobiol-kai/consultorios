@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- La primera ficha es el odontograma de hoy. Las flechas del
+         formulario pasan a cada consulta, de la más nueva a la más vieja.
+         Esas fichas no se editan: no tocan el mapa ni el presupuesto. -->
+    <record id="emr_odontogram_page_view_form" model="ir.ui.view">
+        <field name="name">emr.odontogram.page.form</field>
+        <field name="model">emr.odontogram.page</field>
+        <field name="arch" type="xml">
+            <form string="Odontograma" create="false" delete="false" duplicate="false">
+                <header>
+                    <field name="kind" invisible="1"/>
+                    <button name="action_odontology_walkin" type="object"
+                            string="Atender ahora" class="btn-primary"
+                            invisible="kind != 'chart'"
+                            help="Abre la atención de este paciente. Lo que se marque ahí como práctica entra al presupuesto al crear Presupuesto o al marcar Atendido."/>
+                </header>
+                <sheet>
+                    <field name="currency_id" invisible="1"/>
+                    <div invisible="kind != 'chart'">
+                        <group>
+                            <field name="partner_id" readonly="1"/>
+                        </group>
+                        <field name="tooth_ids" widget="odontogram_chart" mode="list" nolabel="1">
+                            <list limit="1000">
+                                <field name="fdi"/>
+                                <field name="surface"/>
+                                <field name="condition"/>
+                                <field name="status"/>
+                                <field name="notes"/>
+                                <field name="last_encounter_id"/>
+                            </list>
+                        </field>
+                        <field name="tooth_ids" nolabel="1" groups="base.group_no_one">
+                            <list editable="bottom" limit="1000">
+                                <field name="fdi"/>
+                                <field name="surface"/>
+                                <field name="condition"/>
+                                <field name="status"/>
+                                <field name="notes"/>
+                                <field name="last_encounter_id" optional="hide"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div invisible="kind != 'visit'" class="o_emr_odontogram_history">
+                        <group>
+                            <group>
+                                <field name="visit_date" readonly="1"/>
+                                <field name="practitioner_id" readonly="1"/>
+                                <field name="visit_state" widget="badge" readonly="1"
+                                       decoration-warning="visit_state == 'draft'"
+                                       decoration-info="visit_state == 'closed'"
+                                       decoration-success="visit_state == 'signed'"/>
+                            </group>
+                            <group string="Presupuesto">
+                                <field name="order_id" readonly="1"
+                                       options="{'no_create': True}"/>
+                                <field name="order_state" readonly="1"
+                                       invisible="not order_id"/>
+                                <field name="amount_total" readonly="1"
+                                       invisible="not order_id"/>
+                            </group>
+                        </group>
+                        <p invisible="order_id" class="text-muted">Sin presupuesto.</p>
+                        <separator string="Qué se hizo"/>
+                        <field name="line_ids" readonly="1" nolabel="1">
+                            <list create="false" delete="false">
+                                <field name="fdi" string="Pieza"/>
+                                <field name="surface" string="Cara"/>
+                                <field name="condition"/>
+                                <field name="status" string="Estado"/>
+                                <field name="price_subtotal" string="Precio"/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="notes" optional="hide"/>
+                            </list>
+                        </field>
+                        <separator string="En esta consulta"/>
+                        <field name="line_ids" widget="odontogram_chart" mode="list"
+                               nolabel="1" readonly="1">
+                            <list limit="1000">
+                                <field name="fdi"/>
+                                <field name="surface"/>
+                                <field name="condition"/>
+                                <field name="status"/>
+                                <field name="notes"/>
+                            </list>
+                        </field>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

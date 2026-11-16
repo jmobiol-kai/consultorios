@@ -379,6 +379,40 @@ class EmrEncounterOdontologyLine(models.Model):
         index=True,
     )
     sequence = fields.Integer(default=10)
+    # Lo que salió en el presupuesto. No se escribe desde acá: el precio
+    # vive en la línea del pedido, y esta pantalla de historia solo lo muestra.
+    currency_id = fields.Many2one(
+        "res.currency",
+        compute="_compute_price_subtotal",
+    )
+    price_subtotal = fields.Monetary(
+        string="Precio",
+        compute="_compute_price_subtotal",
+        currency_field="currency_id",
+    )
+
+    @api.depends("odontology_id.order_id")
+    def _compute_price_subtotal(self):
+        ids = [mark_id for mark_id in self.ids if isinstance(mark_id, int)]
+        sols = self.env["sale.order.line"].sudo().search(
+            [("odontology_line_id", "in", ids)]
+        ) if ids else self.env["sale.order.line"]
+        by_mark = {}
+        for sol in sols:
+            mark_id = sol.odontology_line_id.id
+            current = by_mark.get(mark_id)
+            if current is None or (
+                not current.product_uom_qty and sol.product_uom_qty
+            ):
+                by_mark[mark_id] = sol
+        company_currency = self.env.company.currency_id
+        for mark in self:
+            sol = by_mark.get(mark.id)
+            order = mark.odontology_id.order_id
+            mark.currency_id = (
+                (sol.currency_id if sol else order.currency_id) or company_currency
+            )
+            mark.price_subtotal = sol.price_subtotal if sol else 0.0
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -49,15 +49,9 @@ class ResPartner(models.Model):
         self.ensure_one()
         if not self.is_patient:
             raise UserError(_("Solo un paciente tiene odontograma."))
-        chart = self.env["emr.odontogram"]._get_or_create(self)
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Odontograma"),
-            "res_model": "emr.odontogram",
-            "res_id": chart.id,
-            "view_mode": "form",
-            "target": "current",
-        }
+        # La primera ficha es este odontograma. Las flechas siguen por las
+        # consultas del paciente. Atender ahora queda en esa primera ficha.
+        return self.env["emr.odontogram.page"].action_open_for_partner(self)
 
     # ------------------------------------------------------------------
     # Atención sin turno: la pantalla, y el presupuesto aparte

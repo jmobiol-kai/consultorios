@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.17.3",
+    "version": "19.0.1.18.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -32,6 +32,14 @@ La visita delega en `emr.encounter`, igual que la endoscopía. Lo que se
 anota en la visita —pieza, cara, condición y estado— se vuelca al
 odontograma. El historial queda en las atenciones; el odontograma es la
 boca como está ahora.
+
+Desde el paciente, el odontograma abre con las flechas del formulario.
+La primera ficha es la boca como está ahora, con Atender ahora. Las
+siguientes son las consultas de ese paciente, de la más nueva a la más
+vieja: fecha, profesional, lo que se marcó (pieza y cara), el precio de
+cada práctica, el total y el número del presupuesto. El mapa de esa
+ficha es solo lo que se marcó en la visita, y no se edita. Un borrador
+vacío de Atender ahora no entra.
 
 Cada marca que es una práctica (condición distinta de sano/ausente, en
 estado "A tratar" o "Tratado") agrega una línea al turno de la atención,
@@ -131,6 +139,7 @@ solo en modo desarrollador.
         "security/emr_odontology_security.xml",
         "views/emr_encounter_templates.xml",
         "views/emr_odontogram_views.xml",
+        "views/emr_odontogram_page_views.xml",
         "views/emr_encounter_views.xml",
         "views/res_partner_views.xml",
         "views/product_template_views.xml",
