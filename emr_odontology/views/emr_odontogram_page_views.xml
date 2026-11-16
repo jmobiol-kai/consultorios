@@ -8,14 +8,21 @@
         <field name="name">emr.odontogram.page.form</field>
         <field name="model">emr.odontogram.page</field>
         <field name="arch" type="xml">
-            <form string="Odontograma" create="false" delete="false" duplicate="false">
+            <form string="Odontograma" class="o_emr_odontogram_page"
+                  create="false" delete="false" duplicate="false">
                 <header>
                     <field name="kind" invisible="1"/>
-                    <div invisible="kind != 'chart'" class="o_emr_odontogram_history_heading">Historia clínica</div>
                     <button name="action_odontology_walkin" type="object"
                             string="Atender ahora" class="btn-primary"
                             invisible="kind != 'chart'"
                             help="Abre la atención de este paciente. Lo que se marque ahí como práctica entra al presupuesto al crear Presupuesto o al marcar Atendido."/>
+                    <div invisible="kind != 'chart'" class="o_emr_odontogram_history_heading">Historia Clínica</div>
+                    <div invisible="kind != 'visit'" class="o_emr_odontogram_history_heading">
+                        <span class="o_emr_odontogram_history_title">Consulta</span>
+                        <span class="o_emr_odontogram_history_date">
+                            <field name="visit_date" readonly="1" nolabel="1"/>
+                        </span>
+                    </div>
                 </header>
                 <sheet>
                     <field name="currency_id" invisible="1"/>

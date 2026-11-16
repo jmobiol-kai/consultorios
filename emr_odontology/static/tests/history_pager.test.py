@@ -123,7 +123,7 @@ class HistoryPagerTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("DROP TABLE IF EXISTS emr_odontogram_page", migration)
         manifest = (_ROOT / "__manifest__.py").read_text(encoding="utf-8")
-        self.assertIn('"version": "19.0.1.19.1"', manifest)
+        self.assertIn('"version": "19.0.1.19.2"', manifest)
         self.assertIn("_compute_history_ids", page)
         self.assertIn("action_open_page", page)
         self.assertIn("current_id", page)
@@ -171,14 +171,32 @@ class HistoryPagerTest(unittest.TestCase):
         text = (_ROOT / "views" / "emr_odontogram_page_views.xml").read_text(
             encoding="utf-8"
         )
-        self.assertIn("Historia clínica", text)
-        heading = [
-            node
-            for node in root.iter("div")
-            if (node.text or "").strip() == "Historia clínica"
+        self.assertIn("Historia Clínica", text)
+        header = form.find("header")
+        children = list(header)
+        button_index = next(i for i, child in enumerate(children) if child.tag == "button")
+        heading_index = next(
+            i for i, child in enumerate(children)
+            if child.tag == "div" and (child.text or "").strip() == "Historia Clínica"
+        )
+        self.assertLess(button_index, heading_index)
+        self.assertEqual(children[button_index].get("string"), "Atender ahora")
+        heading = children[heading_index]
+        self.assertEqual(heading.get("invisible"), "kind != 'chart'")
+        self.assertIn("o_emr_odontogram_history_heading", heading.get("class") or "")
+        consulta = [
+            child for child in children
+            if child.tag == "div" and child.get("invisible") == "kind != 'visit'"
         ]
-        self.assertEqual(len(heading), 1)
-        self.assertEqual(heading[0].get("invisible"), "kind != 'chart'")
+        self.assertEqual(len(consulta), 1)
+        title = consulta[0].find("span")
+        self.assertEqual((title.text or "").strip(), "Consulta")
+        self.assertIsNotNone(consulta[0].find(".//field[@name='visit_date']"))
+        scss = (
+            _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.scss"
+        ).read_text(encoding="utf-8")
+        self.assertIn("justify-content: center", scss)
+        self.assertIn("font-size: 2rem", scss)
         history = [
             field for field in root.iter("field") if field.get("name") == "history_ids"
         ]

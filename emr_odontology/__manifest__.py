@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.19.1",
+    "version": "19.0.1.19.2",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -41,7 +41,8 @@ cada práctica, el total y el número del presupuesto. El mapa de esa
 ficha es solo lo que se marcó en la visita, y no se edita. Un borrador
 vacío de Atender ahora no entra. Abrir no escribe fichas: salen de
 una vista. Las flechas las arma el cliente con la lista de ids.
-Arriba dice Historia clínica, al lado de Atender ahora. Debajo del
+Arriba, al centro, dice Historia Clínica en grande; en una consulta
+dice Consulta. Atender ahora queda a la izquierda. Debajo del
 mapa hay una fila por consulta, de la más nueva a la más vieja, y
 Abrir muestra esa ficha.
 
