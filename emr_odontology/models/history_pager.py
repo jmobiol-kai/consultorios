@@ -47,6 +47,29 @@ def history_visit_ids(visits):
     return [visit_id for visit_id, _when in kept]
 
 
+def procedure_summary(marks):
+    """Texto corto de lo que se hizo: «Caries distal 14, Corona 36».
+
+    `marks` es una lista de `(condición, cara, pieza)`. La cara «Pieza»
+    es la pieza entera y no se repite. El orden de la lista se conserva.
+    """
+    parts = []
+    for condition, surface, fdi in marks:
+        bits = []
+        label = " ".join(str(condition or "").split())
+        face = " ".join(str(surface or "").split())
+        tooth = " ".join(str(fdi or "").split())
+        if label:
+            bits.append(label)
+        if face and face.lower() not in ("pieza", "tooth"):
+            bits.append(face.lower())
+        if tooth:
+            bits.append(tooth)
+        if bits:
+            parts.append(" ".join(bits))
+    return ", ".join(parts)
+
+
 def pager_page_ids(odontogram_id, visit_ids):
     """Ids de la vista, en el orden de las flechas.
 
@@ -101,23 +124,25 @@ PAGE_VIEW_SQL = """
 """
 
 
-def odontogram_pager_client_action(view_id, page_ids, name):
+def odontogram_pager_client_action(view_id, page_ids, name, current_id=None):
     """Acción de cliente. El JS es quien pasa `resIds` en las props.
 
-    `page_ids[0]` es el odontograma. La acción de ventana que arma el JS
-    lleva `views`, que Odoo 19 exige, y no lleva `res_ids`: el cliente no
-    lo leería.
+    `page_ids[0]` es el odontograma y ese orden no cambia. `current_id`,
+    si está en la lista, es la ficha que se abre (una consulta desde la
+    tabla). La acción de ventana que arma el JS lleva `views`, que Odoo 19
+    exige, y no lleva `res_ids`: el cliente no lo leería.
     """
     ids = list(page_ids or [])
     if not ids:
         raise ValueError("el paginador necesita al menos el odontograma")
+    current = current_id if current_id in ids else ids[0]
     return {
         "type": "ir.actions.client",
         "tag": "emr_odontogram_pager",
         "params": {
             "name": name or "",
             "res_model": "emr.odontogram.page",
-            "res_id": ids[0],
+            "res_id": current,
             "res_ids": ids,
             "views": [[view_id or False, "form"]],
             "context": {"create": False},

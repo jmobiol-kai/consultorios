@@ -26,6 +26,7 @@ from .history_pager import (
     history_visit_ids,
     odontogram_pager_client_action,
     pager_page_ids,
+    procedure_summary,
 )
 
 
@@ -98,6 +99,16 @@ class EmrOdontogramPage(models.Model):
         string="Estado",
     )
     display_name = fields.Char(compute="_compute_display_name")
+    # La tabla de la ficha 1. No se guarda: son las consultas de la vista.
+    history_ids = fields.Many2many(
+        "emr.odontogram.page",
+        compute="_compute_history_ids",
+        string="Consultas",
+    )
+    procedure_summary = fields.Char(
+        compute="_compute_procedure_summary",
+        string="Qué se hizo",
+    )
 
     def init(self):
         """Crea la vista. Si la versión anterior dejó una tabla, la saca.
@@ -150,6 +161,42 @@ class EmrOdontogramPage(models.Model):
                 part for part in (when, who) if part
             ) or _("Consulta")
 
+    @api.depends("partner_id", "kind")
+    def _compute_history_ids(self):
+        """Consultas de este paciente, de la más nueva a la más vieja.
+
+        Solo en la ficha del mapa. Es una búsqueda: no crea filas.
+        """
+        for page in self:
+            if page.kind != "chart" or not page.partner_id:
+                page.history_ids = self.browse()
+                continue
+            page.history_ids = self.search(
+                [
+                    ("partner_id", "=", page.partner_id.id),
+                    ("kind", "=", "visit"),
+                ],
+                order="sequence, id",
+            )
+
+    @api.depends(
+        "line_ids.fdi",
+        "line_ids.surface",
+        "line_ids.condition",
+        "line_ids.sequence",
+    )
+    def _compute_procedure_summary(self):
+        for page in self:
+            marks = [
+                (
+                    line.selection_label("condition"),
+                    line.selection_label("surface"),
+                    line.fdi,
+                )
+                for line in page.line_ids.sorted(key=lambda item: (item.sequence, item.id))
+            ]
+            page.procedure_summary = procedure_summary(marks)
+
     def write(self, vals):
         """El mapa se guarda en el odontograma. La vista no se actualiza.
 
@@ -170,13 +217,11 @@ class EmrOdontogramPage(models.Model):
         charts.odontogram_id.write({"tooth_ids": vals["tooth_ids"]})
         return True
 
-    @api.model
-    def action_open_for_partner(self, partner):
-        """Arma los ids de la vista y los manda al cliente.
+    def _pager_ids(self, partner):
+        """Ids de la vista para este paciente, mapa primero.
 
-        No crea fichas. Si el paciente todavía no tiene odontograma y quien
-        abre puede crearlo, se crea esa boca (igual que antes del paginador).
-        Un usuario de solo lectura, con la boca ya creada, no escribe nada.
+        No crea fichas. Si todavía no hay odontograma y quien abre puede
+        crearlo, se crea esa boca. Con la boca ya creada no se escribe nada.
         """
         partner.ensure_one()
         Odontogram = self.env["emr.odontogram"]
@@ -203,9 +248,29 @@ class EmrOdontogramPage(models.Model):
             )
             for visit in visits
         ]
-        page_ids = pager_page_ids(chart.id, history_visit_ids(rows))
+        return pager_page_ids(chart.id, history_visit_ids(rows))
+
+    def _open_pager(self, partner, current_id=None):
+        page_ids = self._pager_ids(partner)
         view = self.env.ref("emr_odontology.emr_odontogram_page_view_form")
-        return odontogram_pager_client_action(view.id, page_ids, _("Odontograma"))
+        return odontogram_pager_client_action(
+            view.id, page_ids, _("Odontograma"), current_id=current_id
+        )
+
+    @api.model
+    def action_open_for_partner(self, partner):
+        """Abre el mapa. Las flechas siguen por las consultas."""
+        return self._open_pager(partner)
+
+    def action_open_page(self):
+        """Abre esta ficha y deja las flechas sobre el mismo paciente.
+
+        Es el botón de cada fila de la historia. No escribe.
+        """
+        self.ensure_one()
+        if not self.partner_id:
+            raise UserError(_("Elegí el paciente para ver la consulta."))
+        return self._open_pager(self.partner_id, current_id=self.id)
 
     def action_odontology_walkin(self):
         """Atender ahora, igual que desde el odontograma.

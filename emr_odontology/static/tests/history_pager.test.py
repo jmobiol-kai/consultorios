@@ -45,6 +45,26 @@ class HistoryPagerTest(unittest.TestCase):
             [],
         )
 
+    def test_procedure_summary_names_tooth_and_face(self):
+        self.assertEqual(
+            self.pager.procedure_summary([
+                ("Caries", "Distal", "14"),
+                ("Corona", "Pieza", "36"),
+                ("", "Mesial", ""),
+            ]),
+            "Caries distal 14, Corona 36, mesial",
+        )
+        self.assertEqual(self.pager.procedure_summary([]), "")
+
+    def test_opening_a_row_keeps_the_pager_order(self):
+        page_ids = self.pager.pager_page_ids(5, [8, 7])
+        client = self.pager.odontogram_pager_client_action(
+            12, page_ids, "Odontograma", current_id=page_ids[1]
+        )
+        self.assertEqual(client["params"]["res_id"], page_ids[1])
+        self.assertEqual(client["params"]["res_ids"], page_ids)
+        self.assertEqual(client["params"]["res_ids"][0], self.pager.chart_page_id(5))
+
     def test_page_ids_are_even_for_the_chart_and_odd_for_visits(self):
         # Odontograma 5 y consulta 5 no pueden pisarse: 10 y 11.
         self.assertEqual(self.pager.chart_page_id(5), 10)
@@ -103,7 +123,10 @@ class HistoryPagerTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("DROP TABLE IF EXISTS emr_odontogram_page", migration)
         manifest = (_ROOT / "__manifest__.py").read_text(encoding="utf-8")
-        self.assertIn('"version": "19.0.1.19.0"', manifest)
+        self.assertIn('"version": "19.0.1.19.1"', manifest)
+        self.assertIn("_compute_history_ids", page)
+        self.assertIn("action_open_page", page)
+        self.assertIn("current_id", page)
         self.assertIn("odontogram_pager.js", manifest)
 
     def test_visit_page_shows_the_order_the_price_and_a_readonly_chart(self):
@@ -145,6 +168,45 @@ class HistoryPagerTest(unittest.TestCase):
             if button.get("name") == "action_odontology_walkin"
         ]
         self.assertEqual(len(still), 1)
+        text = (_ROOT / "views" / "emr_odontogram_page_views.xml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Historia clínica", text)
+        heading = [
+            node
+            for node in root.iter("div")
+            if (node.text or "").strip() == "Historia clínica"
+        ]
+        self.assertEqual(len(heading), 1)
+        self.assertEqual(heading[0].get("invisible"), "kind != 'chart'")
+        history = [
+            field for field in root.iter("field") if field.get("name") == "history_ids"
+        ]
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0].get("readonly"), "1")
+        table = history[0].find("list")
+        self.assertEqual(table.get("create"), "false")
+        self.assertEqual(table.get("delete"), "false")
+        self.assertEqual(
+            [field.get("name") for field in table.findall("field")],
+            [
+                "visit_date",
+                "practitioner_id",
+                "procedure_summary",
+                "amount_total",
+                "currency_id",
+                "order_id",
+                "order_state",
+            ],
+        )
+        opener = table.find("button")
+        self.assertEqual(opener.get("name"), "action_open_page")
+        self.assertEqual(opener.get("string"), "Abrir")
+        chart = text.find('widget="odontogram_chart"')
+        history_at = text.find('name="history_ids"')
+        visit_chart = text.find('widget="odontogram_chart"', chart + 1)
+        self.assertLess(chart, history_at)
+        self.assertLess(history_at, visit_chart)
 
 
 if __name__ == "__main__":
