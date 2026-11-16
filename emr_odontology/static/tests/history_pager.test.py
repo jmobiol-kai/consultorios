@@ -123,7 +123,9 @@ class HistoryPagerTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("DROP TABLE IF EXISTS emr_odontogram_page", migration)
         manifest = (_ROOT / "__manifest__.py").read_text(encoding="utf-8")
-        self.assertIn('"version": "19.0.1.19.2"', manifest)
+        self.assertIn('"version": "19.0.1.19.3"', manifest)
+        self.assertIn("def pager_ids_for", page)
+        self.assertIn("odontogram_page_form.js", manifest)
         self.assertIn("_compute_history_ids", page)
         self.assertIn("action_open_page", page)
         self.assertIn("current_id", page)
@@ -171,32 +173,32 @@ class HistoryPagerTest(unittest.TestCase):
         text = (_ROOT / "views" / "emr_odontogram_page_views.xml").read_text(
             encoding="utf-8"
         )
+        self.assertEqual(form.get("js_class"), "emr_odontogram_page")
+        self.assertIsNone(form.find("header"))
         self.assertIn("Historia Clínica", text)
-        header = form.find("header")
-        children = list(header)
-        button_index = next(i for i, child in enumerate(children) if child.tag == "button")
-        heading_index = next(
-            i for i, child in enumerate(children)
-            if child.tag == "div" and (child.text or "").strip() == "Historia Clínica"
-        )
-        self.assertLess(button_index, heading_index)
-        self.assertEqual(children[button_index].get("string"), "Atender ahora")
-        heading = children[heading_index]
-        self.assertEqual(heading.get("invisible"), "kind != 'chart'")
-        self.assertIn("o_emr_odontogram_history_heading", heading.get("class") or "")
-        consulta = [
-            child for child in children
-            if child.tag == "div" and child.get("invisible") == "kind != 'visit'"
-        ]
-        self.assertEqual(len(consulta), 1)
-        title = consulta[0].find("span")
-        self.assertEqual((title.text or "").strip(), "Consulta")
-        self.assertIsNotNone(consulta[0].find(".//field[@name='visit_date']"))
+        bar = form.find(".//div[@class='o_emr_odontogram_titlebar']")
+        self.assertIsNotNone(bar)
+        button = bar.find(".//button[@name='action_odontology_walkin']")
+        self.assertEqual(button.get("string"), "Atender ahora")
+        self.assertEqual(button.get("invisible"), "kind != 'chart'")
+        headings = bar.findall("div[@class='o_emr_odontogram_history_heading']")
+        self.assertEqual(len(headings), 2)
+        self.assertEqual((headings[0].text or "").strip(), "Historia Clínica")
+        self.assertEqual(headings[0].get("invisible"), "kind != 'chart'")
+        self.assertEqual(headings[1].get("invisible"), "kind != 'visit'")
+        self.assertEqual((headings[1].find("span").text or "").strip(), "Consulta")
         scss = (
             _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.scss"
         ).read_text(encoding="utf-8")
-        self.assertIn("justify-content: center", scss)
-        self.assertIn("font-size: 2rem", scss)
+        self.assertIn("white-space: nowrap", scss)
+        self.assertIn("grid-template-columns", scss)
+        heading_css = scss.split(".o_emr_odontogram_history_heading")[1]
+        self.assertNotIn("position: absolute", heading_css)
+        form_js = (
+            _ROOT / "static" / "src" / "odontogram" / "odontogram_page_form.js"
+        ).read_text(encoding="utf-8")
+        self.assertIn("pager_ids_for", form_js)
+        self.assertIn("resIds", form_js)
         history = [
             field for field in root.iter("field") if field.get("name") == "history_ids"
         ]

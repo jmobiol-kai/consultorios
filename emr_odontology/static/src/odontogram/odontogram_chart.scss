@@ -343,36 +343,33 @@
     }
 }
 
-.o_form_view.o_emr_odontogram_page .o_form_statusbar:has(.o_emr_odontogram_history_heading) {
-    position: relative;
-    min-height: 3.6rem;
+/* La clase del formulario cae en .o_form_renderer, no en .o_form_view.
+   Tres columnas iguales a los costados: el botón queda a la izquierda
+   y el título, en una sola línea, en el centro de la fila. */
+.o_form_renderer.o_emr_odontogram_page .o_emr_odontogram_titlebar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 1rem;
+    min-height: 3rem;
+    margin-bottom: 0.75rem;
 }
 
-.o_form_view.o_emr_odontogram_page .o_form_statusbar .o_emr_odontogram_history_heading {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.65rem;
-    margin: 0;
-    padding: 0 11rem;
-    pointer-events: none;
+.o_form_renderer.o_emr_odontogram_page .o_emr_odontogram_titlebar_side {
+    justify-self: start;
+}
+
+.o_form_renderer.o_emr_odontogram_page .o_emr_odontogram_history_heading {
+    justify-self: center;
+    white-space: nowrap;
+    text-align: center;
     font-size: 2rem;
     font-weight: 600;
     line-height: 1.1;
-    z-index: 0;
-}
-
-.o_form_view.o_emr_odontogram_page .o_form_statusbar:has(.o_emr_odontogram_history_heading) .o_statusbar_buttons {
-    position: relative;
-    z-index: 1;
 }
 
 .o_emr_odontogram_history_date {
+    margin-left: 0.65rem;
     font-size: 1rem;
     font-weight: 500;
     color: #607d8b;

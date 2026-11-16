@@ -9,23 +9,30 @@
         <field name="model">emr.odontogram.page</field>
         <field name="arch" type="xml">
             <form string="Odontograma" class="o_emr_odontogram_page"
+                  js_class="emr_odontogram_page"
                   create="false" delete="false" duplicate="false">
-                <header>
-                    <field name="kind" invisible="1"/>
-                    <button name="action_odontology_walkin" type="object"
-                            string="Atender ahora" class="btn-primary"
-                            invisible="kind != 'chart'"
-                            help="Abre la atención de este paciente. Lo que se marque ahí como práctica entra al presupuesto al crear Presupuesto o al marcar Atendido."/>
-                    <div invisible="kind != 'chart'" class="o_emr_odontogram_history_heading">Historia Clínica</div>
-                    <div invisible="kind != 'visit'" class="o_emr_odontogram_history_heading">
-                        <span class="o_emr_odontogram_history_title">Consulta</span>
-                        <span class="o_emr_odontogram_history_date">
-                            <field name="visit_date" readonly="1" nolabel="1"/>
-                        </span>
-                    </div>
-                </header>
                 <sheet>
+                    <field name="kind" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
+                    <!-- Fuera del statusbar: ahí el flex de Odoo 19 achica
+                         el título y lo pisa contra el botón. Esta fila es
+                         el botón a la izquierda y el título en el centro. -->
+                    <div class="o_emr_odontogram_titlebar">
+                        <div class="o_emr_odontogram_titlebar_side">
+                            <button name="action_odontology_walkin" type="object"
+                                    string="Atender ahora" class="btn-primary"
+                                    invisible="kind != 'chart'"
+                                    help="Abre la atención de este paciente. Lo que se marque ahí como práctica entra al presupuesto al crear Presupuesto o al marcar Atendido."/>
+                        </div>
+                        <div invisible="kind != 'chart'" class="o_emr_odontogram_history_heading">Historia Clínica</div>
+                        <div invisible="kind != 'visit'" class="o_emr_odontogram_history_heading">
+                            <span class="o_emr_odontogram_history_title">Consulta</span>
+                            <span class="o_emr_odontogram_history_date">
+                                <field name="visit_date" readonly="1" nolabel="1"/>
+                            </span>
+                        </div>
+                        <div class="o_emr_odontogram_titlebar_side"/>
+                    </div>
                     <div invisible="kind != 'chart'">
                         <group>
                             <field name="partner_id" readonly="1"/>

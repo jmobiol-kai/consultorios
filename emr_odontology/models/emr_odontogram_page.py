@@ -217,19 +217,8 @@ class EmrOdontogramPage(models.Model):
         charts.odontogram_id.write({"tooth_ids": vals["tooth_ids"]})
         return True
 
-    def _pager_ids(self, partner):
-        """Ids de la vista para este paciente, mapa primero.
-
-        No crea fichas. Si todavía no hay odontograma y quien abre puede
-        crearlo, se crea esa boca. Con la boca ya creada no se escribe nada.
-        """
-        partner.ensure_one()
-        Odontogram = self.env["emr.odontogram"]
-        chart = Odontogram.search([("partner_id", "=", partner.id)], limit=1)
-        if not chart:
-            if not Odontogram.has_access("create"):
-                raise UserError(_("Este paciente todavía no tiene odontograma."))
-            chart = Odontogram._get_or_create(partner)
+    def _history_page_ids(self, partner, chart):
+        """Ids ya existentes: el mapa y las consultas, sin escribir."""
         visits = self.env["emr.encounter.odontology"].search(
             [("partner_id", "=", partner.id)]
         )
@@ -249,6 +238,41 @@ class EmrOdontogramPage(models.Model):
             for visit in visits
         ]
         return pager_page_ids(chart.id, history_visit_ids(rows))
+
+    def _pager_ids(self, partner):
+        """Ids de la vista para este paciente, mapa primero.
+
+        No crea fichas. Si todavía no hay odontograma y quien abre puede
+        crearlo, se crea esa boca. Con la boca ya creada no se escribe nada.
+        """
+        partner.ensure_one()
+        Odontogram = self.env["emr.odontogram"]
+        chart = Odontogram.search([("partner_id", "=", partner.id)], limit=1)
+        if not chart:
+            if not Odontogram.has_access("create"):
+                raise UserError(_("Este paciente todavía no tiene odontograma."))
+            chart = Odontogram._get_or_create(partner)
+        return self._history_page_ids(partner, chart)
+
+    def pager_ids_for(self):
+        """Ids del paginador de esta ficha. Solo lee.
+
+        El formulario lo pide si se abrió sin la lista (recarga, miga de
+        pan, o un botón que no pasó props.resIds).
+        """
+        self.ensure_one()
+        partner = self.partner_id
+        if not partner:
+            return [self.id]
+        chart = self.env["emr.odontogram"].search(
+            [("partner_id", "=", partner.id)], limit=1
+        )
+        if not chart:
+            return [self.id]
+        ids = self._history_page_ids(partner, chart)
+        if self.id not in ids:
+            return [self.id, *ids]
+        return ids
 
     def _open_pager(self, partner, current_id=None):
         page_ids = self._pager_ids(partner)
