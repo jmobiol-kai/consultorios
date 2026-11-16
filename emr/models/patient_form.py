@@ -67,6 +67,18 @@ def page_hidden_for_patients(name, string):
     return label in PATIENT_HIDDEN_PAGE_STRINGS
 
 
+# Marca de la fila DNI. El mixin de base pisa el string de todo vat con
+# el rótulo del país (CUIT en Argentina) después del XML.
+PATIENT_DNI_MARKER = "o_emr_patient_dni"
+
+
+def is_patient_dni_node(invisible, class_attr):
+    """La fila de documento del paciente, no el vat de los demás contactos."""
+    if PATIENT_DNI_MARKER in (class_attr or "").split():
+        return True
+    return (invisible or "").strip() == "not is_patient"
+
+
 def merge_invisible(current, extra="is_patient"):
     """Suma `extra` a un invisible que ya tenía la vista."""
     current = (current or "").strip()

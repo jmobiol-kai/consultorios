@@ -81,7 +81,7 @@
                  (tipo + número en un div) se esconde para el paciente en
                  _get_view, porque ese div no está en la vista base. -->
             <xpath expr="//group/field[@name='category_id']" position="before">
-                <field name="vat" string="DNI" invisible="not is_patient"/>
+                <field name="vat" string="DNI" class="o_emr_patient_dni" invisible="not is_patient"/>
             </xpath>
             <xpath expr="//field[@name='website']" position="attributes">
                 <attribute name="invisible">is_patient</attribute>

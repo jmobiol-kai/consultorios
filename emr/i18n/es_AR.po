@@ -28,6 +28,7 @@ msgid "Contactos"
 msgstr "Contactos"
 
 #. module: emr
+#: code:addons/emr/models/res_partner.py:0
 #: model_terms:ir.ui.view,arch_db:emr.res_partner_view_form_emr
 msgid "DNI"
 msgstr "DNI"

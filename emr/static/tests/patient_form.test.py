@@ -117,6 +117,11 @@ class PatientFormTest(unittest.TestCase):
         ]
         self.assertEqual(len(dni_fields), 1)
         self.assertEqual(dni_fields[0].get("invisible"), "not is_patient")
+        self.assertIn("o_emr_patient_dni", (dni_fields[0].get("class") or "").split())
+        self.assertTrue(
+            self.mod.is_patient_dni_node("not is_patient", "o_emr_patient_dni")
+        )
+        self.assertFalse(self.mod.is_patient_dni_node("is_company", ""))
         dni_xpath = next(
             node for node in self.root.iter("xpath")
             if node.get("expr") == "//group/field[@name='category_id']"

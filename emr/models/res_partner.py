@@ -9,6 +9,7 @@ from lxml import etree
 
 from .patient_form import (
     DNI_XMLID,
+    is_patient_dni_node,
     merge_invisible,
     page_hidden_for_patients,
     patient_identity_defaults,
@@ -338,6 +339,10 @@ class ResPartner(models.Model):
         if view_type != "form":
             return arch, view
         self._emr_patient_document_arch(arch)
+        # format.vat.label.mixin, adentro de super(), pone el rótulo del
+        # país (CUIT) en cada vat. Se vuelve a poner DNI solo en la fila
+        # del paciente.
+        self._emr_restore_patient_dni_label(arch)
         return arch, view
 
     def _emr_patient_document_arch(self, arch):
@@ -371,9 +376,16 @@ class ResPartner(models.Model):
         for node in arch.xpath("//field[@name='vat']"):
             if node.xpath("ancestor::field[@name='child_ids']"):
                 continue
-            if (node.get("string") or "").strip() == "DNI":
+            if is_patient_dni_node(node.get("invisible"), node.get("class")):
                 continue
             node.set("invisible", merge_invisible(node.get("invisible")))
+
+    def _emr_restore_patient_dni_label(self, arch):
+        """El rótulo del paciente es DNI, aunque el país diga CUIT."""
+        label = _("DNI")
+        for node in arch.xpath("//field[@name='vat']|//label[@for='vat']"):
+            if is_patient_dni_node(node.get("invisible"), node.get("class")):
+                node.set("string", label)
 
     def _emr_hide_patient_extras(self, arch):
         """Esconde responsabilidad ARCA y pestañas que el paciente no usa.
