@@ -90,7 +90,7 @@
                 <attribute name="invisible">is_patient or not company_name or company_name == '' or is_company</attribute>
             </xpath>
             <xpath expr="//notebook" position="before">
-                <group name="emr_patient" string="Paciente" invisible="not is_patient">
+                <group name="emr_patient" invisible="not is_patient">
                     <group>
                         <field name="birthdate_date"/>
                         <field name="gender"/>

@@ -11,6 +11,7 @@ from .patient_form import (
     DNI_XMLID,
     is_patient_document_label,
     merge_invisible,
+    page_hidden_for_patients,
     patient_identity_defaults,
     patient_ids_to_switch_to_dni,
 )
@@ -350,6 +351,7 @@ class ResPartner(models.Model):
         if "l10n_latam_identification_type_id" in self._fields:
             for node in arch.xpath("//field[@name='l10n_latam_identification_type_id']"):
                 node.set("invisible", merge_invisible(node.get("invisible")))
+        self._emr_hide_patient_extras(arch)
         for label in arch.xpath(
             "//label[@for='vat' or @for='l10n_latam_identification_type_id']"
         ):
@@ -369,6 +371,22 @@ class ResPartner(models.Model):
         label.set("string", "DNI")
         label.set("invisible", "not is_patient")
         vats[0].addprevious(label)
+
+    def _emr_hide_patient_extras(self, arch):
+        """Esconde responsabilidad ARCA y pestañas que el paciente no usa.
+
+        Solo si el nodo está en la vista combinada. Sin l10n_ar o sin el
+        módulo de cobranza, esa pestaña no existe y la ficha igual abre.
+        """
+        for node in arch.xpath("//field[@name='l10n_ar_afip_responsibility_type_id']"):
+            if node.xpath("ancestor::field[@name='child_ids']"):
+                continue
+            node.set("invisible", merge_invisible(node.get("invisible")))
+        for page in arch.xpath("//page"):
+            if page.xpath("ancestor::field[@name='child_ids']"):
+                continue
+            if page_hidden_for_patients(page.get("name"), page.get("string")):
+                page.set("invisible", merge_invisible(page.get("invisible")))
 
     @api.onchange("is_patient")
     def _onchange_is_patient_identity(self):

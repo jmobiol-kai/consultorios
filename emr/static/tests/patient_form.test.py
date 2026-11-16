@@ -57,6 +57,18 @@ class PatientFormTest(unittest.TestCase):
         )
         self.assertEqual(self.mod.patient_ids_to_switch_to_dni([(1, 8)], False), [])
 
+    def test_patient_hides_accounting_followup_and_fiscal_pages_only(self):
+        hide = self.mod.page_hidden_for_patients
+        self.assertTrue(hide("accounting", "Invoicing"))
+        self.assertTrue(hide("accounting_disabled", "Invoicing"))
+        self.assertTrue(hide("followup_tab", "Payment Follow-up"))
+        self.assertTrue(hide("l10n_ar_fiscal_data", "Datos fiscales"))
+        self.assertTrue(hide("something", "Datos fiscales"))
+        self.assertFalse(hide("contact_addresses", "Contacts"))
+        self.assertFalse(hide("sales_purchases", "Sales & Purchase"))
+        self.assertFalse(hide("internal_notes", "Notes"))
+        self.assertFalse(hide("personal_information_page", "Personal Information"))
+
     def test_dni_label_is_not_treated_as_the_generic_one(self):
         self.assertTrue(self.mod.is_patient_document_label("DNI"))
         self.assertFalse(self.mod.is_patient_document_label("Tax ID"))
@@ -81,6 +93,7 @@ class PatientFormTest(unittest.TestCase):
             node for node in self.root.iter("group") if node.get("name") == "emr_patient"
         )
         self.assertEqual(group.get("invisible"), "not is_patient")
+        self.assertFalse(group.get("string"))
         names = {field.get("name") for field in group.iter("field")}
         self.assertEqual(
             names,

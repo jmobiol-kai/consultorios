@@ -39,6 +39,34 @@ def patient_ids_to_switch_to_dni(patients, dni_type_id):
     return [partner_id for partner_id, current in patients if current != dni_type_id]
 
 
+# Pestañas que un paciente no usa. El nombre es el técnico, así no depende
+# de la traducción. followup_tab lo agrega om_account_followup; si el
+# módulo no está, la pestaña no existe y no se toca.
+PATIENT_HIDDEN_PAGE_NAMES = frozenset({
+    "accounting",
+    "accounting_disabled",
+    "followup_tab",
+})
+
+PATIENT_HIDDEN_PAGE_STRINGS = frozenset({
+    "datos fiscales",
+    "fiscal data",
+    "fiscal information",
+})
+
+
+def page_hidden_for_patients(name, string):
+    """True si esa pestaña no se muestra en la ficha de un paciente."""
+    technical = (name or "").strip()
+    label = " ".join((string or "").split()).lower()
+    if technical in PATIENT_HIDDEN_PAGE_NAMES:
+        return True
+    lowered = technical.lower()
+    if "fiscal" in lowered and "personal" not in lowered:
+        return True
+    return label in PATIENT_HIDDEN_PAGE_STRINGS
+
+
 def is_patient_document_label(label_string):
     """El rótulo propio del paciente, para no esconderlo con los demás."""
     return (label_string or "").strip() == "DNI"
