@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.17.2",
+    "version": "19.0.1.17.3",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",

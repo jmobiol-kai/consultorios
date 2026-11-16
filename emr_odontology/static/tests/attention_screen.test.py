@@ -115,6 +115,12 @@ class AttentionScreenTest(unittest.TestCase):
             _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.xml"
         ).read_text(encoding="utf-8")
         self.assertNotIn("Ver temporarias", chart)
+        self.assertIn("Temporarias", chart)
+        self.assertIn("o_emr_odontogram_primary_band", chart)
+        scss = (
+            _ROOT / "static" / "src" / "odontogram" / "odontogram_chart.scss"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn("2.35rem", scss)
         self.assertNotIn("El centro del círculo", chart)
         self.assertIn('t-on-click="(ev) => this.onTooth(fdi, ev)"', chart)
         odontogram_view = (_ROOT / "views" / "emr_odontogram_views.xml").read_text(
