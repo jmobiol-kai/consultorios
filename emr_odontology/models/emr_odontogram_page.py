@@ -4,60 +4,59 @@
 ##############################################################################
 """Fichas que recorre el paginador del odontograma de un paciente.
 
-El paginador de un formulario de Odoo camina `res_ids` de un solo modelo.
-Por eso la boca actual y cada consulta son filas de este modelo, no del
-odontograma y de la visita por separado.
+Es una vista SQL, no una tabla. Abrir la pantalla lee el odontograma y
+las consultas; no inserta, no renumera y no borra filas. El id es
+determinista: el odontograma es `id * 2` y cada consulta es `id * 2 + 1`.
 
-La primera ficha apunta al odontograma de verdad. Las piezas se editan
-ahí, igual que antes: `tooth_ids` escribe en `emr.odontogram`. Atender
-ahora sigue abriendo la atención de ese paciente.
+La primera ficha apunta al odontograma de verdad. Guardar el mapa llama
+a `write` y eso escribe `tooth_ids` en `emr.odontogram`. Atender ahora
+sigue abriendo la atención de ese paciente.
 
 Las fichas siguientes son de solo lectura. Muestran la fecha, el
 profesional, lo que se marcó, el precio de cada práctica y el presupuesto.
 No reescriben la visita ni el mapa, y no crean ni borran líneas del pedido.
 """
-from odoo import _, api, fields, models
+from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
+from odoo.tools import SQL
 
 from .billing_rules import is_empty_draft
-from .history_pager import history_visit_ids, odontogram_pager_action
+from .history_pager import (
+    PAGE_VIEW_SQL,
+    history_visit_ids,
+    odontogram_pager_client_action,
+    pager_page_ids,
+)
 
 
 class EmrOdontogramPage(models.Model):
     _name = "emr.odontogram.page"
     _description = "Ficha del odontograma"
+    _auto = False
+    _log_access = False
     _order = "sequence, id"
 
-    partner_id = fields.Many2one(
-        "res.partner",
-        string="Paciente",
-        required=True,
-        index=True,
-        ondelete="cascade",
-    )
+    partner_id = fields.Many2one("res.partner", string="Paciente", readonly=True)
     kind = fields.Selection(
         [
             ("chart", "Odontograma"),
             ("visit", "Consulta"),
         ],
-        required=True,
-        index=True,
+        readonly=True,
     )
-    sequence = fields.Integer(default=0, index=True)
+    sequence = fields.Integer(readonly=True)
     odontogram_id = fields.Many2one(
         "emr.odontogram",
         string="Odontograma",
-        ondelete="cascade",
-        index=True,
+        readonly=True,
     )
     odontology_id = fields.Many2one(
         "emr.encounter.odontology",
         string="Consulta",
-        ondelete="cascade",
-        index=True,
+        readonly=True,
     )
     # Escribible a propósito: el mapa de la primera ficha es el odontograma
-    # del paciente, no una copia.
+    # del paciente, no una copia. El write de abajo lo vuelca.
     tooth_ids = fields.One2many(
         related="odontogram_id.tooth_ids",
         readonly=False,
@@ -100,10 +99,34 @@ class EmrOdontogramPage(models.Model):
     )
     display_name = fields.Char(compute="_compute_display_name")
 
-    _odontology_page_uniq = models.Constraint(
-        "UNIQUE (odontology_id)",
-        "Esa consulta ya está en el historial.",
-    )
+    def init(self):
+        """Crea la vista. Si la versión anterior dejó una tabla, la saca.
+
+        `drop_view_if_exists` no toca una tabla. Sin este drop, el upgrade
+        de 19.0.1.18.0 no puede crear la vista porque el nombre está ocupado.
+        """
+        cr = self.env.cr
+        tools.drop_view_if_exists(cr, self._table)
+        cr.execute(
+            """
+            SELECT c.relkind
+              FROM pg_class c
+              JOIN pg_namespace n ON n.oid = c.relnamespace
+             WHERE n.nspname = current_schema()
+               AND c.relname = %s
+            """,
+            [self._table],
+        )
+        row = cr.fetchone()
+        if row and row[0] == "r":
+            cr.execute(SQL("DROP TABLE %s CASCADE", SQL.identifier(self._table)))
+        cr.execute(
+            SQL(
+                "CREATE VIEW %s AS (%s)",
+                SQL.identifier(self._table),
+                SQL(PAGE_VIEW_SQL),
+            )
+        )
 
     @api.depends(
         "kind",
@@ -127,36 +150,43 @@ class EmrOdontogramPage(models.Model):
                 part for part in (when, who) if part
             ) or _("Consulta")
 
-    @api.model
-    def _sync_for_partner(self, partner):
-        """Arma las fichas de este paciente y las devuelve en orden del paginador.
+    def write(self, vals):
+        """El mapa se guarda en el odontograma. La vista no se actualiza.
 
-        La primera es el odontograma. Después, las consultas que no son un
-        borrador vacío, de la más nueva a la más vieja. Lo que el usuario no
-        puede leer no entra: vale la misma regla que en las consultas.
+        Una consulta no se edita desde acá. Otro campo que no sea el mapa
+        tampoco: no hay columnas que escribir.
+        """
+        if not self:
+            return True
+        self.check_access("write")
+        extra = set(vals) - {"tooth_ids"}
+        if extra:
+            raise UserError(_("Esta ficha no se edita."))
+        if "tooth_ids" not in vals:
+            return True
+        charts = self.filtered(lambda page: page.kind == "chart" and page.odontogram_id)
+        if len(charts) != len(self):
+            raise UserError(_("El mapa de una consulta no se modifica."))
+        charts.odontogram_id.write({"tooth_ids": vals["tooth_ids"]})
+        return True
+
+    @api.model
+    def action_open_for_partner(self, partner):
+        """Arma los ids de la vista y los manda al cliente.
+
+        No crea fichas. Si el paciente todavía no tiene odontograma y quien
+        abre puede crearlo, se crea esa boca (igual que antes del paginador).
+        Un usuario de solo lectura, con la boca ya creada, no escribe nada.
         """
         partner.ensure_one()
-        chart = self.env["emr.odontogram"]._get_or_create(partner)
-        chart_pages = self.search(
-            [("partner_id", "=", partner.id), ("kind", "=", "chart")],
-            order="id",
-        )
-        chart_page = chart_pages[:1]
-        if chart_pages[1:]:
-            chart_pages[1:].unlink()
-        if not chart_page:
-            chart_page = self.create({
-                "partner_id": partner.id,
-                "kind": "chart",
-                "odontogram_id": chart.id,
-                "sequence": 0,
-            })
-        elif chart_page.odontogram_id != chart or chart_page.sequence:
-            chart_page.write({"odontogram_id": chart.id, "sequence": 0})
-
+        Odontogram = self.env["emr.odontogram"]
+        chart = Odontogram.search([("partner_id", "=", partner.id)], limit=1)
+        if not chart:
+            if not Odontogram.has_access("create"):
+                raise UserError(_("Este paciente todavía no tiene odontograma."))
+            chart = Odontogram._get_or_create(partner)
         visits = self.env["emr.encounter.odontology"].search(
-            [("partner_id", "=", partner.id)],
-            order="date desc, id desc",
+            [("partner_id", "=", partner.id)]
         )
         rows = [
             (
@@ -173,35 +203,9 @@ class EmrOdontogramPage(models.Model):
             )
             for visit in visits
         ]
-        ordered_visit_ids = history_visit_ids(rows)
-        existing = self.search([
-            ("partner_id", "=", partner.id),
-            ("kind", "=", "visit"),
-        ])
-        by_visit = {page.odontology_id.id: page for page in existing}
-        page_ids = []
-        for sequence, visit_id in enumerate(ordered_visit_ids, start=1):
-            page = by_visit.get(visit_id)
-            if not page:
-                page = self.create({
-                    "partner_id": partner.id,
-                    "kind": "visit",
-                    "odontology_id": visit_id,
-                    "sequence": sequence,
-                })
-            elif page.sequence != sequence:
-                page.sequence = sequence
-            page_ids.append(page.id)
-        stale = existing.filtered(lambda page: page.id not in page_ids)
-        if stale:
-            stale.unlink()
-        return self.browse([chart_page.id, *page_ids])
-
-    def action_open_for_partner(self, partner):
-        """Abre el odontograma y deja el paginador sobre estas fichas."""
-        pages = self._sync_for_partner(partner)
+        page_ids = pager_page_ids(chart.id, history_visit_ids(rows))
         view = self.env.ref("emr_odontology.emr_odontogram_page_view_form")
-        return odontogram_pager_action(view.id, pages.ids, _("Odontograma"))
+        return odontogram_pager_client_action(view.id, page_ids, _("Odontograma"))
 
     def action_odontology_walkin(self):
         """Atender ahora, igual que desde el odontograma.

@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "EMR - Odontología",
-    "version": "19.0.1.18.0",
+    "version": "19.0.1.19.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -39,7 +39,8 @@ siguientes son las consultas de ese paciente, de la más nueva a la más
 vieja: fecha, profesional, lo que se marcó (pieza y cara), el precio de
 cada práctica, el total y el número del presupuesto. El mapa de esa
 ficha es solo lo que se marcó en la visita, y no se edita. Un borrador
-vacío de Atender ahora no entra.
+vacío de Atender ahora no entra. Abrir no escribe fichas: salen de
+una vista. Las flechas las arma el cliente con la lista de ids.
 
 Cada marca que es una práctica (condición distinta de sano/ausente, en
 estado "A tratar" o "Tratado") agrega una línea al turno de la atención,
@@ -152,6 +153,7 @@ solo en modo desarrollador.
     ],
     "assets": {
         "web.assets_backend": [
+            "emr_odontology/static/src/odontogram/odontogram_pager.js",
             "emr_odontology/static/src/odontogram/odontogram_chart_logic.js",
             "emr_odontology/static/src/odontogram/odontogram_chart.js",
             "emr_odontology/static/src/odontogram/odontogram_chart.xml",

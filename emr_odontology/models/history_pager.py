@@ -2,14 +2,30 @@
 # For copyright and license notices, see __manifest__.py file in module root
 # directory
 ##############################################################################
-"""Qué fichas recorre el paginador del odontograma.
+"""Qué fichas recorre el paginador del odontograma, sin escribir nada.
 
-No importa Odoo. El formulario de Odoo solo pagina registros de un mismo
-modelo: la boca actual y cada consulta son fichas de `emr.odontogram.page`,
-en este orden. La primera es el mapa. Después van las consultas, de la
-más nueva a la más vieja.
+No importa Odoo. La boca y cada consulta son filas de una vista SQL
+(`emr.odontogram.page`). El id sale de la fila de origen, así que abrir
+la pantalla no inserta, no renumera y no borra.
+
+Odoo 19 no usa `res_ids` de la acción. En
+`addons/web/static/src/webclient/actions/action_service.js`, `_getViewInfo`
+copia `options.props` y solo lee `action.res_id`. En
+`addons/web/static/src/views/form/form_controller.js`, `modelParams` arma
+`resIds` con `this.props.resIds` o, si no viene, `[resId]`. El dominio
+tampoco llena el paginador. Por eso Python devuelve una acción de cliente
+y el JS abre el formulario con `doAction(acción, { props: { resIds } })`.
 """
 from datetime import datetime
+
+
+# La vista tiene que usar la misma cuenta. Par = odontograma, impar = consulta.
+def chart_page_id(odontogram_id):
+    return int(odontogram_id) * 2
+
+
+def visit_page_id(odontology_id):
+    return int(odontology_id) * 2 + 1
 
 
 def history_visit_ids(visits):
@@ -31,23 +47,93 @@ def history_visit_ids(visits):
     return [visit_id for visit_id, _when in kept]
 
 
-def odontogram_pager_action(view_id, page_ids, name):
-    """Acción de formulario cuyo paginador recorre `page_ids` en ese orden.
+def pager_page_ids(odontogram_id, visit_ids):
+    """Ids de la vista, en el orden de las flechas.
 
-    `page_ids[0]` es el odontograma actual. `views` es la lista que Odoo 19
-    necesita para abrir la acción sin romper el cliente.
+    El primero es el odontograma. Después van las consultas ya ordenadas.
+    """
+    return [chart_page_id(odontogram_id)] + [
+        visit_page_id(visit_id) for visit_id in visit_ids
+    ]
+
+
+# Misma regla que is_empty_draft: state draft, sin pedido, sin texto,
+# sin líneas y sin diagnósticos. btrim cubre el strip de espacios.
+PAGE_VIEW_SQL = """
+    SELECT
+        o.id * 2 AS id,
+        o.partner_id AS partner_id,
+        'chart' AS kind,
+        o.id AS odontogram_id,
+        NULL::integer AS odontology_id,
+        0 AS sequence
+    FROM emr_odontogram o
+    UNION ALL
+    SELECT
+        e.id * 2 + 1 AS id,
+        enc.partner_id AS partner_id,
+        'visit' AS kind,
+        NULL::integer AS odontogram_id,
+        e.id AS odontology_id,
+        ROW_NUMBER() OVER (
+            PARTITION BY enc.partner_id
+            ORDER BY enc.date DESC NULLS LAST, e.id DESC
+        )::integer AS sequence
+    FROM emr_encounter_odontology e
+    JOIN emr_encounter enc ON enc.id = e.encounter_id
+    WHERE COALESCE(enc.active, TRUE)
+      AND NOT (
+            enc.state = 'draft'
+            AND enc.order_id IS NULL
+            AND btrim(COALESCE(e.reason, '')) = ''
+            AND btrim(COALESCE(e.notes, '')) = ''
+            AND NOT EXISTS (
+                SELECT 1
+                  FROM emr_encounter_odontology_line line
+                 WHERE line.odontology_id = e.id
+            )
+            AND NOT EXISTS (
+                SELECT 1
+                  FROM emr_diagnosis_emr_encounter_rel rel
+                 WHERE rel.emr_encounter_id = enc.id
+            )
+      )
+"""
+
+
+def odontogram_pager_client_action(view_id, page_ids, name):
+    """Acción de cliente. El JS es quien pasa `resIds` en las props.
+
+    `page_ids[0]` es el odontograma. La acción de ventana que arma el JS
+    lleva `views`, que Odoo 19 exige, y no lleva `res_ids`: el cliente no
+    lo leería.
     """
     ids = list(page_ids or [])
     if not ids:
         raise ValueError("el paginador necesita al menos el odontograma")
     return {
+        "type": "ir.actions.client",
+        "tag": "emr_odontogram_pager",
+        "params": {
+            "name": name or "",
+            "res_model": "emr.odontogram.page",
+            "res_id": ids[0],
+            "res_ids": ids,
+            "views": [[view_id or False, "form"]],
+            "context": {"create": False},
+        },
+    }
+
+
+def window_action_from_pager_params(params):
+    """La acción de ventana que el JS tiene que abrir, sin `res_ids`."""
+    return {
         "type": "ir.actions.act_window",
-        "name": name or "",
-        "res_model": "emr.odontogram.page",
-        "res_id": ids[0],
-        "res_ids": ids,
+        "name": params.get("name") or "",
+        "res_model": params.get("res_model"),
+        "res_id": params.get("res_id"),
         "view_mode": "form",
-        "views": [[view_id or False, "form"]],
+        "views": params.get("views"),
         "target": "current",
-        "context": {"create": False},
+        "context": params.get("context") or {},
     }
