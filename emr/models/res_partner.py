@@ -5,8 +5,11 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+from lxml import etree
+
 from .patient_form import (
     DNI_XMLID,
+    is_patient_document_label,
     merge_invisible,
     patient_identity_defaults,
     patient_ids_to_switch_to_dni,
@@ -332,11 +335,40 @@ class ResPartner(models.Model):
 
     def _get_view(self, view_id=None, view_type="form", **options):
         arch, view = super()._get_view(view_id, view_type, **options)
-        if view_type != "form" or "l10n_latam_identification_type_id" not in self._fields:
+        if view_type != "form":
             return arch, view
-        for node in arch.xpath("//field[@name='l10n_latam_identification_type_id']"):
-            node.set("invisible", merge_invisible(node.get("invisible")))
+        self._emr_patient_document_arch(arch)
         return arch, view
+
+    def _emr_patient_document_arch(self, arch):
+        """En pacientes el número se llama DNI. El resto de contactos no cambia.
+
+        La localización argentina pone el rótulo (CUIT / número de
+        identificación) después de esta vista. Se ajusta el resultado ya
+        combinado, y solo si esos campos existen.
+        """
+        if "l10n_latam_identification_type_id" in self._fields:
+            for node in arch.xpath("//field[@name='l10n_latam_identification_type_id']"):
+                node.set("invisible", merge_invisible(node.get("invisible")))
+        for label in arch.xpath(
+            "//label[@for='vat' or @for='l10n_latam_identification_type_id']"
+        ):
+            if is_patient_document_label(label.get("string")):
+                continue
+            label.set("invisible", merge_invisible(label.get("invisible")))
+        if arch.xpath("//label[@for='vat'][@string='DNI']"):
+            return
+        vats = [
+            node for node in arch.xpath("//field[@name='vat']")
+            if not node.xpath("ancestor::field[@name='child_ids']")
+        ]
+        if not vats:
+            return
+        label = etree.Element("label")
+        label.set("for", "vat")
+        label.set("string", "DNI")
+        label.set("invisible", "not is_patient")
+        vats[0].addprevious(label)
 
     @api.onchange("is_patient")
     def _onchange_is_patient_identity(self):

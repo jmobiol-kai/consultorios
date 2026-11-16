@@ -39,6 +39,11 @@ def patient_ids_to_switch_to_dni(patients, dni_type_id):
     return [partner_id for partner_id, current in patients if current != dni_type_id]
 
 
+def is_patient_document_label(label_string):
+    """El rótulo propio del paciente, para no esconderlo con los demás."""
+    return (label_string or "").strip() == "DNI"
+
+
 def merge_invisible(current, extra="is_patient"):
     """Suma `extra` a un invisible que ya tenía la vista."""
     current = (current or "").strip()

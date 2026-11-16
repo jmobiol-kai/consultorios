@@ -77,6 +77,9 @@
             <xpath expr="//group/field[@name='function']" position="attributes">
                 <attribute name="invisible">is_company or is_patient</attribute>
             </xpath>
+            <xpath expr="//field[@name='vat']" position="before">
+                <label for="vat" string="DNI" invisible="not is_patient"/>
+            </xpath>
             <xpath expr="//field[@name='website']" position="attributes">
                 <attribute name="invisible">is_patient</attribute>
             </xpath>
