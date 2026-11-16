@@ -67,11 +67,6 @@ def page_hidden_for_patients(name, string):
     return label in PATIENT_HIDDEN_PAGE_STRINGS
 
 
-def is_patient_document_label(label_string):
-    """El rótulo propio del paciente, para no esconderlo con los demás."""
-    return (label_string or "").strip() == "DNI"
-
-
 def merge_invisible(current, extra="is_patient"):
     """Suma `extra` a un invisible que ya tenía la vista."""
     current = (current or "").strip()

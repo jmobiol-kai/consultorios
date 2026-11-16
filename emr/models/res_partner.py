@@ -9,7 +9,6 @@ from lxml import etree
 
 from .patient_form import (
     DNI_XMLID,
-    is_patient_document_label,
     merge_invisible,
     page_hidden_for_patients,
     patient_identity_defaults,
@@ -342,35 +341,39 @@ class ResPartner(models.Model):
         return arch, view
 
     def _emr_patient_document_arch(self, arch):
-        """En pacientes el número se llama DNI. El resto de contactos no cambia.
+        """En pacientes el documento es una fila DNI | número.
 
-        La localización argentina pone el rótulo (CUIT / número de
-        identificación) después de esta vista. Se ajusta el resultado ya
-        combinado, y solo si esos campos existen.
+        La localización mete el tipo y el número dentro de un div, y un
+        rótulo suelto ahí no arma la fila de un grupo. Para el paciente se
+        esconde ese bloque. La fila la pone el campo vat con string DNI,
+        que ya está en la vista. Los demás contactos no se tocan.
         """
         if "l10n_latam_identification_type_id" in self._fields:
             for node in arch.xpath("//field[@name='l10n_latam_identification_type_id']"):
+                if node.xpath("ancestor::field[@name='child_ids']"):
+                    continue
                 node.set("invisible", merge_invisible(node.get("invisible")))
         self._emr_hide_patient_extras(arch)
         for label in arch.xpath(
             "//label[@for='vat' or @for='l10n_latam_identification_type_id']"
         ):
-            if is_patient_document_label(label.get("string")):
+            if label.xpath("ancestor::field[@name='child_ids']"):
                 continue
             label.set("invisible", merge_invisible(label.get("invisible")))
-        if arch.xpath("//label[@for='vat'][@string='DNI']"):
-            return
-        vats = [
-            node for node in arch.xpath("//field[@name='vat']")
+        containers = [
+            node for node in arch.xpath("//div[@name='vat_vies_container']")
             if not node.xpath("ancestor::field[@name='child_ids']")
         ]
-        if not vats:
+        for node in containers:
+            node.set("invisible", merge_invisible(node.get("invisible")))
+        if containers:
             return
-        label = etree.Element("label")
-        label.set("for", "vat")
-        label.set("string", "DNI")
-        label.set("invisible", "not is_patient")
-        vats[0].addprevious(label)
+        for node in arch.xpath("//field[@name='vat']"):
+            if node.xpath("ancestor::field[@name='child_ids']"):
+                continue
+            if (node.get("string") or "").strip() == "DNI":
+                continue
+            node.set("invisible", merge_invisible(node.get("invisible")))
 
     def _emr_hide_patient_extras(self, arch):
         """Esconde responsabilidad ARCA y pestañas que el paciente no usa.

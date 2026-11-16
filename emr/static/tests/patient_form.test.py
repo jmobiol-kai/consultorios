@@ -69,11 +69,6 @@ class PatientFormTest(unittest.TestCase):
         self.assertFalse(hide("internal_notes", "Notes"))
         self.assertFalse(hide("personal_information_page", "Personal Information"))
 
-    def test_dni_label_is_not_treated_as_the_generic_one(self):
-        self.assertTrue(self.mod.is_patient_document_label("DNI"))
-        self.assertFalse(self.mod.is_patient_document_label("Tax ID"))
-        self.assertFalse(self.mod.is_patient_document_label("CUIT"))
-
     def test_identification_type_stays_hidden_only_for_patients(self):
         self.assertEqual(self.mod.merge_invisible(""), "is_patient")
         self.assertEqual(
@@ -116,12 +111,22 @@ class PatientFormTest(unittest.TestCase):
         )
         self.assertNotIn("placeholder", " ".join(attrs))
         self.assertEqual(attrs["//field[@name='website']"], "is_patient")
-        dni_labels = [
-            node for node in self.root.iter("label")
-            if node.get("for") == "vat" and node.get("string") == "DNI"
+        dni_fields = [
+            node for node in self.root.iter("field")
+            if node.get("name") == "vat" and node.get("string") == "DNI"
         ]
-        self.assertEqual(len(dni_labels), 1)
-        self.assertEqual(dni_labels[0].get("invisible"), "not is_patient")
+        self.assertEqual(len(dni_fields), 1)
+        self.assertEqual(dni_fields[0].get("invisible"), "not is_patient")
+        dni_xpath = next(
+            node for node in self.root.iter("xpath")
+            if node.get("expr") == "//group/field[@name='category_id']"
+        )
+        self.assertEqual(dni_xpath.get("position"), "before")
+        self.assertIs(dni_xpath.find("field"), dni_fields[0])
+        self.assertFalse([
+            node for node in self.root.iter("label")
+            if node.get("string") == "DNI"
+        ])
         self.assertIn("is_patient", attrs["//field[@name='parent_id']"])
         self.assertIn("is_patient", attrs["//field[@name='company_name']/parent::div"])
         source = (_ROOT / "models" / "res_partner.py").read_text(encoding="utf-8")
