@@ -31,8 +31,23 @@ class AppMenuNameTest(unittest.TestCase):
     def test_apps_list_name_and_technical_name(self):
         manifest = _MANIFEST.read_text(encoding="utf-8")
         self.assertIn('"name": "Consultorio"', manifest)
-        self.assertIn('"version": "19.0.1.7.3"', manifest)
+        self.assertIn('"version": "19.0.1.7.4"', manifest)
         self.assertNotIn("emr_odontology", _MENU.read_text(encoding="utf-8"))
+
+    def test_people_menu_is_contactos(self):
+        root = ET.parse(_MENU).getroot()
+        menu = next(item for item in root.iter("menuitem") if item.get("id") == "menu_emr_people")
+        self.assertEqual(menu.get("name"), "Contactos")
+        children = [
+            item.get("name")
+            for item in root.iter("menuitem")
+            if item.get("parent") == "menu_emr_people"
+        ]
+        self.assertEqual(children, ["Pacientes", "Profesionales", "Obras sociales"])
+        text = _PO.read_text(encoding="utf-8")
+        self.assertIn("model:ir.ui.menu,name:emr.menu_emr_people", text)
+        self.assertIn('msgid "Contactos"', text)
+        self.assertIn('msgstr "Contactos"', text)
 
 
 if __name__ == "__main__":

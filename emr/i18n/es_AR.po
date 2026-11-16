@@ -23,6 +23,11 @@ msgid "Consultorio"
 msgstr "Consultorio"
 
 #. module: emr
+#: model:ir.ui.menu,name:emr.menu_emr_people
+msgid "Contactos"
+msgstr "Contactos"
+
+#. module: emr
 #: model:ir.module.module,summary:base.module_emr
 msgid "Agenda, turnos, historia clínica y cobro para el consultorio"
 msgstr "Agenda, turnos, historia clínica y cobro para el consultorio"

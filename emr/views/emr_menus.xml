@@ -29,7 +29,7 @@
               action="emr_settlement_action" sequence="30"
               groups="group_emr_manager"/>
 
-    <menuitem id="menu_emr_people" name="Personas" parent="menu_emr_root" sequence="30"/>
+    <menuitem id="menu_emr_people" name="Contactos" parent="menu_emr_root" sequence="30"/>
     <menuitem id="menu_emr_patients" name="Pacientes" parent="menu_emr_people"
               action="res_partner_action_patient" sequence="10"/>
     <menuitem id="menu_emr_practitioners" name="Profesionales" parent="menu_emr_people"
