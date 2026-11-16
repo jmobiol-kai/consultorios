@@ -34,6 +34,11 @@ msgid "DNI"
 msgstr "DNI"
 
 #. module: emr
+#: model_terms:ir.ui.view,arch_db:emr.res_partner_view_form_emr
+msgid "Notes"
+msgstr "Notas"
+
+#. module: emr
 #: model:ir.module.module,summary:base.module_emr
 msgid "Agenda, turnos, historia clínica y cobro para el consultorio"
 msgstr "Agenda, turnos, historia clínica y cobro para el consultorio"

@@ -104,6 +104,17 @@
                     </group>
                 </group>
             </xpath>
+            <!-- Notas abre primero solo en pacientes. La pestaña original
+                 queda en su lugar para el resto; se esconde en _get_view
+                 si is_patient, así no hay dos comentarios visibles. -->
+            <xpath expr="//page[@name='contact_addresses']" position="attributes">
+                <attribute name="autofocus"/>
+            </xpath>
+            <xpath expr="//page[@name='contact_addresses']" position="before">
+                <page name="emr_patient_notes" string="Notes" invisible="not is_patient" autofocus="autofocus">
+                    <field name="comment" placeholder="Internal notes..."/>
+                </page>
+            </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="emr_practitioner" string="Profesional" invisible="not is_practitioner">
                     <group>

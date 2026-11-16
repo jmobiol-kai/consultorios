@@ -29,3 +29,26 @@ class TestPatientVatLabel(TransactionCase):
         self.assertTrue(any(node.get("string") == "CUIT" for node in others))
         for node in others:
             self.assertNotEqual(node.get("string"), "DNI")
+
+    def test_patient_opens_on_notes_and_hides_personal_information(self):
+        views = self.env["res.partner"].get_views([(False, "form")])
+        root = etree.fromstring(views["views"]["form"]["arch"].encode())
+        pages = [
+            node for node in root.xpath("//page")
+            if not node.xpath("ancestor::field[@name='child_ids']")
+        ]
+        self.assertEqual(pages[0].get("name"), "emr_patient_notes")
+        self.assertEqual(pages[0].get("invisible"), "not is_patient")
+        self.assertEqual(pages[0].get("autofocus"), "autofocus")
+        self.assertEqual(
+            [field.get("name") for field in pages[0].xpath("./field")],
+            ["comment"],
+        )
+        by_name = {node.get("name"): node for node in pages}
+        self.assertFalse(by_name["contact_addresses"].get("autofocus"))
+        self.assertEqual(by_name["internal_notes"].get("invisible"), "is_patient")
+        self.assertEqual(
+            by_name["personal_information_page"].get("invisible"),
+            "(is_company) or is_patient",
+        )
+        self.assertIsNone(by_name["sales_purchases"].get("invisible"))

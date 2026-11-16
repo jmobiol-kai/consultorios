@@ -66,8 +66,9 @@ class PatientFormTest(unittest.TestCase):
         self.assertTrue(hide("something", "Datos fiscales"))
         self.assertFalse(hide("contact_addresses", "Contacts"))
         self.assertFalse(hide("sales_purchases", "Sales & Purchase"))
-        self.assertFalse(hide("internal_notes", "Notes"))
-        self.assertFalse(hide("personal_information_page", "Personal Information"))
+        self.assertFalse(hide("emr_patient_notes", "Notes"))
+        self.assertTrue(hide("internal_notes", "Notes"))
+        self.assertTrue(hide("personal_information_page", "Personal Information"))
 
     def test_identification_type_stays_hidden_only_for_patients(self):
         self.assertEqual(self.mod.merge_invisible(""), "is_patient")
@@ -96,6 +97,30 @@ class PatientFormTest(unittest.TestCase):
         )
         notebook = self.root.find(".//xpath[@expr='//notebook'][@position='before']")
         self.assertIsNotNone(notebook)
+        notes = next(
+            node for node in self.root.iter("page") if node.get("name") == "emr_patient_notes"
+        )
+        self.assertEqual(notes.get("invisible"), "not is_patient")
+        self.assertEqual(notes.get("autofocus"), "autofocus")
+        self.assertEqual(notes.get("string"), "Notes")
+        self.assertEqual(
+            [field.get("name") for field in notes.iter("field")],
+            ["comment"],
+        )
+        inserted = next(
+            node for node in self.root.iter("xpath")
+            if node.get("expr") == "//page[@name='contact_addresses']"
+            and node.get("position") == "before"
+        )
+        self.assertIs(inserted.find("page"), notes)
+        cleared = next(
+            node for node in self.root.iter("xpath")
+            if node.get("expr") == "//page[@name='contact_addresses']"
+            and node.get("position") == "attributes"
+        )
+        autofocus = cleared.find("attribute")
+        self.assertEqual(autofocus.get("name"), "autofocus")
+        self.assertFalse((autofocus.text or "").strip())
 
     def test_standard_contact_fields_hide_only_for_patients(self):
         attrs = {}

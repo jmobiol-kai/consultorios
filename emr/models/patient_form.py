@@ -46,6 +46,8 @@ PATIENT_HIDDEN_PAGE_NAMES = frozenset({
     "accounting",
     "accounting_disabled",
     "followup_tab",
+    "internal_notes",
+    "personal_information_page",
 })
 
 PATIENT_HIDDEN_PAGE_STRINGS = frozenset({
