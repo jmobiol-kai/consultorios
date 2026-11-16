@@ -395,6 +395,26 @@ class SaleOrder(models.Model):
         self._set_appointment_state("in_progress")
         return self._open_encounter()
 
+    def action_attend_now(self):
+        """Atender ahora este turno, desde el calendario.
+
+        Abre la visita de este paciente y este profesional. Si el turno ya
+        tiene historia, reabre esa. Si todavía no se está atendiendo, pasa
+        a en atención. Un turno cerrado o cancelado no se retoma por acá.
+        """
+        self.ensure_one()
+        if not self.is_appointment:
+            raise UserError(_("Esto no es un turno."))
+        if self.appointment_state in (
+            "done", "validated", "cancelled", "no_show", "void",
+        ):
+            raise UserError(_("Este turno ya está cerrado."))
+        if not self.partner_id:
+            raise UserError(_("Este turno no tiene paciente."))
+        if self.appointment_state in ("waitlist", "booked", "confirmed"):
+            self._set_appointment_state("in_progress")
+        return self._open_encounter()
+
     def action_appointment_no_show(self):
         """No vino nunca: nadie lo cobró y no hay comprobante que anular."""
         for order in self:

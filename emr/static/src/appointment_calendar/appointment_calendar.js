@@ -1,13 +1,75 @@
 /** @odoo-module **/
 
+import { useService } from "@web/core/utils/hooks";
+import { CalendarCommonPopover } from "@web/views/calendar/calendar_common/calendar_common_popover";
+import { CalendarCommonRenderer } from "@web/views/calendar/calendar_common/calendar_common_renderer";
+import { CalendarRenderer } from "@web/views/calendar/calendar_renderer";
 import { calendarView } from "@web/views/calendar/calendar_view";
 import { registry } from "@web/core/registry";
+
+const CLOSED_APPOINTMENT_STATES = new Set([
+    "done",
+    "validated",
+    "cancelled",
+    "no_show",
+    "void",
+]);
 
 function toOdooDatetime(value) {
     if (!value || !value.toUTC) {
         return false;
     }
     return value.toUTC().toFormat("yyyy-MM-dd HH:mm:ss");
+}
+
+export class EmrAppointmentPopover extends CalendarCommonPopover {
+    static subTemplates = {
+        ...CalendarCommonPopover.subTemplates,
+        footer: "emr.AppointmentCalendarPopover.footer",
+    };
+
+    setup() {
+        super.setup();
+        this.action = useService("action");
+        this.orm = useService("orm");
+    }
+
+    get canAttendNow() {
+        const state = this.props.record.rawRecord.appointment_state;
+        return !CLOSED_APPOINTMENT_STATES.has(state);
+    }
+
+    async onAttendNow(ev) {
+        if (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
+        const action = await this.orm.call(
+            "sale.order",
+            "action_attend_now",
+            [[this.props.record.id]]
+        );
+        this.props.close();
+        if (action) {
+            await this.action.doAction(action);
+        }
+    }
+}
+
+class EmrAppointmentCommonRenderer extends CalendarCommonRenderer {
+    static components = {
+        ...CalendarCommonRenderer.components,
+        Popover: EmrAppointmentPopover,
+    };
+}
+
+class EmrAppointmentCalendarRenderer extends CalendarRenderer {
+    static components = {
+        ...CalendarRenderer.components,
+        day: EmrAppointmentCommonRenderer,
+        week: EmrAppointmentCommonRenderer,
+        month: EmrAppointmentCommonRenderer,
+    };
 }
 
 export class EmrAppointmentCalendarController extends calendarView.Controller {
@@ -36,5 +98,6 @@ export class EmrAppointmentCalendarController extends calendarView.Controller {
 registry.category("views").add("emr_appointment_calendar", {
     ...calendarView,
     Controller: EmrAppointmentCalendarController,
+    Renderer: EmrAppointmentCalendarRenderer,
     buttonTemplate: "emr.AppointmentCalendarButtons",
 });

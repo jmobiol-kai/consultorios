@@ -17,9 +17,12 @@
                      asistente y con el nombre cortado. -->
                 <div class="oe_title mw-100 mb-3">
                     <h1>
+                        <!-- Sin «Crear "nombre"»: un paciente no se da de alta con
+                             solo el nombre. «Crear y editar...» sigue, y abre
+                             la ficha completa. -->
                         <field name="partner_id" nolabel="1" class="w-100"
                                placeholder="Buscar paciente por nombre o documento..."
-                               options="{'no_open': True}"/>
+                               options="{'no_open': True, 'no_quick_create': True}"/>
                     </h1>
                     <div class="text-muted" invisible="not insurer_id">
                         <field name="insurer_id" nolabel="1" readonly="1"/>

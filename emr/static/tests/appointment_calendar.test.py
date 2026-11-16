@@ -58,6 +58,27 @@ class AppointmentCalendarTest(unittest.TestCase):
         )
         self.assertEqual(practitioner.get("filters"), "1")
         self.assertEqual(practitioner.get("color"), "emr_calendar_color")
+        patient = next(
+            field for field in calendar.findall("field") if field.get("name") == "partner_id"
+        )
+        self.assertEqual(patient.get("string"), "Paciente")
+
+    def test_patient_quick_create_is_off_when_booking(self):
+        book = ET.parse(_ROOT / "views" / "emr_appointment_book_views.xml").getroot()
+        partner = next(
+            field for field in book.iter("field") if field.get("name") == "partner_id"
+        )
+        options = partner.get("options") or ""
+        self.assertIn("no_quick_create", options)
+        self.assertNotIn("'no_create'", options)
+        form = _record(self.orders, "sale_order_view_form_appointment")
+        sale_options = [
+            attribute.text or ""
+            for attribute in form.iter("attribute")
+            if attribute.get("name") == "options"
+        ]
+        self.assertTrue(any("no_quick_create" in text for text in sale_options))
+        self.assertFalse(any("'no_create'" in text for text in sale_options))
 
     def test_the_slot_board_does_not_open_on_today(self):
         action = _fields(_record(self.slots, "emr_slot_action"))

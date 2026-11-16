@@ -131,6 +131,11 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <!-- El cliente del turno es el paciente. Sin alta rápida:
+                 «Crear y editar...» abre la ficha, «Crear "nombre"» no. -->
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_quick_create': True}</attribute>
+            </xpath>
             <xpath expr="//sheet/group" position="before">
                 <group name="emr_appointment" string="Turno" invisible="not is_appointment">
                     <group>
@@ -197,7 +202,7 @@
                       create_name_field="appointment_calendar_title"
                       quick_create="false" delete="false"
                       js_class="emr_appointment_calendar">
-                <field name="partner_id"/>
+                <field name="partner_id" string="Paciente"/>
                 <field name="practitioner_id" filters="1" color="emr_calendar_color"
                        avatar_field="avatar_128"/>
                 <field name="location_id"/>

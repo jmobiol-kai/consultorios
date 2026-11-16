@@ -18,4 +18,14 @@
         </div>
     </t>
 
+    <t t-name="emr.AppointmentCalendarPopover.footer" t-inherit="web.CalendarCommonPopover.footer" t-inherit-mode="primary">
+        <xpath expr="//a[hasclass('o_cw_popover_edit')]" position="before">
+            <a t-if="canAttendNow" href="#"
+               class="btn btn-primary o_emr_calendar_attend"
+               t-on-click="onAttendNow">
+                Atender ahora
+            </a>
+        </xpath>
+    </t>
+
 </templates>
