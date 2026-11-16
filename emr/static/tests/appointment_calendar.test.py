@@ -71,14 +71,22 @@ class AppointmentCalendarTest(unittest.TestCase):
         options = partner.get("options") or ""
         self.assertIn("no_quick_create", options)
         self.assertNotIn("'no_create'", options)
-        form = _record(self.orders, "sale_order_view_form_appointment")
-        sale_options = [
+        shared = _record(self.orders, "sale_order_view_form_appointment")
+        shared_options = [
             attribute.text or ""
-            for attribute in form.iter("attribute")
+            for attribute in shared.iter("attribute")
             if attribute.get("name") == "options"
         ]
-        self.assertTrue(any("no_quick_create" in text for text in sale_options))
-        self.assertFalse(any("'no_create'" in text for text in sale_options))
+        self.assertFalse(any("no_quick_create" in text for text in shared_options))
+        patient_form = _record(self.orders, "sale_order_view_form_appointment_patient")
+        self.assertEqual(patient_form.find("field[@name='mode']").text, "primary")
+        patient_options = [
+            attribute.text or ""
+            for attribute in patient_form.iter("attribute")
+            if attribute.get("name") == "options"
+        ]
+        self.assertTrue(any("no_quick_create" in text for text in patient_options))
+        self.assertFalse(any("'no_create'" in text for text in patient_options))
 
     def test_the_slot_board_does_not_open_on_today(self):
         action = _fields(_record(self.slots, "emr_slot_action"))

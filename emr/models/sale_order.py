@@ -7,6 +7,8 @@ from datetime import timedelta
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+from .action_window import act_window_form
+
 APPOINTMENT_STATES = [
     ("waitlist", "En lista de espera"),
     ("booked", "Agendado"),
@@ -509,13 +511,31 @@ class SaleOrder(models.Model):
             )
             self.encounter_id = child.encounter_id
 
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": self.encounter_id.res_model,
-            "res_id": self.encounter_id.res_id,
-            "view_mode": "form",
-            "target": "current",
-        }
+        view = self._emr_encounter_form_view()
+        return act_window_form(
+            self.encounter_id.res_model,
+            self.encounter_id.res_id,
+            view_id=view.id if view else False,
+            name=self.encounter_id.display_name or "",
+        )
+
+    def _emr_encounter_form_view(self):
+        """Vista de la visita. El módulo de la especialidad puede devolver la suya."""
+        return self.env["ir.ui.view"]
+
+    def action_open_appointment_form(self):
+        """El formulario del turno, sin el alta rápida de un presupuesto común."""
+        self.ensure_one()
+        view = self.env.ref(
+            "emr.sale_order_view_form_appointment_patient",
+            raise_if_not_found=False,
+        )
+        return act_window_form(
+            "sale.order",
+            self.id,
+            view_id=view.id if view else False,
+            name=self.display_name or "",
+        )
 
     def action_open_encounter(self):
         return self._open_encounter()

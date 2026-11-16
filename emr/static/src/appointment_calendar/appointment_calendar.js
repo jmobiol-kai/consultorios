@@ -78,6 +78,24 @@ export class EmrAppointmentCalendarController extends calendarView.Controller {
     }
 
     /**
+     * Editar abre el formulario del turno, con `views`, que es lo que
+     * doAction recorre. El formulario común de ventas no se usa acá.
+     */
+    async editRecord(record, context = {}) {
+        if (!record || !record.id) {
+            return super.editRecord(record, context);
+        }
+        const action = await this.orm.call(
+            "sale.order",
+            "action_open_appointment_form",
+            [[record.id]]
+        );
+        if (action) {
+            await this.action.doAction(action);
+        }
+    }
+
+    /**
      * Un clic en una hora vacía abre el asistente del turno, con esa hora.
      * No crea una orden de venta a medias.
      */
