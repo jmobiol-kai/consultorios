@@ -71,7 +71,10 @@
             <xpath expr="//field[@name='company_type']" position="attributes">
                 <attribute name="invisible">is_patient</attribute>
             </xpath>
-            <xpath expr="//field[@name='function'][@placeholder='e.g. Sales Director']" position="attributes">
+            <!-- El puesto del formulario principal. Los otros `function`
+                 están adentro de child_ids; placeholder no se puede usar
+                 como selector en Odoo 19. -->
+            <xpath expr="//group/field[@name='function']" position="attributes">
                 <attribute name="invisible">is_company or is_patient</attribute>
             </xpath>
             <xpath expr="//field[@name='website']" position="attributes">

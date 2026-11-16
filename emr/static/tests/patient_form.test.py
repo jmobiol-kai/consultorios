@@ -49,6 +49,14 @@ class PatientFormTest(unittest.TestCase):
     def test_other_contacts_are_left_alone(self):
         self.assertEqual(self.mod.patient_identity_defaults(False, 7, True), {})
 
+    def test_existing_patients_with_another_document_type_switch_to_dni(self):
+        dni = 5
+        self.assertEqual(
+            self.mod.patient_ids_to_switch_to_dni([(1, 8), (2, 5), (3, False), (4, 9)], dni),
+            [1, 3, 4],
+        )
+        self.assertEqual(self.mod.patient_ids_to_switch_to_dni([(1, 8)], False), [])
+
     def test_identification_type_stays_hidden_only_for_patients(self):
         self.assertEqual(self.mod.merge_invisible(""), "is_patient")
         self.assertEqual(
@@ -85,9 +93,10 @@ class PatientFormTest(unittest.TestCase):
                 attrs[field] = (attribute.text or "").strip()
         self.assertEqual(attrs["//field[@name='company_type']"], "is_patient")
         self.assertEqual(
-            attrs["//field[@name='function'][@placeholder='e.g. Sales Director']"],
+            attrs["//group/field[@name='function']"],
             "is_company or is_patient",
         )
+        self.assertNotIn("placeholder", " ".join(attrs))
         self.assertEqual(attrs["//field[@name='website']"], "is_patient")
         self.assertIn("is_patient", attrs["//field[@name='parent_id']"])
         self.assertIn("is_patient", attrs["//field[@name='company_name']/parent::div"])

@@ -28,6 +28,17 @@ def patient_identity_defaults(is_patient, dni_type_id, has_identification_field)
     return vals
 
 
+def patient_ids_to_switch_to_dni(patients, dni_type_id):
+    """Pacientes cuyo tipo de documento no es DNI.
+
+    `patients` es una lista de `(id, tipo_actual)`. Sin tipo DNI no hay
+    nada que migrar.
+    """
+    if not dni_type_id:
+        return []
+    return [partner_id for partner_id, current in patients if current != dni_type_id]
+
+
 def merge_invisible(current, extra="is_patient"):
     """Suma `extra` a un invisible que ya tenía la vista."""
     current = (current or "").strip()

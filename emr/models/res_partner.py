@@ -5,7 +5,12 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-from .patient_form import DNI_XMLID, merge_invisible, patient_identity_defaults
+from .patient_form import (
+    DNI_XMLID,
+    merge_invisible,
+    patient_identity_defaults,
+    patient_ids_to_switch_to_dni,
+)
 
 
 class ResPartner(models.Model):
@@ -333,16 +338,32 @@ class ResPartner(models.Model):
             node.set("invisible", merge_invisible(node.get("invisible")))
         return arch, view
 
-    def _emr_set_dni_if_empty(self):
-        """Completa el tipo DNI en pacientes que todavía no tienen uno."""
+    @api.onchange("is_patient")
+    def _onchange_is_patient_identity(self):
+        """Un paciente es una persona y su documento es DNI, si existe el tipo."""
+        if not self.is_patient:
+            return
+        self.is_company = False
+        self.company_type = "person"
+        dni = self._emr_dni_type()
+        if dni and "l10n_latam_identification_type_id" in self._fields:
+            self.l10n_latam_identification_type_id = dni
+
+    def _emr_force_patient_dni(self):
+        """Deja el tipo DNI en los pacientes que tienen otro, o ninguno."""
         dni = self._emr_dni_type()
         if not dni or "l10n_latam_identification_type_id" not in self._fields:
             return
-        missing = self.filtered(
-            lambda partner: partner.is_patient and not partner.l10n_latam_identification_type_id
+        patients = self.filtered("is_patient")
+        ids = patient_ids_to_switch_to_dni(
+            [
+                (partner.id, partner.l10n_latam_identification_type_id.id)
+                for partner in patients
+            ],
+            dni.id,
         )
-        if missing:
-            super(ResPartner, missing).write({
+        if ids:
+            super(ResPartner, self.browse(ids)).write({
                 "l10n_latam_identification_type_id": dni.id,
             })
 
@@ -358,15 +379,12 @@ class ResPartner(models.Model):
                 is_patient = self.env.context.get("default_is_patient")
             extra = self._emr_patient_identity_vals(is_patient)
             for key, value in extra.items():
-                if key == "l10n_latam_identification_type_id":
-                    vals.setdefault(key, value)
-                else:
-                    vals[key] = value
+                vals[key] = value
             if is_patient and "is_patient" not in vals:
                 vals["is_patient"] = True
             prepared.append(vals)
         partners = super().create(prepared)
-        partners.filtered("is_patient")._emr_set_dni_if_empty()
+        partners.filtered("is_patient")._emr_force_patient_dni()
         practitioners = partners.filtered("is_practitioner")
         practitioners._emr_ensure_resource()
         for partner in practitioners.filtered(lambda item: not item.emr_calendar_color):
@@ -383,6 +401,5 @@ class ResPartner(models.Model):
         # padrón pasa a atender acá y necesita agenda.
         if vals.get("is_practitioner") or vals.get("scheduling_method"):
             self.filtered("is_practitioner")._emr_ensure_resource()
-        if vals.get("is_patient"):
-            self.filtered("is_patient")._emr_set_dni_if_empty()
+        self.filtered("is_patient")._emr_force_patient_dni()
         return res
