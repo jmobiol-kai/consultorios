@@ -8,6 +8,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 from .action_window import act_window_form
+from .calendar_label import appointment_calendar_lines
 
 APPOINTMENT_STATES = [
     ("waitlist", "En lista de espera"),
@@ -64,6 +65,9 @@ class SaleOrder(models.Model):
     # Si hay hueco, nace con el fin de ese hueco; si no, media hora.
     appointment_stop = fields.Datetime("Fin", index=True)
     appointment_calendar_title = fields.Char(
+        compute="_compute_appointment_calendar_title",
+    )
+    appointment_calendar_subtitle = fields.Char(
         compute="_compute_appointment_calendar_title",
     )
     appointment_mode = fields.Selection(
@@ -126,13 +130,32 @@ class SaleOrder(models.Model):
 
     log_ids = fields.One2many("emr.appointment.log", "order_id", string="Recorrido")
 
-    @api.depends("partner_id.name", "name", "is_appointment")
+    @api.depends(
+        "partner_id.name",
+        "name",
+        "is_appointment",
+        "sale_order_template_id.name",
+        "order_line.product_id.name",
+        "order_line.product_id.is_medical_procedure",
+    )
     def _compute_appointment_calendar_title(self):
         for order in self:
-            if order.is_appointment and order.partner_id:
-                order.appointment_calendar_title = order.partner_id.name
-            else:
-                order.appointment_calendar_title = order.name or ""
+            patient = order.partner_id.name if order.is_appointment else ""
+            procedure = ""
+            if order.is_appointment:
+                if order.sale_order_template_id:
+                    procedure = order.sale_order_template_id.name or ""
+                else:
+                    line = order.order_line.filtered(
+                        lambda item: item.product_id.is_medical_procedure
+                    )[:1]
+                    procedure = line.product_id.name or ""
+            title, subtitle = appointment_calendar_lines(
+                patient or ("" if order.is_appointment else order.name),
+                procedure,
+            )
+            order.appointment_calendar_title = title
+            order.appointment_calendar_subtitle = subtitle
 
     @api.model_create_multi
     def create(self, vals_list):

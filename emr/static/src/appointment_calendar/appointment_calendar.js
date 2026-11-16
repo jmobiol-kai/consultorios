@@ -61,6 +61,9 @@ class EmrAppointmentCommonRenderer extends CalendarCommonRenderer {
         ...CalendarCommonRenderer.components,
         Popover: EmrAppointmentPopover,
     };
+    // Hora y paciente en la misma línea, para que un hueco de 15 minutos
+    // no se quede solo con la hora. El tipo de visita va debajo.
+    static eventTemplate = "emr.AppointmentCalendarEvent";
 }
 
 class EmrAppointmentCalendarRenderer extends CalendarRenderer {

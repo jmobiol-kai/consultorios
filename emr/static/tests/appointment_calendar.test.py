@@ -53,6 +53,14 @@ class AppointmentCalendarTest(unittest.TestCase):
         self.assertEqual(calendar.get("date_stop"), "appointment_stop")
         self.assertEqual(calendar.get("color"), "practitioner_id")
         self.assertEqual(calendar.get("js_class"), "emr_appointment_calendar")
+        self.assertEqual(calendar.get("create_name_field"), "appointment_calendar_title")
+        event = (
+            _ROOT / "static" / "src" / "appointment_calendar" / "appointment_calendar.xml"
+        ).read_text(encoding="utf-8")
+        self.assertIn('t-name="emr.AppointmentCalendarEvent"', event)
+        self.assertIn("startTime", event)
+        self.assertIn("o_emr_cal_event_patient", event)
+        self.assertIn("o_emr_calendar_attend", event)
         practitioner = next(
             field for field in calendar.findall("field") if field.get("name") == "practitioner_id"
         )

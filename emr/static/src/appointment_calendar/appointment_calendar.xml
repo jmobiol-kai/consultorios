@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
+    <t t-name="emr.AppointmentCalendarEvent">
+        <div class="o_emr_cal_event_line">
+            <span t-if="!isTimeHidden" class="o_emr_cal_event_time" t-esc="startTime"/>
+            <span class="o_emr_cal_event_patient" t-esc="title"/>
+        </div>
+        <div t-if="!isMonth and rawRecord.appointment_calendar_subtitle"
+             class="o_emr_cal_event_kind"
+             t-esc="rawRecord.appointment_calendar_subtitle"/>
+    </t>
+
     <t t-name="emr.AppointmentCalendarButtons">
         <div class="d-flex gap-1">
             <button type="button" class="btn btn-secondary"

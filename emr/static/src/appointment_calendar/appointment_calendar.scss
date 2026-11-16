@@ -1,0 +1,25 @@
+.o_emr_cal_event_line {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 1.15;
+}
+
+.o_emr_cal_event_time {
+    font-weight: 700;
+    margin-right: 0.28rem;
+}
+
+.o_emr_cal_event_kind {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.72em;
+    line-height: 1.1;
+    opacity: 0.92;
+}
+
+// Un hueco de 15 minutos es una sola línea: la hora y el paciente.
+.o_event_oneliner .o_emr_cal_event_kind {
+    display: none;
+}

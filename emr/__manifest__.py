@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "Consultorio",
-    "version": "19.0.1.7.2",
+    "version": "19.0.1.7.3",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -81,6 +81,7 @@
             "emr/static/src/encounter_readonly/*.js",
             "emr/static/src/appointment_calendar/*.js",
             "emr/static/src/appointment_calendar/*.xml",
+            "emr/static/src/appointment_calendar/*.scss",
         ],
     },
     "demo": [
