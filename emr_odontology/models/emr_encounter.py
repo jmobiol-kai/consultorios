@@ -17,6 +17,7 @@ esta atención.
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from .billing_rules import cleanup_partner_ids, is_empty_draft, needs_quotation
 from .encounter_title import FALLBACK_TITLE, encounter_control_panel_title
 from .sale_order import BILLABLE_STATUSES, ODONTOLOGY_PRODUCT_NAMES
 
@@ -102,22 +103,24 @@ class EmrEncounterOdontology(models.Model):
         return res
 
     def action_close(self):
-        # Otra vez, además de en cada escritura: cerrar es el momento en que
-        # la visita queda como hecha, y el mapa tiene que reflejarla aunque
-        # la última edición no haya pasado por write del hijo.
+        # Cerrar con prácticas y sin pedido las deja sin cobrar. El
+        # presupuesto se crea acá si todavía no existe. Después el mapa
+        # y las líneas del pedido se vuelven a sincronizar.
+        self._ensure_quotation()
+        self._discard_empty_drafts()
         self._sync_odontogram()
         return super().action_close()
 
     def action_new_quotation(self):
-        """«Nuevo»: el presupuesto de esta visita.
+        """«Presupuesto»: el de esta visita, sin abrir otra consulta.
 
-        Elegir el paciente no lo crea. Si esta visita ya tiene uno, abre
-        otra visita del mismo paciente con un presupuesto nuevo: Nuevo es
-        un presupuesto más, no el mismo.
+        Si ya existe, lo abre. No crea un borrador vacío al lado.
         """
         self.ensure_one()
         if self.state != "draft":
             raise UserError(_("Esta atención ya está cerrada."))
+        if self.order_id:
+            return self.action_view_sale_order()
         if not self.partner_id:
             raise UserError(_("Elegí el paciente para crear el presupuesto."))
         practitioner = (
@@ -127,18 +130,87 @@ class EmrEncounterOdontology(models.Model):
         if not practitioner:
             raise UserError(_(
                 "Elegí el profesional en esta pantalla. Si hay varios, la "
-                "próxima vez queda el último que uses en Nuevo."
+                "próxima vez queda el último que uses en Presupuesto."
             ))
         self.env["res.partner"]._emr_odontology_remember_practitioner(practitioner)
-        target = self
-        if self.order_id:
-            target = self.create({
-                "partner_id": self.partner_id.id,
-                "practitioner_id": practitioner.id,
-            })
-        elif self.practitioner_id != practitioner:
+        if self.practitioner_id != practitioner:
             self.practitioner_id = practitioner
-        return self.partner_id._emr_odontology_attach_quotation(practitioner, target)
+        self._discard_empty_drafts()
+        return self.partner_id._emr_odontology_attach_quotation(practitioner, self)
+
+    def _billable_marks(self):
+        self.ensure_one()
+        return [
+            (line.status, line.condition)
+            for line in self.line_ids
+        ]
+
+    def _ensure_quotation(self):
+        """Crea el presupuesto si hay prácticas cobrables y esta visita no tiene.
+
+        Sin paciente o sin profesional no se cierra en silencio: el mensaje
+        dice qué falta. Sin prácticas no se inventa un pedido vacío.
+        """
+        for rec in self:
+            if rec.state != "draft" or rec.order_id:
+                continue
+            if not needs_quotation(
+                bool(rec.order_id),
+                rec._billable_marks(),
+                BILLABLE_STATUSES,
+                ODONTOLOGY_PRODUCT_NAMES,
+            ):
+                continue
+            if not rec.partner_id:
+                raise UserError(_(
+                    "Hay prácticas para cobrar y falta el paciente. "
+                    "Elegilo y volvé a marcar Atendido."
+                ))
+            practitioner = (
+                rec.practitioner_id
+                or self.env["res.partner"]._emr_odontology_default_practitioner()
+            )
+            if not practitioner:
+                raise UserError(_(
+                    "Hay prácticas para cobrar y falta el profesional. "
+                    "Elegilo y volvé a marcar Atendido."
+                ))
+            self.env["res.partner"]._emr_odontology_remember_practitioner(practitioner)
+            if rec.practitioner_id != practitioner:
+                rec.practitioner_id = practitioner
+            rec.partner_id._emr_odontology_attach_quotation(practitioner, rec)
+
+    def _is_empty_draft(self):
+        self.ensure_one()
+        return is_empty_draft(
+            self.state,
+            bool(self.order_id),
+            len(self.line_ids),
+            self.reason,
+            self.notes,
+            len(self.diagnosis_ids),
+        )
+
+    def _discard_empty_drafts(self):
+        """Tira los borradores vacíos de este usuario, del mismo paciente.
+
+        No toca la visita en curso ni un borrador sin paciente: esa es la
+        otra pestaña de Atender ahora, y cerrar esta no tiene que hacerla
+        desaparecer.
+        """
+        partner_ids = cleanup_partner_ids(self.mapped("partner_id").ids)
+        if not partner_ids:
+            return
+        empty = self.search([
+            ("id", "not in", self.ids),
+            ("state", "=", "draft"),
+            ("order_id", "=", False),
+            ("create_uid", "=", self.env.uid),
+            ("partner_id", "in", partner_ids),
+        ]).filtered(lambda rec: rec._is_empty_draft())
+        parents = empty.mapped("encounter_id").filtered(lambda enc: enc.state == "draft")
+        if parents:
+            parents.unlink()
 
     def action_view_sale_order(self):
         """«Ver presupuesto»: el turno de esta visita, con las prácticas."""
@@ -307,6 +379,40 @@ class EmrEncounterOdontologyLine(models.Model):
         index=True,
     )
     sequence = fields.Integer(default=10)
+    # Lo que salió en el presupuesto. No se escribe desde acá: el precio
+    # vive en la línea del pedido, y esta pantalla de historia solo lo muestra.
+    currency_id = fields.Many2one(
+        "res.currency",
+        compute="_compute_price_subtotal",
+    )
+    price_subtotal = fields.Monetary(
+        string="Precio",
+        compute="_compute_price_subtotal",
+        currency_field="currency_id",
+    )
+
+    @api.depends("odontology_id.order_id")
+    def _compute_price_subtotal(self):
+        ids = [mark_id for mark_id in self.ids if isinstance(mark_id, int)]
+        sols = self.env["sale.order.line"].sudo().search(
+            [("odontology_line_id", "in", ids)]
+        ) if ids else self.env["sale.order.line"]
+        by_mark = {}
+        for sol in sols:
+            mark_id = sol.odontology_line_id.id
+            current = by_mark.get(mark_id)
+            if current is None or (
+                not current.product_uom_qty and sol.product_uom_qty
+            ):
+                by_mark[mark_id] = sol
+        company_currency = self.env.company.currency_id
+        for mark in self:
+            sol = by_mark.get(mark.id)
+            order = mark.odontology_id.order_id
+            mark.currency_id = (
+                (sol.currency_id if sol else order.currency_id) or company_currency
+            )
+            mark.price_subtotal = sol.price_subtotal if sol else 0.0
 
     @api.model_create_multi
     def create(self, vals_list):

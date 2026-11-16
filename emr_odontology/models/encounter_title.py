@@ -9,8 +9,7 @@ muestra el id técnico del modelo (emr.encounter.odontology,…).
 """
 
 # Consulta nueva, todavía sin paciente. No puede ser vacío: el cliente
-# de Odoo reemplaza un display_name vacío por «Nuevo», el mismo rótulo
-# que el botón de la cabecera.
+# de Odoo reemplaza un display_name vacío por «Nuevo».
 FALLBACK_TITLE = "Nueva consulta"
 
 

@@ -17,9 +17,12 @@
                      asistente y con el nombre cortado. -->
                 <div class="oe_title mw-100 mb-3">
                     <h1>
+                        <!-- Sin «Crear "nombre"»: un paciente no se da de alta con
+                             solo el nombre. «Crear y editar...» sigue, y abre
+                             la ficha completa. -->
                         <field name="partner_id" nolabel="1" class="w-100"
                                placeholder="Buscar paciente por nombre o documento..."
-                               options="{'no_open': True}"/>
+                               options="{'no_open': True, 'no_quick_create': True}"/>
                     </h1>
                     <div class="text-muted" invisible="not insurer_id">
                         <field name="insurer_id" nolabel="1" readonly="1"/>
@@ -52,6 +55,17 @@
     <!-- La puerta del sobreturno: el mismo asistente, con la modalidad ya
          decidida y sin hueco. El hueco lo crea `action_book` al confirmar,
          después de validar el tope diario del profesional. -->
+    <!-- El clic en un hueco vacío del calendario. Sin hueco todavía:
+         si esa hora cae en uno libre, action_book lo usa. -->
+    <record id="emr_appointment_book_from_calendar_action" model="ir.actions.act_window">
+        <field name="name">Nuevo turno</field>
+        <field name="res_model">emr.appointment.book</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="emr_appointment_book_view_form"/>
+        <field name="target">new</field>
+        <field name="context">{'default_appointment_mode': 'scheduled'}</field>
+    </record>
+
     <record id="emr_overbooking_book_action" model="ir.actions.act_window">
         <field name="name">Dar un sobreturno</field>
         <field name="res_model">emr.appointment.book</field>

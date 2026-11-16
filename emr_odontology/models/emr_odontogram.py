@@ -218,11 +218,10 @@ class EmrOdontogram(models.Model):
         return chart
 
     def action_odontology_walkin(self):
-        """Abre la atención de este paciente, sin crear el presupuesto.
+        """Abre la atención de este paciente.
 
-        Lo que se marca directo en este mapa no se cobra —no hay visita—.
-        Para que la práctica llegue al presupuesto se anota en la consulta,
-        y el presupuesto se crea con Nuevo.
+        Lo que se marca directo en este mapa no se cobra. En la consulta,
+        Presupuesto arma el pedido, y Atendido también si hay prácticas.
         """
         self.ensure_one()
         return self.partner_id.action_odontology_walkin()

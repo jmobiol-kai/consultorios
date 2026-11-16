@@ -2,8 +2,13 @@
 # For copyright and license notices, see __manifest__.py file in module root
 # directory
 ##############################################################################
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+
+from .action_window import act_window_form
+from .calendar_label import appointment_calendar_lines
 
 APPOINTMENT_STATES = [
     ("waitlist", "En lista de espera"),
@@ -56,6 +61,15 @@ class SaleOrder(models.Model):
     location_id = fields.Many2one("emr.location", string="Locación", index=True)
 
     appointment_start = fields.Datetime("Inicio", index=True)
+    # El fin lo usa el calendario para dibujar y para estirar el turno.
+    # Si hay hueco, nace con el fin de ese hueco; si no, media hora.
+    appointment_stop = fields.Datetime("Fin", index=True)
+    appointment_calendar_title = fields.Char(
+        compute="_compute_appointment_calendar_title",
+    )
+    appointment_calendar_subtitle = fields.Char(
+        compute="_compute_appointment_calendar_title",
+    )
     appointment_mode = fields.Selection(
         [
             ("scheduled", "Turno programado"),
@@ -115,6 +129,78 @@ class SaleOrder(models.Model):
     waitlist_period = fields.Date("Período deseado")
 
     log_ids = fields.One2many("emr.appointment.log", "order_id", string="Recorrido")
+
+    @api.depends(
+        "partner_id.name",
+        "name",
+        "is_appointment",
+        "sale_order_template_id.name",
+        "order_line.product_id.name",
+        "order_line.product_id.is_medical_procedure",
+    )
+    def _compute_appointment_calendar_title(self):
+        for order in self:
+            patient = order.partner_id.name if order.is_appointment else ""
+            procedure = ""
+            if order.is_appointment:
+                if order.sale_order_template_id:
+                    procedure = order.sale_order_template_id.name or ""
+                else:
+                    line = order.order_line.filtered(
+                        lambda item: item.product_id.is_medical_procedure
+                    )[:1]
+                    procedure = line.product_id.name or ""
+            title, subtitle = appointment_calendar_lines(
+                patient or ("" if order.is_appointment else order.name),
+                procedure,
+            )
+            order.appointment_calendar_title = title
+            order.appointment_calendar_subtitle = subtitle
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        Slot = self.env["emr.slot"]
+        for vals in vals_list:
+            if not vals.get("is_appointment") or not vals.get("appointment_start"):
+                continue
+            if vals.get("appointment_stop"):
+                continue
+            slot_stop = False
+            if vals.get("slot_id"):
+                slot_stop = Slot.browse(vals["slot_id"]).stop
+            start = fields.Datetime.to_datetime(vals["appointment_start"])
+            vals["appointment_stop"] = slot_stop or (start + timedelta(minutes=30))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        res = super().write(vals)
+        if self.env.context.get("emr_slot_time_sync"):
+            return res
+        if {"appointment_start", "appointment_stop"} & set(vals):
+            self._emr_sync_slot_span()
+        return res
+
+    def _emr_sync_slot_span(self):
+        """Si el calendario movió el turno, el hueco se mueve con él.
+
+        El hueco es el lugar en la grilla. Sin esto, arrastrar el turno
+        deja la hora vieja ocupada y la nueva solo en la orden.
+        """
+        for order in self:
+            if not order.is_appointment or not order.slot_id or not order.appointment_start:
+                continue
+            stop = order.appointment_stop
+            if not stop or stop <= order.appointment_start:
+                stop = order.appointment_start + timedelta(minutes=order.slot_id.duration or 30)
+                order.with_context(emr_slot_time_sync=True).write({
+                    "appointment_stop": stop,
+                })
+            duration = int((stop - order.appointment_start).total_seconds() // 60) or 1
+            order.slot_id.write({
+                "start": order.appointment_start,
+                "stop": stop,
+                "duration": duration,
+            })
 
     @api.depends("additional_order_ids")
     def _compute_additional_order_count(self):
@@ -334,6 +420,26 @@ class SaleOrder(models.Model):
         self._set_appointment_state("in_progress")
         return self._open_encounter()
 
+    def action_attend_now(self):
+        """Atender ahora este turno, desde el calendario.
+
+        Abre la visita de este paciente y este profesional. Si el turno ya
+        tiene historia, reabre esa. Si todavía no se está atendiendo, pasa
+        a en atención. Un turno cerrado o cancelado no se retoma por acá.
+        """
+        self.ensure_one()
+        if not self.is_appointment:
+            raise UserError(_("Esto no es un turno."))
+        if self.appointment_state in (
+            "done", "validated", "cancelled", "no_show", "void",
+        ):
+            raise UserError(_("Este turno ya está cerrado."))
+        if not self.partner_id:
+            raise UserError(_("Este turno no tiene paciente."))
+        if self.appointment_state in ("waitlist", "booked", "confirmed"):
+            self._set_appointment_state("in_progress")
+        return self._open_encounter()
+
     def action_appointment_no_show(self):
         """No vino nunca: nadie lo cobró y no hay comprobante que anular."""
         for order in self:
@@ -428,13 +534,31 @@ class SaleOrder(models.Model):
             )
             self.encounter_id = child.encounter_id
 
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": self.encounter_id.res_model,
-            "res_id": self.encounter_id.res_id,
-            "view_mode": "form",
-            "target": "current",
-        }
+        view = self._emr_encounter_form_view()
+        return act_window_form(
+            self.encounter_id.res_model,
+            self.encounter_id.res_id,
+            view_id=view.id if view else False,
+            name=self.encounter_id.display_name or "",
+        )
+
+    def _emr_encounter_form_view(self):
+        """Vista de la visita. El módulo de la especialidad puede devolver la suya."""
+        return self.env["ir.ui.view"]
+
+    def action_open_appointment_form(self):
+        """El formulario del turno, sin el alta rápida de un presupuesto común."""
+        self.ensure_one()
+        view = self.env.ref(
+            "emr.sale_order_view_form_appointment_patient",
+            raise_if_not_found=False,
+        )
+        return act_window_form(
+            "sale.order",
+            self.id,
+            view_id=view.id if view else False,
+            name=self.display_name or "",
+        )
 
     def action_open_encounter(self):
         return self._open_encounter()

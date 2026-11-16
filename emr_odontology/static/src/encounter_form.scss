@@ -1,7 +1,8 @@
 // La consulta odontológica deja la historia al costado, como el resto de
 // las atenciones. Esta hoja es ancha por el mapa de piezas: la columna
 // baja cerca de un 30% respecto del panel habitual (35% / mínimo 300px)
-// y el mapa se dibuja un 25% más chico. El selector no depende solo de
+// y el mapa se achica un poco para que las dos denticiones y la historia
+// entren en la misma fila. El selector no depende solo de
 // la clase del formulario: alcanza con que la misma vista tenga el
 // odontograma y el panel.
 .o_form_view.o_emr_odontology_encounter,
@@ -14,7 +15,7 @@
     }
 
     .o_emr_odontogram_board {
-        zoom: 0.75;
+        zoom: 0.9;
     }
 
     // El hueco entre filas del grupo es $spacer * 0.5 (8px). Acá va a la

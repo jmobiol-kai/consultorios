@@ -10,17 +10,9 @@
                     <button name="action_odontology_walkin" type="object"
                             string="Atender ahora" class="btn-primary"
                             invisible="not id"
-                            help="Abre la atención de este paciente con la historia clínica. El presupuesto se crea con Nuevo; lo que marques ahí como práctica pasa solo a ese presupuesto."/>
+                            help="Abre la atención de este paciente. Lo que se marque ahí como práctica entra al presupuesto al crear Presupuesto o al marcar Atendido."/>
                 </header>
                 <sheet>
-                    <div class="alert alert-info" role="alert">
-                        Estado actual de la boca, uno por paciente. Las consultas
-                        lo actualizan al guardarse; también se puede corregir
-                        acá. El historial queda en las atenciones, no en este
-                        mapa. Lo que se corrige acá no se cobra: para registrar
-                        una práctica y que pase al presupuesto, abrí la
-                        atención y usá <strong>Nuevo</strong>.
-                    </div>
                     <group>
                         <field name="partner_id" readonly="id"/>
                     </group>
@@ -34,7 +26,7 @@
                             <field name="last_encounter_id"/>
                         </list>
                     </field>
-                    <field name="tooth_ids" nolabel="1">
+                    <field name="tooth_ids" nolabel="1" groups="base.group_no_one">
                         <list editable="bottom" limit="1000">
                             <field name="fdi"/>
                             <field name="surface"/>
@@ -82,11 +74,6 @@
         </field>
     </record>
 
-    <menuitem id="menu_emr_odontogram" name="Odontogramas"
-              parent="emr.menu_emr_atencion"
-              action="emr_odontogram_action" sequence="23"
-              groups="emr.group_emr_practitioner"/>
-
     <!-- El mismo listado, para quien administra. No es un catálogo: el
          estado de la boca se carga en Atención. Está acá para encontrarlo
          sin pasar por la ficha del paciente. -->
@@ -127,9 +114,11 @@
                     <p class="text-muted">
                         El código no se cambia: es el que queda guardado en
                         cada marca. El color es un hexadecimal de seis
-                        dígitos, como #fff59d para la corona. Pieza entera
-                        pinta todas las caras al elegirlo en la leyenda;
-                        si no, se pinta solo la cara seleccionada.
+                        dígitos, como #fff59d para la corona, y es el relleno
+                        del mapa y de la leyenda. A tratar se distingue con
+                        un borde rojo; el color de la condición no cambia.
+                        Pieza entera pinta todas las caras al elegirla en la
+                        leyenda; si no, solo la cara seleccionada.
                         Desactivar esconde el estado de la leyenda; las
                         marcas viejas siguen viéndose.
                     </p>
@@ -202,11 +191,11 @@
                         <field name="active"/>
                     </group>
                     <p class="text-muted">
-                        El nombre es el de la columna Estado del odontograma
-                        (Presente, A tratar, Tratado, Ausente, No erupcionado).
-                        El color de la leyenda se cambia en Estados de la pieza.
-                        El código no se cambia: es el que queda guardado en
-                        cada marca. Al presupuesto van los códigos pending y
+                        El nombre es el del estado en el mapa (Presente, A tratar,
+                        Tratado, Ausente, No erupcionado). A tratar lleva un
+                        borde rojo; el relleno sigue siendo el color de la
+                        condición. El código no se cambia: es el que queda
+                        guardado en cada marca. Al presupuesto van pending y
                         treated, aunque el nombre diga otra cosa. Desactivar
                         esconde la fila de este listado; las marcas viejas
                         siguen mostrando el nombre.

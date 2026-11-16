@@ -5,6 +5,17 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+from lxml import etree
+
+from .patient_form import (
+    DNI_XMLID,
+    is_patient_dni_node,
+    merge_invisible,
+    page_hidden_for_patients,
+    patient_identity_defaults,
+    patient_ids_to_switch_to_dni,
+)
+
 
 class ResPartner(models.Model):
     """Paciente, profesional y obra social son roles sobre el partner.
@@ -65,6 +76,10 @@ class ResPartner(models.Model):
         "recurso ni agenda.",
     )
     resource_id = fields.Many2one("resource.resource", string="Recurso", copy=False)
+    # El calendario de turnos pinta un color por profesional. 0 no es un
+    # color: al crear un profesional se asigna uno entre 1 y 11.
+    emr_calendar_color = fields.Integer("Color en la agenda", default=0)
+
     resource_calendar_id = fields.Many2one(
         "resource.calendar",
         string="Agenda",
@@ -297,16 +312,159 @@ class ResPartner(models.Model):
                 )
         return True
 
+    def _emr_dni_type(self):
+        """El tipo DNI de la localización argentina, o nada si no está instalada."""
+        return self.env.ref(DNI_XMLID, raise_if_not_found=False)
+
+    def _emr_patient_identity_vals(self, is_patient):
+        dni = self._emr_dni_type()
+        return patient_identity_defaults(
+            bool(is_patient),
+            dni.id if dni else False,
+            "l10n_latam_identification_type_id" in self._fields,
+        )
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        is_patient = res.get("is_patient") or self.env.context.get("default_is_patient")
+        extra = self._emr_patient_identity_vals(is_patient)
+        for key, value in extra.items():
+            if key in fields_list:
+                res[key] = value
+        return res
+
+    def _get_view(self, view_id=None, view_type="form", **options):
+        arch, view = super()._get_view(view_id, view_type, **options)
+        if view_type != "form":
+            return arch, view
+        self._emr_patient_document_arch(arch)
+        # format.vat.label.mixin, adentro de super(), pone el rótulo del
+        # país (CUIT) en cada vat. Se vuelve a poner DNI solo en la fila
+        # del paciente.
+        self._emr_restore_patient_dni_label(arch)
+        return arch, view
+
+    def _emr_patient_document_arch(self, arch):
+        """En pacientes el documento es una fila DNI | número.
+
+        La localización mete el tipo y el número dentro de un div, y un
+        rótulo suelto ahí no arma la fila de un grupo. Para el paciente se
+        esconde ese bloque. La fila la pone el campo vat con string DNI,
+        que ya está en la vista. Los demás contactos no se tocan.
+        """
+        if "l10n_latam_identification_type_id" in self._fields:
+            for node in arch.xpath("//field[@name='l10n_latam_identification_type_id']"):
+                if node.xpath("ancestor::field[@name='child_ids']"):
+                    continue
+                node.set("invisible", merge_invisible(node.get("invisible")))
+        self._emr_hide_patient_extras(arch)
+        for label in arch.xpath(
+            "//label[@for='vat' or @for='l10n_latam_identification_type_id']"
+        ):
+            if label.xpath("ancestor::field[@name='child_ids']"):
+                continue
+            label.set("invisible", merge_invisible(label.get("invisible")))
+        containers = [
+            node for node in arch.xpath("//div[@name='vat_vies_container']")
+            if not node.xpath("ancestor::field[@name='child_ids']")
+        ]
+        for node in containers:
+            node.set("invisible", merge_invisible(node.get("invisible")))
+        if containers:
+            return
+        for node in arch.xpath("//field[@name='vat']"):
+            if node.xpath("ancestor::field[@name='child_ids']"):
+                continue
+            if is_patient_dni_node(node.get("invisible"), node.get("class")):
+                continue
+            node.set("invisible", merge_invisible(node.get("invisible")))
+
+    def _emr_restore_patient_dni_label(self, arch):
+        """El rótulo del paciente es DNI, aunque el país diga CUIT."""
+        label = _("DNI")
+        for node in arch.xpath("//field[@name='vat']|//label[@for='vat']"):
+            if is_patient_dni_node(node.get("invisible"), node.get("class")):
+                node.set("string", label)
+
+    def _emr_hide_patient_extras(self, arch):
+        """Esconde responsabilidad ARCA y pestañas que el paciente no usa.
+
+        Solo si el nodo está en la vista combinada. Sin l10n_ar o sin el
+        módulo de cobranza, esa pestaña no existe y la ficha igual abre.
+        """
+        for node in arch.xpath("//field[@name='l10n_ar_afip_responsibility_type_id']"):
+            if node.xpath("ancestor::field[@name='child_ids']"):
+                continue
+            node.set("invisible", merge_invisible(node.get("invisible")))
+        for page in arch.xpath("//page"):
+            if page.xpath("ancestor::field[@name='child_ids']"):
+                continue
+            if page_hidden_for_patients(page.get("name"), page.get("string")):
+                page.set("invisible", merge_invisible(page.get("invisible")))
+
+    @api.onchange("is_patient")
+    def _onchange_is_patient_identity(self):
+        """Un paciente es una persona y su documento es DNI, si existe el tipo."""
+        if not self.is_patient:
+            return
+        self.is_company = False
+        self.company_type = "person"
+        dni = self._emr_dni_type()
+        if dni and "l10n_latam_identification_type_id" in self._fields:
+            self.l10n_latam_identification_type_id = dni
+
+    def _emr_force_patient_dni(self):
+        """Deja el tipo DNI en los pacientes que tienen otro, o ninguno."""
+        dni = self._emr_dni_type()
+        if not dni or "l10n_latam_identification_type_id" not in self._fields:
+            return
+        patients = self.filtered("is_patient")
+        ids = patient_ids_to_switch_to_dni(
+            [
+                (partner.id, partner.l10n_latam_identification_type_id.id)
+                for partner in patients
+            ],
+            dni.id,
+        )
+        if ids:
+            super(ResPartner, self.browse(ids)).write({
+                "l10n_latam_identification_type_id": dni.id,
+            })
+
     @api.model_create_multi
     def create(self, vals_list):
-        partners = super().create(vals_list)
-        partners.filtered("is_practitioner")._emr_ensure_resource()
+        prepared = []
+        for vals in vals_list:
+            vals = dict(vals)
+            # El contexto del alta de pacientes también llega al crear una
+            # dirección hija. Esa no es un paciente: tiene parent_id.
+            is_patient = vals.get("is_patient")
+            if is_patient is None and not vals.get("parent_id"):
+                is_patient = self.env.context.get("default_is_patient")
+            extra = self._emr_patient_identity_vals(is_patient)
+            for key, value in extra.items():
+                vals[key] = value
+            if is_patient and "is_patient" not in vals:
+                vals["is_patient"] = True
+            prepared.append(vals)
+        partners = super().create(prepared)
+        partners.filtered("is_patient")._emr_force_patient_dni()
+        practitioners = partners.filtered("is_practitioner")
+        practitioners._emr_ensure_resource()
+        for partner in practitioners.filtered(lambda item: not item.emr_calendar_color):
+            partner.emr_calendar_color = (partner.id % 11) + 1
         return partners
 
     def write(self, vals):
+        if vals.get("is_patient"):
+            vals = dict(vals)
+            vals["is_company"] = False
+            vals["company_type"] = "person"
         res = super().write(vals)
         # También al elegirle método: es el momento en que un profesional del
         # padrón pasa a atender acá y necesita agenda.
         if vals.get("is_practitioner") or vals.get("scheduling_method"):
             self.filtered("is_practitioner")._emr_ensure_resource()
+        self.filtered("is_patient")._emr_force_patient_dni()
         return res

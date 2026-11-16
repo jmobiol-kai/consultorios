@@ -63,6 +63,30 @@
         <field name="groups" eval="[(4, ref('emr.group_emr_manager'))]"/>
     </record>
 
+    <!-- La ficha del mapa la ve quien atiende, igual que el odontograma.
+         La ficha de una consulta sigue la regla de esa consulta: el
+         profesional ve las suyas y administración ve todas. Si la ficha
+         se viera y la consulta no, el formulario no podría leerla. -->
+    <record id="rule_odontogram_page_own" model="ir.rule">
+        <field name="name">Ficha del odontograma: mapa y consultas propias</field>
+        <field name="model_id" ref="model_emr_odontogram_page"/>
+        <field name="domain_force">['|', ('kind', '=', 'chart'), ('odontology_id.encounter_id.practitioner_id.user_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('emr.group_emr_practitioner'))]"/>
+    </record>
+
+    <record id="rule_odontogram_page_all" model="ir.rule">
+        <field name="name">Ficha del odontograma: todas</field>
+        <field name="model_id" ref="model_emr_odontogram_page"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('emr.group_emr_manager'))]"/>
+    </record>
+
+    <record id="rule_odontogram_page_company" model="ir.rule">
+        <field name="name">Ficha del odontograma: multi-compañía</field>
+        <field name="model_id" ref="model_emr_odontogram_page"/>
+        <field name="domain_force">['|', ('kind', '=', 'chart'), '|', ('odontology_id.encounter_id.company_id', '=', False), ('odontology_id.encounter_id.company_id', 'in', company_ids)]</field>
+    </record>
+
     <record id="rule_encounter_odontology_line_company" model="ir.rule">
         <field name="name">Tratamiento odontológico: multi-compañía</field>
         <field name="model_id" ref="model_emr_encounter_odontology_line"/>
