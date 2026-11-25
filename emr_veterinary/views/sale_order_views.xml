@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_order_view_form_veterinary_pet" model="ir.ui.view">
+        <field name="name">sale.order.form.veterinary.pet</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="emr.sale_order_view_form_appointment"/>
+        <field name="arch" type="xml">
+            <field name="practitioner_id" position="before">
+                <field name="pet_id"
+                       invisible="not pet_id and not context.get('emr_veterinary')"
+                       options="{'no_quick_create': True}"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="sale_order_view_search_veterinary" model="ir.ui.view">
+        <field name="name">sale.order.search.veterinary</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="emr.sale_order_view_search_appointment"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="string">Dueño</attribute>
+                <attribute name="context">{}</attribute>
+            </field>
+            <field name="partner_id" position="after">
+                <field name="pet_id" string="Mascota"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="sale_order_view_list_veterinary" model="ir.ui.view">
+        <field name="name">sale.order.list.veterinary</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="emr.sale_order_view_list_appointment"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="string">Dueño</attribute>
+            </field>
+            <field name="partner_id" position="before">
+                <field name="pet_id"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="sale_order_view_calendar_veterinary" model="ir.ui.view">
+        <field name="name">sale.order.calendar.veterinary</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="emr.sale_order_view_calendar_appointment"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="before">
+                <field name="pet_id" string="Mascota"/>
+            </field>
+            <field name="partner_id" position="attributes">
+                <attribute name="string">Dueño</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="sale_order_view_kanban_veterinary" model="ir.ui.view">
+        <field name="name">sale.order.kanban.veterinary</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="emr.sale_order_view_kanban_appointment"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="before">
+                <field name="pet_id" invisible="not pet_id"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="sale_order_action_veterinary" model="ir.actions.act_window">
+        <field name="name">Agenda</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">calendar,list,kanban,form</field>
+        <field name="domain">[('is_appointment', '=', True), ('pet_id', '!=', False)]</field>
+        <field name="context">{'default_is_appointment': True, 'emr_veterinary': True}</field>
+        <field name="search_view_id" ref="sale_order_view_search_veterinary"/>
+    </record>
+
+    <record id="sale_order_action_veterinary_view_calendar" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">calendar</field>
+        <field name="view_id" ref="sale_order_view_calendar_veterinary"/>
+        <field name="act_window_id" ref="sale_order_action_veterinary"/>
+    </record>
+    <record id="sale_order_action_veterinary_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="sale_order_view_list_veterinary"/>
+        <field name="act_window_id" ref="sale_order_action_veterinary"/>
+    </record>
+    <record id="sale_order_action_veterinary_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="sale_order_view_kanban_veterinary"/>
+        <field name="act_window_id" ref="sale_order_action_veterinary"/>
+    </record>
+    <record id="sale_order_action_veterinary_view_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="4"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="emr.sale_order_view_form_appointment_patient"/>
+        <field name="act_window_id" ref="sale_order_action_veterinary"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_appointment_charge_view_form_veterinary" model="ir.ui.view">
+        <field name="name">emr.appointment.charge.form.veterinary</field>
+        <field name="model">emr.appointment.charge</field>
+        <field name="inherit_id" ref="emr.emr_appointment_charge_view_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <div invisible="not pet_id" class="text-muted">
+                    <field name="pet_id" readonly="1" nolabel="1"/>
+                </div>
+            </field>
+            <xpath expr="//span[field[@name='insurer_id']]" position="attributes">
+                <attribute name="invisible">pet_id or not insurer_id</attribute>
+            </xpath>
+            <xpath expr="//span[field[@name='pricelist_id']]" position="attributes">
+                <attribute name="invisible">pet_id or not pricelist_id</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

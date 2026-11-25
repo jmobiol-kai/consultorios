@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_template_view_form_veterinary" model="ir.ui.view">
+        <field name="name">product.template.form.veterinary</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <field name="categ_id" position="after">
+                <field name="veterinary_kind"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_template_action_veterinary" model="ir.actions.act_window">
+        <field name="name">Productos veterinarios</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('veterinary_kind', '!=', False)]</field>
+        <field name="context">{'default_veterinary_kind': 'medicine'}</field>
+    </record>
+
+</odoo>

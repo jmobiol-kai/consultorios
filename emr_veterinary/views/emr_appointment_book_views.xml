@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_appointment_book_view_form_veterinary" model="ir.ui.view">
+        <field name="name">emr.appointment.book.form.veterinary</field>
+        <field name="model">emr.appointment.book</field>
+        <field name="inherit_id" ref="emr.emr_appointment_book_view_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="before">
+                <field name="pet_owner_id" invisible="1"/>
+                <field name="pet_id"
+                       invisible="not context.get('emr_veterinary') and not pet_id"
+                       required="context.get('emr_veterinary')"
+                       placeholder="Buscar mascota por nombre o microchip..."
+                       options="{'no_quick_create': True}"/>
+            </field>
+            <field name="partner_id" position="attributes">
+                <attribute name="readonly">context.get('emr_veterinary')</attribute>
+                <attribute name="force_save">1</attribute>
+                <attribute name="placeholder">Buscar paciente por nombre o documento...</attribute>
+            </field>
+            <xpath expr="//field[@name='insurer_id']/parent::div" position="attributes">
+                <attribute name="invisible">pet_id or context.get('emr_veterinary') or not insurer_id</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

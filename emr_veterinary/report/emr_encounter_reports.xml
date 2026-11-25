@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_encounter_veterinary_header">
+        <div class="row mb-3">
+            <div class="col-7">
+                <h4 class="mt-0"><span t-out="titulo"/></h4>
+                <div>
+                    <strong t-out="doc.pet_id.name"/>
+                    <span t-if="doc.pet_id.species_id" class="text-muted">
+                        · <span t-out="doc.pet_id.species_id.name"/>
+                    </span>
+                    <span t-if="doc.pet_id.breed_id" class="text-muted">
+                        · <span t-out="doc.pet_id.breed_id.name"/>
+                    </span>
+                </div>
+                <div class="text-muted">
+                    <span t-if="doc.pet_id.sex">
+                        <span t-out="dict(doc.pet_id._fields['sex']._description_selection(env)).get(doc.pet_id.sex)"/>
+                    </span>
+                    <span t-if="doc.pet_id.age"> · <span t-out="doc.pet_id.age"/></span>
+                    <span t-if="doc.pet_id.microchip"> · Chip <span t-out="doc.pet_id.microchip"/></span>
+                </div>
+                <div t-if="doc.partner_id">
+                    <strong>Dueño</strong>
+                    <span t-out="doc.partner_id.name"/>
+                </div>
+            </div>
+            <div class="col-5 text-end">
+                <div>
+                    <strong>Fecha</strong>
+                    <span t-out="doc.date" t-options="{'widget': 'date'}"/>
+                </div>
+                <div>
+                    <strong>Profesional</strong>
+                    <span t-out="doc.practitioner_id.name"/>
+                </div>
+                <div t-if="doc.location_id" class="text-muted">
+                    <span t-out="doc.location_id.name"/>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_encounter_veterinary_body">
+        <div t-if="doc.temperature or doc.weight" class="mb-2">
+            <strong>Signos</strong>
+            <div class="text-muted">
+                <span t-if="doc.temperature">Temp. <span t-out="doc.temperature"/> °C</span>
+                <span t-if="doc.weight"> · Peso <span t-out="doc.weight"/> kg</span>
+            </div>
+        </div>
+        <div t-if="doc.reason" class="mb-2">
+            <strong>Motivo de consulta</strong>
+            <div t-out="doc.reason"/>
+        </div>
+        <div t-if="doc.anamnesis" class="mb-2">
+            <strong>Anamnesis</strong>
+            <div t-out="doc.anamnesis"/>
+        </div>
+        <div t-if="doc.examination" class="mb-2">
+            <strong>Examen clínico</strong>
+            <div t-out="doc.examination"/>
+        </div>
+        <div t-if="doc.diagnosis" class="mb-2">
+            <strong>Diagnóstico</strong>
+            <div t-out="doc.diagnosis"/>
+        </div>
+        <div t-if="doc.evolution" class="mb-2">
+            <strong>Evolución</strong>
+            <div t-out="doc.evolution"/>
+        </div>
+        <div t-if="doc.consumption_line_ids" class="mb-2">
+            <strong>Medicación e insumos</strong>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-end">Cantidad</th>
+                        <th>Lote</th>
+                        <th>Vencimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="doc.consumption_line_ids" t-as="line">
+                        <td><span t-out="line.product_id.display_name"/></td>
+                        <td class="text-end"><span t-out="line.quantity"/></td>
+                        <td><span t-out="line.lot_id.name"/></td>
+                        <td>
+                            <span t-if="line.expiration_date"
+                                  t-out="line.expiration_date" t-options="{'widget': 'date'}"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div t-if="doc.prevention_ids" class="mb-2">
+            <strong>Vacunas y desparasitación</strong>
+            <div t-foreach="doc.prevention_ids" t-as="prev">
+                <span t-out="prev.display_name"/>
+                <span t-if="prev.next_date" class="text-muted">
+                    · próxima <span t-out="prev.next_date" t-options="{'widget': 'date'}"/>
+                </span>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_encounter_veterinary_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <t t-call="emr_veterinary.report_encounter_veterinary_header">
+                    <t t-set="titulo">Consulta veterinaria</t>
+                </t>
+                <t t-call="emr_veterinary.report_encounter_veterinary_body"/>
+                <t t-call="emr.report_encounter_footer"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_encounter_veterinary">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr_veterinary.report_encounter_veterinary_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_encounter_veterinary" model="ir.actions.report">
+        <field name="name">Consulta veterinaria</field>
+        <field name="model">emr.encounter.veterinary</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr_veterinary.report_encounter_veterinary</field>
+        <field name="report_file">emr_veterinary.report_encounter_veterinary</field>
+        <field name="print_report_name">'Consulta - %s' % (object.pet_id.name or '')</field>
+        <field name="binding_model_id" ref="model_emr_encounter_veterinary"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_emr_veterinary_root" name="Veterinaria"
+              web_icon="emr_veterinary,static/description/icon.svg"
+              sequence="55"
+              groups="emr.group_emr_reception"
+              action="sale_order_action_veterinary"/>
+
+    <menuitem id="menu_emr_veterinary_agenda" name="Agenda"
+              parent="menu_emr_veterinary_root"
+              action="sale_order_action_veterinary" sequence="10"/>
+
+    <menuitem id="menu_emr_veterinary_pets" name="Mascotas"
+              parent="menu_emr_veterinary_root"
+              action="emr_pet_action" sequence="20"/>
+
+    <menuitem id="menu_emr_veterinary_encounters" name="Consultas"
+              parent="menu_emr_veterinary_root"
+              action="emr_encounter_veterinary_action" sequence="30"
+              groups="emr.group_emr_practitioner"/>
+
+    <menuitem id="menu_emr_veterinary_prevention" name="Vacunas y desparasitación"
+              parent="menu_emr_veterinary_root"
+              action="emr_pet_prevention_action" sequence="40"/>
+
+    <menuitem id="menu_emr_veterinary_config" name="Configuración"
+              parent="menu_emr_veterinary_root" sequence="90"
+              groups="emr.group_emr_manager"/>
+
+    <menuitem id="menu_emr_veterinary_species" name="Especies"
+              parent="menu_emr_veterinary_config"
+              action="emr_pet_species_action" sequence="10"/>
+
+    <menuitem id="menu_emr_veterinary_breeds" name="Razas"
+              parent="menu_emr_veterinary_config"
+              action="emr_pet_breed_action" sequence="20"/>
+
+    <menuitem id="menu_emr_veterinary_products" name="Productos"
+              parent="menu_emr_veterinary_config"
+              action="product_template_action_veterinary" sequence="30"/>
+
+</odoo>
