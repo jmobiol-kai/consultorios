@@ -348,10 +348,21 @@ class SaleOrder(models.Model):
     # ------------------------------------------------------------------
     # Reglas
     # ------------------------------------------------------------------
+    def _emr_appointment_partner_is_valid(self):
+        """El cliente del turno puede figurar como paciente clínico.
+
+        El núcleo exige que esté marcado como paciente. Una especialidad
+        puede ampliar la regla sin aflojarla para el resto: veterinaria
+        factura al dueño y el paciente es la mascota, así que el dueño no
+        tiene que ser un paciente.
+        """
+        self.ensure_one()
+        return bool(self.partner_id.is_patient)
+
     @api.constrains("is_appointment", "partner_id")
     def _check_patient(self):
         for order in self.filtered("is_appointment"):
-            if not order.partner_id.is_patient:
+            if not order._emr_appointment_partner_is_valid():
                 raise ValidationError(
                     _("El cliente de un turno tiene que estar marcado como paciente.")
                 )

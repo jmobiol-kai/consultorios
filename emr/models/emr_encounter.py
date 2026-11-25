@@ -203,6 +203,18 @@ class EmrEncounter(models.Model):
             }
         )
 
+    def _patient_history_domain(self, partner_id, exclude_id=None):
+        """Qué atenciones entran en el panel de historia.
+
+        Una especialidad puede acotar el dominio. Veterinaria lo hace por
+        mascota: el partner del turno es el dueño, y la historia que se mira
+        es la del animal, no la de todos los animales de esa persona.
+        """
+        domain = [("partner_id", "=", partner_id)]
+        if exclude_id:
+            domain.append(("id", "!=", exclude_id))
+        return domain
+
     @api.model
     def get_patient_history(self, partner_id, exclude_id=None, limit=20):
         """Las atenciones anteriores de un paciente, listas para dibujar.
@@ -211,9 +223,7 @@ class EmrEncounter(models.Model):
         lo que el componente necesita para actuar sobre cada una: a qué modelo
         y a qué id tiene que ir para abrirla.
         """
-        dominio = [("partner_id", "=", partner_id)]
-        if exclude_id:
-            dominio.append(("id", "!=", exclude_id))
+        dominio = self._patient_history_domain(partner_id, exclude_id)
         encuentros = self.search(dominio, order="date desc, id desc", limit=limit)
 
         salida = []
