@@ -272,6 +272,23 @@ class EmrPet(models.Model):
             },
         }
 
+    def action_new_prevention(self):
+        """Abre una vacuna o desparasitación de esta mascota.
+
+        La mascota ya viene puesta. La próxima dosis sigue generando el
+        recordatorio del cron.
+        """
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Nueva aplicación"),
+            "res_model": "emr.pet.prevention",
+            "view_mode": "form",
+            "views": [[False, "form"]],
+            "target": "current",
+            "context": {"default_pet_id": self.id},
+        }
+
     def action_print_history(self):
         self.ensure_one()
         return self.env.ref("emr_veterinary.action_report_pet_history").report_action(self)

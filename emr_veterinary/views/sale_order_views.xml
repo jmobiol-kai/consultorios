@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="emr.sale_order_view_form_appointment"/>
         <field name="arch" type="xml">
             <field name="practitioner_id" position="before">
-                <field name="pet_id"
+                <field name="pet_id" string="Mascota"
                        invisible="not pet_id and not context.get('emr_veterinary')"
                        options="{'no_quick_create': True}"/>
             </field>
@@ -40,7 +40,7 @@
                 <attribute name="string">Dueño</attribute>
             </field>
             <field name="partner_id" position="before">
-                <field name="pet_id"/>
+                <field name="pet_id" string="Mascota"/>
             </field>
         </field>
     </record>
@@ -67,7 +67,7 @@
         <field name="mode">primary</field>
         <field name="arch" type="xml">
             <field name="partner_id" position="before">
-                <field name="pet_id" invisible="not pet_id"/>
+                <field name="pet_id" string="Mascota" invisible="not pet_id"/>
             </field>
         </field>
     </record>

@@ -16,7 +16,7 @@
             </field>
             <field name="partner_id" position="before">
                 <field name="encounter_type_id" invisible="1" force_save="1"/>
-                <field name="pet_id" readonly="1" force_save="1"/>
+                <field name="pet_id" string="Mascota" readonly="1" force_save="1"/>
             </field>
             <field name="company_id" position="attributes">
                 <attribute name="string">Compañía</attribute>
@@ -107,7 +107,7 @@
         <field name="arch" type="xml">
             <list create="false">
                 <field name="date" string="Fecha"/>
-                <field name="pet_id"/>
+                <field name="pet_id" string="Mascota"/>
                 <field name="partner_id" string="Dueño"/>
                 <field name="practitioner_id"/>
                 <field name="state" string="Estado" widget="badge"/>

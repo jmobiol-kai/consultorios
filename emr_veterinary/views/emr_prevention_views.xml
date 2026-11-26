@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <list>
                 <field name="date"/>
-                <field name="pet_id"/>
+                <field name="pet_id" string="Mascota"/>
                 <field name="kind"/>
                 <field name="product_id"/>
                 <field name="lot_id" optional="show"/>
@@ -23,7 +23,7 @@
         <field name="model">emr.pet.prevention</field>
         <field name="arch" type="xml">
             <search>
-                <field name="pet_id"/>
+                <field name="pet_id" string="Mascota"/>
                 <field name="product_id"/>
                 <filter name="vaccine" string="Vacunas" domain="[('kind', '=', 'vaccine')]"/>
                 <filter name="deworming" string="Desparasitación" domain="[('kind', '=', 'deworming')]"/>
@@ -53,7 +53,7 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="pet_id"/>
+                            <field name="pet_id" string="Mascota"/>
                             <field name="kind"/>
                             <field name="product_id"/>
                             <field name="date"/>

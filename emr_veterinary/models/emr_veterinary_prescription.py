@@ -18,7 +18,9 @@ class EmrVeterinaryPrescription(models.Model):
         ondelete="cascade",
         index=True,
     )
-    pet_id = fields.Many2one(related="encounter_id.pet_id", store=True)
+    pet_id = fields.Many2one(
+        related="encounter_id.pet_id", string="Mascota", store=True
+    )
     owner_id = fields.Many2one(related="encounter_id.partner_id", string="Dueño", store=True)
     practitioner_id = fields.Many2one(related="encounter_id.practitioner_id", store=True)
     date = fields.Date("Fecha", required=True, default=fields.Date.context_today)

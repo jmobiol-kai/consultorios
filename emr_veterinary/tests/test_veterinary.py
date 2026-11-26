@@ -412,6 +412,26 @@ class TestVeterinary(TransactionCase):
         with self.assertRaises(UserError):
             self.pet.action_new_consultation()
 
+    def test_new_prevention_preloads_the_pet(self):
+        product = self.env["product.product"].create({
+            "name": "Desparasitante",
+            "type": "consu",
+            "veterinary_kind": "medicine",
+        })
+        action = self.pet.action_new_prevention()
+        self.assertEqual(action["context"]["default_pet_id"], self.pet.id)
+        line = self.env["emr.pet.prevention"].with_context(**action["context"]).create({
+            "kind": "deworming",
+            "product_id": product.id,
+            "date": fields.Date.context_today(self.pet),
+            "next_date": fields.Date.add(fields.Date.context_today(self.pet), days=2),
+        })
+        self.assertEqual(line.pet_id, self.pet)
+        self.assertIn(line, self.pet.prevention_ids)
+        self.env["emr.pet.prevention"]._cron_send_reminders()
+        self.assertTrue(line.activity_id)
+        self.assertEqual(line.activity_id.res_id, self.pet.id)
+
     def test_visible_labels_are_spanish(self):
         self.assertEqual(self.env["emr.pet"]._fields["name"].string, "Nombre")
         self.assertEqual(self.env["emr.pet.weight"]._fields["date"].string, "Fecha")
@@ -420,12 +440,33 @@ class TestVeterinary(TransactionCase):
         self.assertIn('string="Fecha"', arch)
         self.assertIn('string="Estado"', arch)
         self.assertIn("Nueva consulta", arch)
+        self.assertIn("Nueva aplicación", arch)
         self.assertIn('name="consultation_ids"', arch)
         self.assertNotIn("action_open_encounters", arch)
         self.assertNotIn("no_open", arch)
+        self.assertFalse(self.env.ref(
+            "emr_veterinary.menu_emr_veterinary_encounters", raise_if_not_found=False
+        ))
+        self.assertFalse(self.env.ref(
+            "emr_veterinary.menu_emr_veterinary_prevention", raise_if_not_found=False
+        ))
+        self.assertTrue(self.env.ref("emr_veterinary.emr_encounter_veterinary_action"))
+        self.assertTrue(self.env.ref("emr_veterinary.emr_pet_prevention_action"))
+        for model_name in (
+            "emr.pet.prevention",
+            "emr.pet.weight",
+            "emr.encounter",
+            "emr.veterinary.prescription",
+            "sale.order",
+            "emr.appointment.book",
+            "emr.appointment.charge",
+        ):
+            field = self.env[model_name]._fields["pet_id"]
+            self.assertEqual(field.string, "Mascota", model_name)
         self.assertNotIn(">Date<", arch)
         self.assertNotIn('string="State"', arch)
         self.assertNotIn('string="Name"', arch)
+        self.assertNotIn('string="Pet"', arch)
 
     def test_deceased_field_is_on_the_pet_section(self):
         self.assertEqual(self.env["emr.pet"]._fields["deceased"].string, "Mascota fallecida")

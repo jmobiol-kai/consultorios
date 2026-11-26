@@ -131,8 +131,12 @@
                             </field>
                         </page>
                         <page name="prevention" string="Vacunas y desparasitación">
-                            <field name="prevention_ids">
+                            <button name="action_new_prevention" type="object"
+                                    string="Nueva aplicación" class="btn-link"
+                                    icon="fa-plus" invisible="not id"/>
+                            <field name="prevention_ids" context="{'default_pet_id': id}">
                                 <list editable="bottom">
+                                    <field name="pet_id" column_invisible="1"/>
                                     <field name="date"/>
                                     <field name="kind"/>
                                     <field name="product_id"/>

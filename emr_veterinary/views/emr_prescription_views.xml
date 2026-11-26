@@ -13,7 +13,7 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="pet_id"/>
+                            <field name="pet_id" string="Mascota"/>
                             <field name="owner_id"/>
                             <field name="date"/>
                         </group>
