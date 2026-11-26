@@ -206,6 +206,65 @@ class TestTurnosBooking(TransactionCase):
         menu = self.env["website.menu"].search([("url", "=", "/turnos")])
         self.assertTrue(menu)
 
+    def test_slots_payload_uses_buenos_aires_without_seconds(self):
+        other = self.env["res.partner"].create({
+            "name": "Lau",
+            "is_practitioner": True,
+            "emr_calendar_color": 2,
+        })
+        self.vet.emr_calendar_color = 4
+        now = fields.Datetime.now().replace(minute=0, second=0, microsecond=0)
+        start = now + timedelta(days=20, hours=0)
+        start = start.replace(hour=18)
+        local_day = (start - timedelta(hours=3)).date()
+        window_start = (local_day - timedelta(days=2)).isoformat()
+        window_end = (local_day + timedelta(days=2)).isoformat()
+        self.env["emr.slot"].create({
+            "practitioner_id": self.vet.id,
+            "start": start,
+            "stop": start + timedelta(minutes=30),
+            "duration": 30,
+            "slot_type": "scheduled",
+        })
+        later = start + timedelta(hours=1)
+        self.env["emr.slot"].create({
+            "practitioner_id": other.id,
+            "start": later,
+            "stop": later + timedelta(minutes=30),
+            "duration": 30,
+            "slot_type": "scheduled",
+        })
+        past = now - timedelta(days=3)
+        past = past.replace(hour=18)
+        self.env["emr.slot"].create({
+            "practitioner_id": self.vet.id,
+            "start": past,
+            "stop": past + timedelta(minutes=30),
+            "duration": 30,
+            "slot_type": "scheduled",
+        })
+        payload = self.Booking.slots_payload(window_start, window_end)
+        self.assertEqual(payload["timezone"], "America/Buenos_Aires")
+        mine = [
+            row for row in payload["slots"]
+            if row["date"] == local_day.isoformat() and row["practitioner_id"] == self.vet.id
+        ]
+        self.assertEqual(len(mine), 1)
+        self.assertEqual(mine[0]["start"], "15:00")
+        self.assertEqual(mine[0]["stop"], "15:30")
+        self.assertNotRegex(mine[0]["start"], r":\d{2}:\d{2}")
+        past_day = (past - timedelta(hours=3)).date().isoformat()
+        past_payload = self.Booking.slots_payload(past_day, past_day)
+        self.assertFalse(past_payload["slots"])
+        filtered = self.Booking.slots_payload(window_start, window_end, professional_id=other.id)
+        self.assertEqual(len(filtered["slots"]), 1)
+        self.assertEqual(filtered["slots"][0]["start"], "16:00")
+        self.assertEqual(filtered["practitioners"][0]["name"], "Lau")
+        self.assertEqual(filtered["practitioners"][0]["color"], 2)
+        self.assertTrue(filtered["practitioners"][0]["color_hex"].startswith("#"))
+        with self.assertRaises(UserError):
+            self.Booking.slots_payload("no-es-fecha", window_end)
+
 
 @tagged("post_install", "-at_install")
 class TestTurnosController(HttpCase):
@@ -230,7 +289,8 @@ class TestTurnosController(HttpCase):
         page = self.url_open("/turnos")
         self.assertEqual(page.status_code, 200)
         self.assertIn("Pedir un turno", page.text)
-        self.assertIn(str(self.slot.id), page.text)
+        self.assertIn("Hoy", page.text)
+        self.assertNotIn('type="radio"', page.text)
         token = page.text.partition('name="csrf_token" value="')[2].partition('"')[0]
         self.assertTrue(token)
         done = self.url_open("/turnos/confirmar", data={
@@ -256,3 +316,13 @@ class TestTurnosController(HttpCase):
         self.assertEqual(self.slot.order_id, order)
         missing = self.url_open("/turnos/confirmado/%s" % order.id)
         self.assertEqual(missing.status_code, 404)
+
+    def test_huecos_endpoint_returns_json(self):
+        response = self.url_open("/turnos/huecos?start=2026-12-01&end=2026-12-07")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["timezone"], "America/Buenos_Aires")
+        self.assertIn("slots", payload)
+        self.assertRegex(payload["today"], r"^\d{4}-\d{2}-\d{2}$")
+        bad = self.url_open("/turnos/huecos?start=no&end=2026-12-07")
+        self.assertEqual(bad.status_code, 400)

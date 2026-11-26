@@ -19,6 +19,26 @@ class VeterinaryTurnos(http.Controller):
         return request.render("emr_veterinary_website.turnos_page", values)
 
     @http.route(
+        "/turnos/huecos",
+        type="http",
+        auth="public",
+        website=True,
+        methods=["GET"],
+        csrf=False,
+        sitemap=False,
+    )
+    def huecos(self, start=None, end=None, professional_id=None, **kwargs):
+        try:
+            payload = request.env["emr.veterinary.website.booking"].sudo().slots_payload(
+                start, end, professional_id
+            )
+        except (UserError, ValidationError) as err:
+            return request.make_json_response(
+                {"error": str(err.args[0] if err.args else err)}, status=400
+            )
+        return request.make_json_response(payload)
+
+    @http.route(
         "/turnos/confirmar",
         type="http",
         auth="public",

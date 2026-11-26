@@ -3,7 +3,9 @@
 # directory
 ##############################################################################
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
+
+from pytz import timezone, utc
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -15,7 +17,21 @@ _logger = logging.getLogger(__name__)
 _WINDOW = timedelta(hours=1)
 _MAX_PER_IP = 5
 _MAX_PER_EMAIL = 3
-_HORIZON = timedelta(days=21)
+_TZ = timezone("America/Buenos_Aires")
+# Los mismos 11 tonos de la agenda interna. El índice es emr_calendar_color.
+_COLORS = (
+    "#875A7B",
+    "#00A09D",
+    "#E46C78",
+    "#F4A261",
+    "#2A9D8F",
+    "#5C7CFA",
+    "#9B5DE5",
+    "#2B9348",
+    "#E85D04",
+    "#1D4E89",
+    "#C44569",
+)
 
 
 def _digits(value):
@@ -27,6 +43,14 @@ def _as_int(value):
         return int(value)
     except (TypeError, ValueError):
         return 0
+
+
+def _as_local(moment):
+    if not moment:
+        return None
+    if moment.tzinfo is None:
+        moment = utc.localize(moment)
+    return moment.astimezone(_TZ)
 
 
 class EmrVeterinaryWebsiteBooking(models.AbstractModel):
@@ -48,28 +72,84 @@ class EmrVeterinaryWebsiteBooking(models.AbstractModel):
         chosen = practitioners.browse(_as_int(practitioner_id)).exists()
         if chosen not in practitioners:
             chosen = self.env["res.partner"]
-        now = fields.Datetime.now()
-        domain = [
-            ("available", "=", True),
-            ("slot_type", "=", "scheduled"),
-            ("start", ">=", now),
-            ("start", "<=", now + _HORIZON),
-        ]
-        if chosen:
-            domain.append(("practitioner_id", "=", chosen.id))
+        selected = self.env["emr.slot"].browse(_as_int(post.get("slot_id"))).exists()
+        summary = ""
+        if selected:
+            local = _as_local(selected.start)
+            summary = "%s · %s · %s" % (
+                local.strftime("%d/%m/%Y"),
+                local.strftime("%H:%M"),
+                selected.practitioner_id.name or "",
+            )
         return {
             "practitioners": practitioners,
             "practitioner": chosen,
             "practices": self.env["sale.order.template"].search(
                 [("is_appointment", "=", True)], order="name"
             ),
-            "slots": self.env["emr.slot"].search(
-                domain, order="start, practitioner_id", limit=80
-            ),
             "species": self.env["emr.pet.species"].search([], order="name"),
             "breeds": self.env["emr.pet.breed"].search([], order="name"),
             "post": post,
+            "selected": selected,
+            "slot_summary": summary,
             "error": False,
+        }
+
+    @api.model
+    def slots_payload(self, start, end, professional_id=None):
+        """Huecos libres entre dos fechas, en hora de Buenos Aires.
+
+        ``start`` y ``end`` son días ``YYYY-MM-DD``. La hora va sin segundos.
+        """
+        try:
+            start_day = fields.Date.to_date(start)
+            end_day = fields.Date.to_date(end)
+        except (ValueError, TypeError) as err:
+            raise UserError(_("El rango de fechas no es válido.")) from err
+        if not start_day or not end_day or end_day < start_day:
+            raise UserError(_("El rango de fechas no es válido."))
+        if (end_day - start_day).days > 45:
+            end_day = start_day + timedelta(days=45)
+        start_utc = _TZ.localize(datetime.combine(start_day, datetime.min.time())).astimezone(utc).replace(tzinfo=None)
+        end_utc = _TZ.localize(datetime.combine(end_day, datetime.max.time())).astimezone(utc).replace(tzinfo=None)
+        now = fields.Datetime.now()
+        domain = [
+            ("available", "=", True),
+            ("slot_type", "=", "scheduled"),
+            ("start", ">=", max(start_utc, now)),
+            ("start", "<=", end_utc),
+        ]
+        professional = self.env["res.partner"].browse(_as_int(professional_id)).exists()
+        if professional and professional.is_practitioner:
+            domain.append(("practitioner_id", "=", professional.id))
+        slots = self.env["emr.slot"].search(domain, order="start, practitioner_id")
+        practitioners = {}
+        rows = []
+        for slot in slots:
+            local = _as_local(slot.start)
+            stop = _as_local(slot.stop) if slot.stop else local + timedelta(minutes=slot.duration or 30)
+            vet = slot.practitioner_id
+            color = vet.emr_calendar_color or ((vet.id % 11) + 1)
+            practitioners[vet.id] = {
+                "id": vet.id,
+                "name": vet.name or "",
+                "color": color,
+                "color_hex": _COLORS[(color - 1) % len(_COLORS)],
+            }
+            rows.append({
+                "id": slot.id,
+                "practitioner_id": vet.id,
+                "date": local.strftime("%Y-%m-%d"),
+                "start": local.strftime("%H:%M"),
+                "stop": stop.strftime("%H:%M"),
+                "location": slot.location_id.name or "",
+            })
+        today = datetime.now(_TZ).strftime("%Y-%m-%d")
+        return {
+            "timezone": "America/Buenos_Aires",
+            "today": today,
+            "practitioners": list(practitioners.values()),
+            "slots": rows,
         }
 
     @api.model

@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "Sitio de la veterinaria",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Website",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -50,6 +50,12 @@ clínica», sin pasarela online. Esos pedidos entran en Movimientos del día.
         "views/turnos_templates.xml",
         "views/website_menus.xml",
     ],
+    "assets": {
+        "web.assets_frontend": [
+            "emr_veterinary_website/static/src/scss/turnos.scss",
+            "emr_veterinary_website/static/src/js/turnos.js",
+        ],
+    },
     "installable": True,
     "auto_install": False,
     "application": False,

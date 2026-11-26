@@ -6,12 +6,13 @@
             <div id="wrap" class="oe_structure">
                 <div class="container py-4 o_emr_turnos">
                     <h1>Pedir un turno</h1>
-                    <p class="text-muted">Sin cuenta. Elegí un horario libre y dejá los datos del dueño y de la mascota.</p>
+                    <p class="text-muted">Sin cuenta. Elegí un día, un horario libre y dejá los datos del dueño y de la mascota.</p>
                     <div t-if="error" class="alert alert-danger" role="alert" t-out="error"/>
-                    <form action="/turnos" method="get" class="row g-2 align-items-end mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label" for="emr_practitioner">Profesional (opcional)</label>
-                            <select id="emr_practitioner" name="practitioner_id" class="form-select">
+                    <div class="o_emr_layout">
+                        <aside class="o_emr_side">
+                            <div class="o_emr_mini" aria-label="Mes"/>
+                            <label class="form-label mt-3" for="emr_practitioner">Profesional (opcional)</label>
+                            <select id="emr_practitioner" class="form-select o_emr_filter">
                                 <option value="">Cualquiera</option>
                                 <t t-foreach="practitioners" t-as="vet">
                                     <option t-att-value="vet.id"
@@ -20,34 +21,31 @@
                                     </option>
                                 </t>
                             </select>
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-outline-secondary">Ver horarios</button>
-                        </div>
-                    </form>
-                    <form action="/turnos/confirmar" method="post" class="row g-3">
+                        </aside>
+                        <section class="o_emr_main">
+                            <div class="o_emr_toolbar">
+                                <button type="button" class="btn btn-outline-secondary" data-nav="prev" aria-label="Mes anterior">‹</button>
+                                <button type="button" class="btn btn-outline-secondary" data-nav="today">Hoy</button>
+                                <button type="button" class="btn btn-outline-secondary" data-nav="next" aria-label="Mes siguiente">›</button>
+                                <h2 class="o_emr_title h5 mb-0"/>
+                                <button type="button" class="btn btn-link o_emr_back d-none" data-nav="month">Mes</button>
+                            </div>
+                            <div class="o_emr_calendar" role="grid" aria-label="Agenda"/>
+                        </section>
+                    </div>
+                    <form t-attf-class="o_emr_form row g-3 mt-4 #{'' if error or selected else 'd-none'}"
+                          action="/turnos/confirmar" method="post" id="emr_booking">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <input t-if="practitioner" type="hidden" name="practitioner_id" t-att-value="practitioner.id"/>
+                        <input type="hidden" name="slot_id" t-att-value="selected.id if selected else ''"/>
+                        <input type="hidden" name="practitioner_id"
+                               t-att-value="(selected.practitioner_id.id if selected else (practitioner.id if practitioner else ''))"/>
                         <div class="emr-hp" aria-hidden="true">
                             <label for="emr_hp">Sitio web</label>
                             <input id="emr_hp" type="text" name="emr_hp" tabindex="-1" autocomplete="off"/>
                         </div>
                         <div class="col-12">
-                            <h2 class="h4">Horario</h2>
-                            <t t-if="not slots">
-                                <p>No hay horarios libres en las próximas tres semanas.</p>
-                            </t>
-                            <div class="list-group">
-                                <t t-foreach="slots" t-as="slot">
-                                    <label class="list-group-item">
-                                        <input type="radio" name="slot_id" t-att-value="slot.id" required="required"
-                                               t-att-checked="post.get('slot_id') == str(slot.id) and 'checked' or False"/>
-                                        <t t-out="slot.start" t-options="{'widget': 'datetime'}"/>
-                                        — <t t-out="slot.practitioner_id.name"/>
-                                        <t t-if="slot.location_id"> (<t t-out="slot.location_id.name"/>)</t>
-                                    </label>
-                                </t>
-                            </div>
+                            <h2 class="h4">Turno elegido</h2>
+                            <p class="o_emr_summary mb-0" t-out="slot_summary or 'Elegí un horario en la agenda.'"/>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" for="emr_practice">Práctica (opcional)</label>
@@ -128,25 +126,6 @@
                             <button type="submit" class="btn btn-primary">Confirmar turno</button>
                         </div>
                     </form>
-                    <style>
-                        .emr-hp{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
-                    </style>
-                    <script>
-                        (function () {
-                            var species = document.getElementById('emr_species');
-                            var breed = document.getElementById('emr_breed');
-                            if (!species || !breed) return;
-                            function filter() {
-                                var current = species.value;
-                                Array.prototype.forEach.call(breed.options, function (option) {
-                                    if (!option.value) { option.hidden = false; return; }
-                                    option.hidden = current &amp;&amp; option.getAttribute('data-species') !== current;
-                                });
-                            }
-                            species.addEventListener('change', filter);
-                            filter();
-                        })();
-                    </script>
                 </div>
             </div>
         </t>

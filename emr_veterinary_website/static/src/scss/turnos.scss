@@ -1,0 +1,165 @@
+.o_emr_turnos {
+    --emr-line: var(--o-color-3, var(--bs-border-color, #dee2e6));
+    --emr-muted: var(--bs-secondary-color, #6c757d);
+    --emr-today: var(--o-color-1, var(--bs-primary, #714b67));
+
+    .emr-hp {
+        position: absolute;
+        left: -10000px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    .o_emr_layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .o_emr_toolbar {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .o_emr_title {
+        margin-left: .25rem;
+        text-transform: capitalize;
+    }
+
+    .o_emr_weekdays,
+    .o_emr_week {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .o_emr_weekdays span {
+        text-align: center;
+        font-size: .75rem;
+        color: var(--emr-muted);
+        padding-bottom: .25rem;
+    }
+
+    .o_emr_day {
+        min-height: 6.5rem;
+        border: 1px solid var(--emr-line);
+        background: var(--bs-body-bg, #fff);
+        padding: .25rem;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .o_emr_day.is-muted {
+        background: var(--bs-tertiary-bg, #f8f9fa);
+        color: var(--emr-muted);
+        cursor: default;
+    }
+
+    .o_emr_day.is-out {
+        opacity: .55;
+    }
+
+    .o_emr_day.is-today .o_emr_num {
+        background: var(--emr-today);
+        color: #fff;
+        border-radius: 999px;
+        padding: 0 .35rem;
+    }
+
+    .o_emr_chip {
+        display: block;
+        width: 100%;
+        border: 0;
+        border-radius: 999px;
+        color: #fff;
+        font-size: .7rem;
+        line-height: 1.3;
+        margin-top: .2rem;
+        padding: .1rem .4rem;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .o_emr_mini .o_emr_day {
+        min-height: 1.6rem;
+        font-size: .75rem;
+        padding: 0;
+        text-align: center;
+    }
+
+    .o_emr_daygrid {
+        display: grid;
+        grid-template-columns: 3.5rem repeat(var(--emr-cols, 1), minmax(0, 1fr));
+        border-top: 1px solid var(--emr-line);
+        position: relative;
+    }
+
+    .o_emr_hour,
+    .o_emr_colhead {
+        font-size: .75rem;
+        color: var(--emr-muted);
+        border-bottom: 1px solid var(--emr-line);
+        padding: .15rem;
+    }
+
+    .o_emr_col {
+        position: relative;
+        border-left: 1px solid var(--emr-line);
+        min-height: 2rem;
+    }
+
+    .o_emr_block {
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        border: 0;
+        border-radius: .35rem;
+        color: #fff;
+        font-size: .75rem;
+        text-align: left;
+        padding: .15rem .35rem;
+        overflow: hidden;
+    }
+
+    .o_emr_block.is-selected {
+        outline: 2px solid var(--emr-today);
+        outline-offset: 1px;
+    }
+
+    .o_emr_daylist .o_emr_block {
+        position: static;
+        display: block;
+        width: 100%;
+        margin-bottom: .35rem;
+    }
+
+    @media (max-width: 767.98px) {
+        .o_emr_layout {
+            grid-template-columns: 1fr;
+        }
+
+        .o_emr_side .o_emr_mini {
+            display: none;
+        }
+
+        .o_emr_day {
+            min-height: 4.5rem;
+        }
+
+        .o_emr_daygrid {
+            display: none;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .o_emr_daylist {
+            display: none;
+        }
+    }
+}
