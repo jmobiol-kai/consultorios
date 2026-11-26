@@ -4,6 +4,7 @@
 ##############################################################################
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.fields import Domain
 
 from odoo.addons.emr.models.calendar_label import appointment_calendar_lines
 
@@ -86,3 +87,11 @@ class SaleOrder(models.Model):
                 SaleOrder, self.with_context(default_pet_id=self.pet_id.id)
             )._open_encounter()
         return super()._open_encounter()
+
+    def _get_product_catalog_domain(self):
+        domain = super()._get_product_catalog_domain()
+        if self.env.context.get("emr_veterinary_counter_sale"):
+            domain &= Domain(
+                "veterinary_kind", "in", ("medicine", "accessory", "food")
+            )
+        return domain

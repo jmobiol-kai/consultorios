@@ -7,6 +7,7 @@ from . import emr_pet
 from . import emr_pet_weight
 from . import emr_pet_prevention
 from . import emr_veterinary_consumption
+from . import emr_veterinary_movement
 from . import emr_veterinary_prescription
 from . import emr_encounter
 from . import product_template

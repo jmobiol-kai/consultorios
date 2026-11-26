@@ -33,7 +33,7 @@
                                 · <span t-out="doc.owner_id.phone"/>
                             </span>
                         </div>
-                        <div t-if="doc.deceased" class="text-danger">Fallecido
+                        <div t-if="doc.deceased" class="text-danger">Mascota fallecida
                             <span t-if="doc.deceased_date" t-out="doc.deceased_date" t-options="{'widget': 'date'}"/>
                         </div>
                     </div>

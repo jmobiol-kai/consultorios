@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_veterinary_movement_view_search" model="ir.ui.view">
+        <field name="name">emr.veterinary.movement.search</field>
+        <field name="model">emr.veterinary.movement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="pet_id" string="Mascota"/>
+                <field name="partner_id" string="Dueño"/>
+                <field name="practitioner_id" string="Profesional"/>
+                <filter name="today" string="Hoy"
+                        domain="[('date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                 ('date', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <separator/>
+                <filter name="consulta" string="Consultas" domain="[('move_type', '=', 'consulta')]"/>
+                <filter name="venta" string="Ventas" domain="[('move_type', '=', 'venta')]"/>
+                <group>
+                    <filter name="group_date" string="Fecha" context="{'group_by': 'date:day'}"/>
+                    <filter name="group_practitioner" string="Profesional" context="{'group_by': 'practitioner_id'}"/>
+                    <filter name="group_partner" string="Dueño" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_type" string="Tipo" context="{'group_by': 'move_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_veterinary_movement_view_list" model="ir.ui.view">
+        <field name="name">emr.veterinary.movement.list</field>
+        <field name="model">emr.veterinary.movement</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false" sample="0">
+                <header>
+                    <button name="action_new_sale" type="object" string="Nuevo"
+                            display="always" class="btn-primary"/>
+                </header>
+                <field name="date"/>
+                <field name="move_type" widget="badge"
+                       decoration-info="move_type == 'consulta'"
+                       decoration-success="move_type == 'venta'"/>
+                <field name="pet_id" string="Mascota"/>
+                <field name="partner_id" string="Dueño"/>
+                <field name="practitioner_id" string="Profesional"/>
+                <field name="amount_total" widget="monetary"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state_label" string="Estado"/>
+                <button name="action_open_origin" type="object" string="Abrir"
+                        icon="fa-external-link" title="Abrir el documento"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_veterinary_movement_view_form" model="ir.ui.view">
+        <field name="name">emr.veterinary.movement.form</field>
+        <field name="model">emr.veterinary.movement</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_open_origin" type="object" string="Abrir documento"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="move_type"/>
+                            <field name="date"/>
+                            <field name="name"/>
+                            <field name="state_label"/>
+                        </group>
+                        <group>
+                            <field name="pet_id" string="Mascota"/>
+                            <field name="partner_id" string="Dueño"/>
+                            <field name="practitioner_id" string="Profesional"/>
+                            <field name="amount_total" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_veterinary_movement_action" model="ir.actions.act_window">
+        <field name="name">Movimientos del día</field>
+        <field name="res_model">emr.veterinary.movement</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="emr_veterinary_movement_view_search"/>
+        <field name="context">{'search_default_today': 1}</field>
+    </record>
+
+    <!-- Venta de mostrador. El pedido estándar confirma, entrega y factura.
+         Los productos son medicamentos, accesorios y alimento. -->
+    <record id="sale_order_view_form_counter_sale" model="ir.ui.view">
+        <field name="name">sale.order.form.veterinary.counter</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']//field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">[('sale_ok', '=', True), ('veterinary_kind', 'in', ('medicine', 'accessory', 'food'))]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

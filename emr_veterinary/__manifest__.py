@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "Veterinaria",
-    "version": "19.0.1.3.0",
+    "version": "19.0.1.4.0",
     "category": "Services",
     "author": "filoquin",
     "license": "AGPL-3",
@@ -60,6 +60,7 @@ El panel de historia y el PDF quedan en la ficha de la mascota.
         "views/sale_order_views.xml",
         "views/emr_appointment_book_views.xml",
         "views/emr_appointment_charge_views.xml",
+        "views/emr_veterinary_movement_views.xml",
         "report/emr_encounter_reports.xml",
         "report/emr_prescription_report.xml",
         "report/emr_pet_history_report.xml",

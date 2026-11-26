@@ -347,9 +347,13 @@ class TestVeterinary(TransactionCase):
         for xmlid in (
             "emr_veterinary.menu_emr_veterinary_procedures",
             "emr_veterinary.menu_emr_veterinary_locations",
-            "emr_veterinary.menu_emr_veterinary_attentions",
+            "emr_veterinary.menu_emr_veterinary_movements",
         ):
             self.assertIn(self.env.ref(xmlid).id, manager_menus)
+        self.assertFalse(self.env.ref(
+            "emr_veterinary.menu_emr_veterinary_attentions", raise_if_not_found=False
+        ))
+        self.assertTrue(self.env.ref("emr.emr_encounter_action"))
 
         admin_menus = Menu.with_user(self.env.ref("base.user_admin"))._visible_menu_ids(False)
         self.assertIn(root.id, admin_menus)
@@ -365,10 +369,6 @@ class TestVeterinary(TransactionCase):
         self.assertEqual(
             self.env.ref("emr_veterinary.menu_emr_veterinary_locations").action,
             self.env.ref("emr.emr_location_action"),
-        )
-        self.assertEqual(
-            self.env.ref("emr_veterinary.menu_emr_veterinary_attentions").action,
-            self.env.ref("emr.emr_encounter_action"),
         )
 
     def test_color_catalog_and_legacy_text(self):
@@ -439,7 +439,8 @@ class TestVeterinary(TransactionCase):
         arch = self.env["emr.pet"].get_view()["arch"]
         self.assertIn('string="Fecha"', arch)
         self.assertIn('string="Estado"', arch)
-        self.assertIn("Nueva consulta", arch)
+        self.assertIn("Mascota fallecida", arch)
+        self.assertNotIn('title="Fallecido"', arch)
         self.assertIn("Nueva aplicación", arch)
         self.assertIn('name="consultation_ids"', arch)
         self.assertNotIn("action_open_encounters", arch)
@@ -467,6 +468,134 @@ class TestVeterinary(TransactionCase):
         self.assertNotIn('string="State"', arch)
         self.assertNotIn('string="Name"', arch)
         self.assertNotIn('string="Pet"', arch)
+
+    def test_day_movements_list_consultations_and_sales_once(self):
+        medicine = self.env["product.product"].create({
+            "name": "Comprimido suelto",
+            "type": "consu",
+            "is_storable": True,
+            "veterinary_kind": "medicine",
+            "list_price": 500,
+        })
+        food = self.env["product.product"].create({
+            "name": "Bolsa de alimento",
+            "type": "consu",
+            "is_storable": True,
+            "veterinary_kind": "food",
+            "list_price": 2000,
+        })
+        warehouse = self.env["stock.warehouse"].search(
+            [("company_id", "=", self.env.company.id)], limit=1
+        )
+        self.env["stock.quant"]._update_available_quantity(
+            medicine, warehouse.lot_stock_id, 10
+        )
+        self.env["stock.quant"]._update_available_quantity(
+            food, warehouse.lot_stock_id, 10
+        )
+        Movement = self.env["emr.veterinary.movement"]
+        visit = self._visit(self.pet, reason="Control")
+        service_order = self.env["sale.order"].create({
+            "partner_id": self.owner.id,
+            "pet_id": self.pet.id,
+            "is_appointment": True,
+            "practitioner_id": self.vet.id,
+            "order_line": [Command.create({
+                "product_id": self.env.ref(
+                    "emr_veterinary.product_consulta_veterinaria"
+                ).id,
+                "product_uom_qty": 1,
+            })],
+        })
+        visit.order_id = service_order
+        self.env.flush_all()
+        service_only = Movement.search([
+            ("res_model", "=", "sale.order"),
+            ("res_id", "=", service_order.id),
+        ])
+        self.assertFalse(service_only)
+        consulta = Movement.search([
+            ("move_type", "=", "consulta"),
+            ("res_id", "=", visit.id),
+        ])
+        self.assertEqual(len(consulta), 1)
+        self.assertEqual(consulta.pet_id, self.pet)
+        self.assertEqual(consulta.partner_id, self.owner)
+
+        retail_order = self.env["sale.order"].create({
+            "partner_id": self.owner.id,
+            "pet_id": self.pet.id,
+            "is_appointment": True,
+            "practitioner_id": self.vet.id,
+            "order_line": [
+                Command.create({
+                    "product_id": medicine.id,
+                    "product_uom_qty": 2,
+                }),
+                Command.create({
+                    "product_id": food.id,
+                    "product_uom_qty": 1,
+                }),
+            ],
+        })
+        visit.order_id = retail_order
+        self.env.flush_all()
+        sales = Movement.search([
+            ("res_model", "=", "sale.order"),
+            ("res_id", "=", retail_order.id),
+        ])
+        self.assertEqual(len(sales), 1)
+        self.assertEqual(sales.move_type, "venta")
+        self.assertEqual(sales.partner_id, self.owner)
+        self.assertEqual(sales.pet_id, self.pet)
+        self.assertAlmostEqual(sales.amount_total, retail_order.amount_total)
+        opened = sales.action_open_origin()
+        self.assertEqual(opened["res_model"], "sale.order")
+        self.assertEqual(opened["res_id"], retail_order.id)
+
+        counter = self.env["sale.order"].create({
+            "partner_id": self.owner.id,
+            "is_appointment": False,
+            "order_line": [Command.create({
+                "product_id": food.id,
+                "product_uom_qty": 1,
+            })],
+        })
+        self.env.flush_all()
+        counter_rows = Movement.search([
+            ("res_model", "=", "sale.order"),
+            ("res_id", "=", counter.id),
+        ])
+        self.assertEqual(len(counter_rows), 1)
+        self.assertFalse(counter_rows.pet_id)
+
+        action = Movement.action_new_sale()
+        self.assertEqual(action["res_model"], "sale.order")
+        self.assertFalse(action["context"]["default_is_appointment"])
+        self.assertTrue(action["context"]["emr_veterinary_counter_sale"])
+        self.assertEqual(
+            self.env.ref("emr_veterinary.emr_veterinary_movement_action").context,
+            "{'search_default_today': 1}",
+        )
+
+        counter.action_confirm()
+        self.assertEqual(counter.state, "sale")
+        self.assertTrue(counter.picking_ids)
+        picking = counter.picking_ids
+        picking.action_assign()
+        for move in picking.move_ids:
+            move.quantity = move.product_uom_qty
+            move.picked = True
+        picking.button_validate()
+        self.assertEqual(picking.state, "done")
+        invoice = counter._create_invoices()
+        self.assertEqual(invoice.partner_id, self.owner)
+        self.assertEqual(
+            self.env["stock.quant"]._get_available_quantity(
+                food, warehouse.lot_stock_id
+            ),
+            9,
+        )
 
     def test_deceased_field_is_on_the_pet_section(self):
         self.assertEqual(self.env["emr.pet"]._fields["deceased"].string, "Mascota fallecida")

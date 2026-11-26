@@ -8,6 +8,8 @@ access_emr_pet_breed_manager,emr.pet.breed manager,model_emr_pet_breed,emr.group
 access_emr_pet_color_reception,emr.pet.color reception,model_emr_pet_color,emr.group_emr_reception,1,0,0,0
 access_emr_pet_color_practitioner,emr.pet.color practitioner,model_emr_pet_color,emr.group_emr_practitioner,1,1,1,0
 access_emr_pet_color_manager,emr.pet.color manager,model_emr_pet_color,emr.group_emr_manager,1,1,1,1
+access_emr_veterinary_movement_reception,emr.veterinary.movement reception,model_emr_veterinary_movement,emr.group_emr_reception,1,0,0,0
+access_emr_veterinary_movement_manager,emr.veterinary.movement manager,model_emr_veterinary_movement,emr.group_emr_manager,1,0,0,0
 access_emr_pet_reception,emr.pet reception,model_emr_pet,emr.group_emr_reception,1,1,1,0
 access_emr_pet_practitioner,emr.pet practitioner,model_emr_pet,emr.group_emr_practitioner,1,1,1,0
 access_emr_pet_manager,emr.pet manager,model_emr_pet,emr.group_emr_manager,1,1,1,1

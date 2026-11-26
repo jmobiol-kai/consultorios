@@ -11,6 +11,10 @@
               parent="menu_emr_veterinary_root"
               action="sale_order_action_veterinary" sequence="10"/>
 
+    <menuitem id="menu_emr_veterinary_movements" name="Movimientos del día"
+              parent="menu_emr_veterinary_root"
+              action="emr_veterinary_movement_action" sequence="15"/>
+
     <menuitem id="menu_emr_veterinary_pets" name="Mascotas"
               parent="menu_emr_veterinary_root"
               action="emr_pet_action" sequence="20"/>
@@ -20,13 +24,8 @@
               parent="menu_emr_veterinary_root"
               action="emr.res_partner_action_practitioner" sequence="25"/>
 
-    <!-- Consultas y vacunas no van en el menú: se cargan desde la ficha
-         de la mascota. Las acciones siguen, las usan esas pestañas. -->
-    <menuitem id="menu_emr_veterinary_attentions" name="Atenciones"
-              parent="menu_emr_veterinary_root"
-              action="emr.emr_encounter_action" sequence="35"
-              groups="emr.group_emr_practitioner"/>
-
+    <!-- Atenciones no va en el menú: la historia está en la ficha y el
+         día se mira en Movimientos del día. La acción de emr sigue. -->
     <menuitem id="menu_emr_veterinary_config" name="Configuración"
               parent="menu_emr_veterinary_root" sequence="90"
               groups="emr.group_emr_manager"/>

@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
             <field name="practitioner_id" position="before">
                 <field name="pet_id" string="Mascota"
-                       invisible="not pet_id and not context.get('emr_veterinary')"
+                       invisible="not pet_id and not context.get('emr_veterinary') and not context.get('emr_veterinary_counter_sale')"
                        options="{'no_quick_create': True}"/>
             </field>
         </field>

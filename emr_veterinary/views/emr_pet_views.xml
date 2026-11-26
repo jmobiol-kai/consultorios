@@ -75,7 +75,7 @@
                             class="btn-secondary" icon="fa-file-pdf-o"/>
                 </header>
                 <sheet>
-                    <widget name="web_ribbon" title="Fallecido" bg_color="text-bg-danger"
+                    <widget name="web_ribbon" title="Mascota fallecida" bg_color="text-bg-danger"
                             invisible="not deceased"/>
                     <field name="image_1920" widget="image" class="oe_avatar"
                            options="{'preview_image': 'image_1920'}"/>
