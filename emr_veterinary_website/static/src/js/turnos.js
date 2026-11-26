@@ -177,17 +177,16 @@ export class TurnosCalendar extends Interaction {
         }
         button.append(el("span", "o_emr_num", String(date.getDate())));
         if (!mini && !muted) {
-            const counts = new Map();
-            slots.forEach((slot) => {
-                counts.set(slot.practitioner_id, (counts.get(slot.practitioner_id) || 0) + 1);
-            });
-            counts.forEach((count, id) => {
+            const seen = new Set();
+            slots.forEach((slot) => seen.add(slot.practitioner_id));
+            seen.forEach((id) => {
                 const vet = this.practitioner(id);
-                const chip = el("span", "o_emr_chip", `${vet.name} · ${count} libres`);
+                const chip = el("span", "o_emr_chip", vet.name);
                 chip.style.background = vet.color_hex;
-                const dot = el("span", "o_emr_dot", String(count));
+                const dot = el("span", "o_emr_dot");
                 dot.style.background = vet.color_hex;
-                dot.title = `${vet.name} · ${count} libres`;
+                dot.title = vet.name;
+                dot.setAttribute("aria-label", vet.name);
                 button.append(chip, dot);
             });
         }
