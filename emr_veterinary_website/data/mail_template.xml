@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="mail_template_turno" model="mail.template">
+        <field name="name">Turno: confirmación al dueño</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="subject">Turno reservado {{ object.name }}</field>
+        <field name="email_from">{{ object.company_id.email_formatted or user.email_formatted }}</field>
+        <field name="use_default_to" eval="True"/>
+        <field name="auto_delete" eval="False"/>
+        <field name="description">Se encola al confirmar un turno desde /turnos, si hay correo del dueño.</field>
+        <field name="body_html" type="html">
+<div>
+    <p>Hola <t t-out="object.partner_id.name or ''"/>,</p>
+    <p>
+        Reservamos un turno para <strong t-out="object.pet_id.name or ''"/>.
+    </p>
+    <p>
+        <t t-out="object.appointment_start" t-options="{'widget': 'datetime'}"/>
+        <t t-if="object.practitioner_id">
+            con <t t-out="object.practitioner_id.name"/>.
+        </t>
+    </p>
+    <p>Referencia: <t t-out="object.name or ''"/>.</p>
+    <p>El pago de la consulta se realiza en la clínica.</p>
+</div>
+        </field>
+    </record>
+
+</odoo>
