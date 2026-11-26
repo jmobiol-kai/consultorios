@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Colores y pelajes frecuentes, en español de Argentina.
+         noupdate: se pueden editar. Un xml id nuevo se crea igual al
+         actualizar una base que todavía no lo tenía. -->
+
+    <!-- Perro -->
+    <record id="color_dog_negro" model="emr.pet.color">
+        <field name="name">Negro</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_blanco" model="emr.pet.color">
+        <field name="name">Blanco</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_marron" model="emr.pet.color">
+        <field name="name">Marrón</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_chocolate" model="emr.pet.color">
+        <field name="name">Chocolate</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_dorado" model="emr.pet.color">
+        <field name="name">Dorado</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_crema" model="emr.pet.color">
+        <field name="name">Crema</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_gris" model="emr.pet.color">
+        <field name="name">Gris</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_azul" model="emr.pet.color">
+        <field name="name">Azul</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_atigrado" model="emr.pet.color">
+        <field name="name">Atigrado</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_tricolor" model="emr.pet.color">
+        <field name="name">Tricolor</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_blanco_y_negro" model="emr.pet.color">
+        <field name="name">Blanco y negro</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_negro_y_fuego" model="emr.pet.color">
+        <field name="name">Negro y fuego</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_fuego" model="emr.pet.color">
+        <field name="name">Fuego</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_merle" model="emr.pet.color">
+        <field name="name">Merle</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_sable" model="emr.pet.color">
+        <field name="name">Sable</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_manchado" model="emr.pet.color">
+        <field name="name">Manchado</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_leonado" model="emr.pet.color">
+        <field name="name">Leonado</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="color_dog_arena" model="emr.pet.color">
+        <field name="name">Arena</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+
+    <!-- Gato -->
+    <record id="color_cat_negro" model="emr.pet.color">
+        <field name="name">Negro</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_blanco" model="emr.pet.color">
+        <field name="name">Blanco</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_gris" model="emr.pet.color">
+        <field name="name">Gris</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_azul" model="emr.pet.color">
+        <field name="name">Azul</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_naranja" model="emr.pet.color">
+        <field name="name">Naranja</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_atigrado_naranja" model="emr.pet.color">
+        <field name="name">Atigrado naranja</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_atigrado" model="emr.pet.color">
+        <field name="name">Atigrado</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_carey" model="emr.pet.color">
+        <field name="name">Carey</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_calico" model="emr.pet.color">
+        <field name="name">Calicó</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_tricolor" model="emr.pet.color">
+        <field name="name">Tricolor</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_bicolor" model="emr.pet.color">
+        <field name="name">Bicolor</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_colorpoint" model="emr.pet.color">
+        <field name="name">Colorpoint</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_crema" model="emr.pet.color">
+        <field name="name">Crema</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_blanco_y_negro" model="emr.pet.color">
+        <field name="name">Blanco y negro</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="color_cat_humo" model="emr.pet.color">
+        <field name="name">Humo</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+</odoo>

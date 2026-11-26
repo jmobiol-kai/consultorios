@@ -1,0 +1,1392 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* emr_veterinary
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-26 01:45+0000\n"
+"PO-Revision-Date: 2026-11-26 01:45+0000\n"
+"Last-Translator: \n"
+"Language-Team: Spanish (Argentina)\n"
+"Language: es_AR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "%(count)s año"
+msgstr "%(count)s año"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "%(count)s años"
+msgstr "%(count)s años"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "%(count)s mes"
+msgstr "%(count)s mes"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "%(count)s meses"
+msgstr "%(count)s meses"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet_prevention.py:0
+msgid "%(kind)s %(product)s. Próxima dosis: %(date)s."
+msgstr "%(kind)s %(product)s. Próxima dosis: %(date)s."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet_prevention.py:0
+msgid "%(kind)s de %(pet)s: próxima dosis"
+msgstr "%(kind)s de %(pet)s: próxima dosis"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_veterinary_consumption.py:0
+msgid "%s no tiene depósito."
+msgstr "%s no tiene depósito."
+
+#. module: emr_veterinary
+#: model:ir.actions.report,print_report_name:emr_veterinary.action_report_encounter_veterinary
+msgid "'Consulta - %s' % (object.pet_id.name or '')"
+msgstr "'Consulta - %s' % (object.pet_id.name or '')"
+
+#. module: emr_veterinary
+#: model:ir.actions.report,print_report_name:emr_veterinary.action_report_pet_history
+msgid "'Historia - %s' % (object.name or '')"
+msgstr "'Historia - %s' % (object.name or '')"
+
+#. module: emr_veterinary
+#: model:ir.actions.report,print_report_name:emr_veterinary.action_report_prescription
+msgid "'Receta - %s' % (object.pet_id.name or '')"
+msgstr "'Receta - %s' % (object.pet_id.name or '')"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "<span class=\"text-muted\">Diagnósticos:</span>"
+msgstr "<span class=\"text-muted\">Diagnósticos:</span>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "<strong>Anamnesis</strong>"
+msgstr "<strong>Anamnesis</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "<strong>Diagnóstico</strong>"
+msgstr "<strong>Diagnóstico</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_header
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_prescription_document
+msgid "<strong>Dueño</strong>"
+msgstr "<strong>Dueño</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "<strong>Evolución</strong>"
+msgstr "<strong>Evolución</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "<strong>Examen clínico</strong>"
+msgstr "<strong>Examen clínico</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_header
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_prescription_document
+msgid "<strong>Fecha</strong>"
+msgstr "<strong>Fecha</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_prescription_document
+msgid "<strong>Indicaciones</strong>"
+msgstr "<strong>Indicaciones</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "<strong>Medicación e insumos</strong>"
+msgstr "<strong>Medicación e insumos</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "<strong>Motivo de consulta</strong>"
+msgstr "<strong>Motivo de consulta</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "<strong>Peso</strong>"
+msgstr "<strong>Peso</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_header
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_prescription_document
+msgid "<strong>Profesional</strong>"
+msgstr "<strong>Profesional</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "<strong>Signos</strong>"
+msgstr "<strong>Signos</strong>"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "<strong>Vacunas y desparasitación</strong>"
+msgstr "<strong>Vacunas y desparasitación</strong>"
+
+#. module: emr_veterinary
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__product_template__veterinary_kind__accessory
+msgid "Accesorio"
+msgstr "Accesorio"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_needaction
+msgid "Action Needed"
+msgstr "Acción necesaria"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_ids
+msgid "Activities"
+msgstr "Actividades"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Decoración de excepción de actividad"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_state
+msgid "Activity State"
+msgstr "Estado de la actividad"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Icono del tipo de actividad"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__active
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__active
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__active
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_species__active
+msgid "Activo"
+msgstr "Activo"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_search
+msgid "Activos"
+msgstr "Activos"
+
+#. module: emr_veterinary
+#: model:ir.actions.act_window,name:emr_veterinary.sale_order_action_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_agenda
+msgid "Agenda"
+msgstr "Agenda"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__addendum_ids
+msgid "Agregados"
+msgstr "Agregados"
+
+#. module: emr_veterinary
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__product_template__veterinary_kind__food
+msgid "Alimento balanceado"
+msgstr "Alimento balanceado"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__anamnesis
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+msgid "Anamnesis"
+msgstr "Anamnesis"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_appointment_book
+msgid "Asignar turno"
+msgstr "Asignar turno"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__encounter_ids
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_attentions
+msgid "Atenciones"
+msgstr "Atenciones"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_encounter
+msgid "Atención"
+msgstr "Atención"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_attachment_count
+msgid "Attachment Count"
+msgstr "Cantidad de adjuntos"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_veterinary_signed_mixin
+msgid "Bloqueo de líneas al firmar"
+msgstr "Bloqueo de líneas al firmar"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_appointment_book_view_form_veterinary
+msgid "Buscar mascota por nombre o microchip..."
+msgstr "Buscar mascota por nombre o microchip..."
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_appointment_book_view_form_veterinary
+msgid "Buscar paciente por nombre o documento..."
+msgstr "Buscar paciente por nombre o documento..."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__quantity
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "Cantidad"
+msgstr "Cantidad"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__neutered
+msgid "Castrado"
+msgstr "Castrado"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_search
+msgid "Castrados"
+msgstr "Castrados"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__closed_by
+msgid "Cerrada por"
+msgstr "Cerrada por"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_appointment_charge
+msgid "Cobrar turno"
+msgstr "Cobrar turno"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__color_id
+msgid "Color"
+msgstr "Color"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__color_note
+msgid "Color anotado"
+msgstr "Color anotado"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_pet_color
+msgid "Color de pelaje"
+msgstr "Color de pelaje"
+
+#. module: emr_veterinary
+#: model:ir.actions.act_window,name:emr_veterinary.emr_pet_color_action
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_colors
+msgid "Colores"
+msgstr "Colores"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__company_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__company_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__company_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__company_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__company_id
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+msgid "Compañía"
+msgstr "Compañía"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_config
+msgid "Configuración"
+msgstr "Configuración"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__encounter_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__encounter_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__encounter_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__encounter_id
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+msgid "Consulta"
+msgstr "Encounter"
+
+#. module: emr_veterinary
+#: model:ir.actions.report,name:emr_veterinary.action_report_encounter_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_encounter_veterinary
+#: model:product.template,name:emr_veterinary.product_consulta_veterinaria_product_template
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_document
+msgid "Consulta veterinaria"
+msgstr "Consulta veterinaria"
+
+#. module: emr_veterinary
+#: model:ir.actions.act_window,name:emr_veterinary.emr_encounter_veterinary_action
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__consultation_ids
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_encounters
+msgid "Consultas"
+msgstr "Consultas"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_veterinary_consumption_line
+msgid "Consumo de la consulta"
+msgstr "Consumo de la consulta"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_species__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__create_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_species__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__create_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__instructions
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_prescription_document
+msgid "Cómo darlo"
+msgstr "Cómo darlo"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_veterinary_consumption_line__product_uom_id
+msgid "Default unit of measure used for all stock operations."
+msgstr "Default unit of measure used for all stock operations."
+
+#. module: emr_veterinary
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__emr_pet_prevention__kind__deworming
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_prevention_view_search
+msgid "Desparasitación"
+msgstr "Desparasitación"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__diagnosis
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+msgid "Diagnóstico"
+msgstr "Diagnóstico"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__diagnosis_ids
+msgid "Diagnósticos"
+msgstr "Diagnósticos"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_appointment_book__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_appointment_charge__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_species__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_signed_mixin__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_ir_ui_menu__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_product_template__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_report_emr_veterinary_report_pet_history__display_name
+#: model:ir.model.fields,field_description:emr_veterinary.field_sale_order__display_name
+msgid "Display Name"
+msgstr "Nombre en pantalla"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__dosage
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_prescription_document
+msgid "Dosis"
+msgstr "Dosis"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_appointment_book__pet_owner_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__owner_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__owner_id
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_list
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_search
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.sale_order_view_calendar_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.sale_order_view_list_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.sale_order_view_search_veterinary
+msgid "Dueño"
+msgstr "Dueño"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__age
+msgid "Edad"
+msgstr "Edad"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "El color %(color)s no es de la especie %(species)s."
+msgstr "El color %(color)s no es de la especie %(species)s."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_veterinary_consumption.py:0
+msgid "El lote %(lot)s no es de %(product)s."
+msgstr "El lote %(lot)s no es de %(product)s."
+
+#. module: emr_veterinary
+#: model_terms:ir.actions.act_window,help:emr_veterinary.emr_pet_action
+msgid ""
+"El paciente es el animal. El dueño es el contacto al que se le factura."
+msgstr ""
+"El paciente es el animal. El dueño es el contacto al que se le factura."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__encounter_id
+msgid "Encounter"
+msgstr "Consulta"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_veterinary_consumption_line__tracking
+msgid "Ensure the traceability of a storable product in your warehouse."
+msgstr "Ensure the traceability of a storable product in your warehouse."
+
+#. module: emr_veterinary
+#: model:ir.model.constraint,message:emr_veterinary.constraint_emr_pet_breed_breed_uniq
+msgid "Esa raza ya está cargada para la especie."
+msgstr "Esa raza ya está cargada para la especie."
+
+#. module: emr_veterinary
+#: model:ir.model.constraint,message:emr_veterinary.constraint_emr_pet_color_color_uniq
+msgid "Ese color ya está cargado para la especie."
+msgstr "Ese color ya está cargado para la especie."
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_pet_species
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__species_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__species_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__species_id
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_breed_view_search
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_color_view_search
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_search
+msgid "Especie"
+msgstr "Especie"
+
+#. module: emr_veterinary
+#: model:ir.actions.act_window,name:emr_veterinary.emr_pet_species_action
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_species
+msgid "Especies"
+msgstr "Especies"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/signed_mixin.py:0
+msgid ""
+"Esta historia clínica está firmada y no se puede modificar. Para sumar "
+"información, agregá un agregado."
+msgstr ""
+"Esta historia clínica está firmada y no se puede modificar. Para sumar "
+"información, agregá un agregado."
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Esta mascota no tiene atenciones cerradas."
+msgstr "Esta mascota no tiene atenciones cerradas."
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_list
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+msgid "Estado"
+msgstr "Estado"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__evolution
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+msgid "Evolución"
+msgstr "Evolución"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__examination
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+msgid "Examen clínico"
+msgstr "Examen clínico"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__to_invoice
+msgid "Facturar al dueño"
+msgstr "Facturar al dueño"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Fallecido"
+msgstr "Fallecido"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_search
+msgid "Fallecidos"
+msgstr "Fallecidos"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__date
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_list
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Fecha"
+msgstr "Fecha"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__date
+msgid "Fecha de atención"
+msgstr "Fecha de atención"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__closed_date
+msgid "Fecha de cierre"
+msgstr "Fecha de cierre"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__deceased_date
+msgid "Fecha de fallecimiento"
+msgstr "Fecha de fallecimiento"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__signed_date
+msgid "Fecha de firma"
+msgstr "Fecha de firma"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__birth_date
+msgid "Fecha de nacimiento"
+msgstr "Fecha de nacimiento"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__signed_by
+msgid "Firmada por"
+msgstr "Firmada por"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_follower_ids
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (contactos)"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Icono de Font Awesome, por ejemplo fa-tasks"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__image_1920
+msgid "Foto"
+msgstr "Foto"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__has_message
+msgid "Has Message"
+msgstr "Tiene mensaje"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_veterinary_consumption.py:0
+msgid "Hay que indicar el lote de %s."
+msgstr "Hay que indicar el lote de %s."
+
+#. module: emr_veterinary
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__emr_pet__sex__female
+msgid "Hembra"
+msgstr "Hembra"
+
+#. module: emr_veterinary
+#: model:ir.actions.report,name:emr_veterinary.action_report_pet_history
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Historia clínica"
+msgstr "Historia clínica"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_report_emr_veterinary_report_pet_history
+msgid "Historia clínica de la mascota"
+msgstr "Historia clínica de la mascota"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__weight_ids
+msgid "Historial de peso"
+msgstr "Historial de peso"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_appointment_book__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_appointment_charge__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_species__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_signed_mixin__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_ir_ui_menu__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_product_template__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_report_emr_veterinary_report_pet_history__id
+#: model:ir.model.fields,field_description:emr_veterinary.field_sale_order__id
+msgid "ID"
+msgstr "ID"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_exception_icon
+msgid "Icon"
+msgstr "Icono"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icono de una actividad con excepción."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__res_id
+msgid "Id del registro"
+msgstr "Id del registro"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "If checked, new messages require your attention."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__message_has_error
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "If checked, some messages have a delivery error."
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_veterinary_prescription_view_form
+msgid "Imprimir"
+msgstr "Imprimir"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+msgid "Imprimir historia"
+msgstr "Imprimir historia"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__attachment_ids
+msgid "Imágenes y estudios"
+msgstr "Imágenes y estudios"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__indications
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_veterinary_prescription_view_form
+msgid "Indicaciones"
+msgstr "Indicaciones"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_is_follower
+msgid "Is Follower"
+msgstr "Es seguidor"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_veterinary_consumption.py:0
+msgid "La cantidad tiene que ser mayor a cero."
+msgstr "La cantidad tiene que ser mayor a cero."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_encounter.py:0
+msgid "La consulta veterinaria tiene que indicar la mascota."
+msgstr "La consulta veterinaria tiene que indicar la mascota."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_encounter.py:0
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "La mascota %(name)s no tiene dueño."
+msgstr "La mascota %(name)s no tiene dueño."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "La raza %(breed)s no es de la especie %(species)s."
+msgstr "La raza %(breed)s no es de la especie %(species)s."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_species__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__write_uid
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_species__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__write_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_locations
+msgid "Locaciones"
+msgstr "Locaciones"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__location_id
+msgid "Locación"
+msgstr "Locación"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__lot_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__lot_id
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Lote"
+msgstr "Lote"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_veterinary_consumption.py:0
+msgid "Lote %s"
+msgstr "Lote %s"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_veterinary_prescription_line
+msgid "Línea de receta"
+msgstr "Línea de receta"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__sale_line_id
+msgid "Línea de venta"
+msgstr "Línea de venta"
+
+#. module: emr_veterinary
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__emr_pet__sex__male
+msgid "Macho"
+msgstr "Macho"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_pet
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_appointment_book__pet_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_appointment_charge__pet_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter__pet_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_consultation__pet_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__pet_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__pet_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__pet_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__pet_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_sale_order__pet_id
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_prevention_view_search
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.sale_order_view_calendar_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.sale_order_view_search_veterinary
+msgid "Mascota"
+msgstr "Pet"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_appointment_book.py:0
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__deceased
+msgid "Mascota fallecida"
+msgstr "Mascota fallecida"
+
+#. module: emr_veterinary
+#: model:ir.actions.act_window,name:emr_veterinary.emr_pet_action
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_pets
+msgid "Mascotas"
+msgstr "Mascotas"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__consumption_line_ids
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+msgid "Medicación e insumos"
+msgstr "Medicación e insumos"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__name
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__product_template__veterinary_kind__medicine
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_prescription_document
+msgid "Medicamento"
+msgstr "Medicamento"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__line_ids
+msgid "Medicamentos"
+msgstr "Medicamentos"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_ir_ui_menu
+msgid "Menu"
+msgstr "Menú"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_has_error
+msgid "Message Delivery error"
+msgstr "Error de entrega del mensaje"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_ids
+msgid "Messages"
+msgstr "Mensajes"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__microchip
+msgid "Microchip"
+msgstr "Microchip"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__res_model
+msgid "Modelo"
+msgstr "Modelo"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__reason
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+msgid "Motivo de consulta"
+msgstr "Motivo de consulta"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__stock_move_id
+msgid "Movimiento"
+msgstr "Movimiento"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Vencimiento de mi actividad"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Nac."
+msgstr "Nac."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Vencimiento de la próxima actividad"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_summary
+msgid "Next Activity Summary"
+msgstr "Resumen de la próxima actividad"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_type_id
+msgid "Next Activity Type"
+msgstr "Tipo de la próxima actividad"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_encounter.py:0
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "No se abre una consulta para %(name)s porque figura como fallecido."
+msgstr "No se abre una consulta para %(name)s porque figura como fallecido."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/sale_order.py:0
+msgid ""
+"No se puede agendar un turno para %(name)s porque figura como fallecido."
+msgstr ""
+"No se puede agendar un turno para %(name)s porque figura como fallecido."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_appointment_book.py:0
+msgid "No se puede agendar un turno para una mascota fallecida."
+msgstr "No se puede agendar un turno para una mascota fallecida."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_breed__name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_color__name
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_species__name
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+msgid "Nombre"
+msgstr "Nombre"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_encounter_veterinary__res_model
+msgid ""
+"Nombre técnico del modelo que implementa este tipo, por ejemplo "
+"emr.encounter.consultation."
+msgstr ""
+"Nombre técnico del modelo que implementa este tipo, por ejemplo "
+"emr.encounter.consultation."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__note
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__note
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_prevention_view_form
+msgid "Nota"
+msgstr "Nota"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+msgid "Nueva consulta"
+msgstr "Nueva consulta"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Cantidad de acciones"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_has_error_counter
+msgid "Number of errors"
+msgstr "Cantidad de errores"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Cantidad de mensajes que requieren acción"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Cantidad de mensajes con error de entrega"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_appointment_book__partner_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__partner_id
+msgid "Paciente"
+msgstr "Paciente"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+msgid "Peso"
+msgstr "Peso"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__weight
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_weight__weight
+msgid "Peso (kg)"
+msgstr "Peso (kg)"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_pet_weight
+msgid "Peso de la mascota"
+msgstr "Peso de la mascota"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_product_template
+msgid "Product"
+msgstr "Producto"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__product_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__product_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__product_id
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Producto"
+msgstr "Producto"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_products
+msgid "Productos"
+msgstr "Productos"
+
+#. module: emr_veterinary
+#: model:ir.actions.act_window,name:emr_veterinary.product_template_action_veterinary
+msgid "Productos veterinarios"
+msgstr "Productos veterinarios"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__practitioner_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription__practitioner_id
+msgid "Profesional"
+msgstr "Profesional"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_practitioners
+msgid "Profesionales"
+msgstr "Profesionales"
+
+#. module: emr_veterinary
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__product_template__veterinary_kind__service
+msgid "Práctica / servicio"
+msgstr "Práctica / servicio"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_procedures
+msgid "Prácticas"
+msgstr "Prácticas"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__next_date
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_prevention_view_search
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Próxima dosis"
+msgstr "Próxima dosis"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_appointment_book__pet_owner_id
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__owner_id
+msgid "Quien paga. No es el paciente: el paciente es esta mascota."
+msgstr "Quien paga. No es el paciente: el paciente es esta mascota."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_encounter_veterinary__practitioner_id
+#: model:ir.model.fields,help:emr_veterinary.field_emr_veterinary_prescription__practitioner_id
+msgid ""
+"Quién atendió. No es obligatorio mientras la atención está en elaboración: "
+"hay circuitos que arrancan en recepción, antes de que se sepa qué "
+"profesional interviene. Al cerrar o firmar sí lo es — lo exige "
+"_check_practitioner."
+msgstr ""
+"Quién atendió. No es obligatorio mientras la atención está en elaboración: "
+"hay circuitos que arrancan en recepción, antes de que se sepa qué "
+"profesional interviene. Al cerrar o firmar sí lo es — lo exige "
+"_check_practitioner."
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_pet_breed
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__breed_id
+msgid "Raza"
+msgstr "Raza"
+
+#. module: emr_veterinary
+#: model:ir.actions.act_window,name:emr_veterinary.emr_pet_breed_action
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_breeds
+msgid "Razas"
+msgstr "Razas"
+
+#. module: emr_veterinary
+#: model:ir.actions.report,name:emr_veterinary.action_report_prescription
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_prescription_line__prescription_id
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_prescription_document
+msgid "Receta"
+msgstr "Prescription"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_veterinary_prescription.py:0
+msgid "Receta %(date)s · %(pet)s"
+msgstr "Receta %(date)s · %(pet)s"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_veterinary_prescription
+msgid "Receta veterinaria"
+msgstr "Receta veterinaria"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__prescription_ids
+msgid "Recetas"
+msgstr "Recetas"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__activity_id
+msgid "Recordatorio"
+msgstr "Recordatorio"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__reminder_sent
+msgid "Recordatorio enviado"
+msgstr "Recordatorio enviado"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__activity_user_id
+msgid "Responsible User"
+msgstr "Usuario responsable"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_product_product__veterinary_kind
+#: model:ir.model.fields,field_description:emr_veterinary.field_product_template__veterinary_kind
+msgid "Rubro veterinario"
+msgstr "Rubro veterinario"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Error de entrega del SMS"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__tracking
+msgid "Seguimiento"
+msgstr "Tracking"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__sex
+msgid "Sexo"
+msgstr "Sexo"
+
+#. module: emr_veterinary
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__emr_pet__sex__unknown
+msgid "Sin especificar"
+msgstr "Sin especificar"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__state
+msgid "State"
+msgstr "Estado"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_veterinary_consumption_line__to_invoice
+msgid ""
+"Suma el producto al pedido del dueño. Si el turno ya estaba facturado, queda"
+" una factura en borrador con este importe."
+msgstr ""
+"Suma el producto al pedido del dueño. Si el turno ya estaba facturado, queda"
+" una factura en borrador con este importe."
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "Temp."
+msgstr "Temp."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__temperature
+msgid "Temperatura (°C)"
+msgstr "Temperatura (°C)"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__color_note
+msgid ""
+"Texto libre que quedó de antes, o un pelaje que no está en el catálogo. Si "
+"coincide con un color de la especie, la actualización lo pasa a Color."
+msgstr ""
+"Texto libre que quedó de antes, o un pelaje que no está en el catálogo. Si "
+"coincide con un color de la especie, la actualización lo pasa a Color."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet_prevention__expiration_date
+#: model:ir.model.fields,help:emr_veterinary.field_emr_veterinary_consumption_line__expiration_date
+msgid ""
+"This is the date on which the goods with this Serial Number may become "
+"dangerous and must not be consumed."
+msgstr ""
+"This is the date on which the goods with this Serial Number may become "
+"dangerous and must not be consumed."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__encounter_type_id
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__kind
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_prevention_view_search
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "Tipo"
+msgstr "Tipo"
+
+#. module: emr_veterinary
+#: model_terms:ir.actions.act_window,help:emr_veterinary.emr_pet_action
+msgid "Todavía no hay mascotas"
+msgstr "Todavía no hay mascotas"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__order_id
+msgid "Turno"
+msgstr "Turno"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Type of the exception activity on record."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_encounter_veterinary__active
+msgid ""
+"Una atención descartada se archiva, no se borra: en un registro clínico "
+"conviene que quede el rastro de que alguien abrió algo y lo dio de baja."
+msgstr ""
+"Una atención descartada se archiva, no se borra: en un registro clínico "
+"conviene que quede el rastro de que alguien abrió algo y lo dio de baja."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_encounter_veterinary__order_id
+msgid ""
+"Una atención suele venir de un turno, pero no siempre: la atención sin turno"
+" existe y es frecuente."
+msgstr ""
+"Una atención suele venir de un turno, pero no siempre: la atención sin turno"
+" existe y es frecuente."
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__product_uom_id
+msgid "Unidad"
+msgstr "Unidad"
+
+#. module: emr_veterinary
+#: model:ir.model.fields.selection,name:emr_veterinary.selection__emr_pet_prevention__kind__vaccine
+msgid "Vacuna"
+msgstr "Vacuna"
+
+#. module: emr_veterinary
+#: model:ir.model,name:emr_veterinary.model_emr_pet_prevention
+msgid "Vacuna o desparasitación"
+msgstr "Vacuna o desparasitación"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_prevention_view_search
+msgid "Vacunas"
+msgstr "Vacunas"
+
+#. module: emr_veterinary
+#: model:ir.actions.act_window,name:emr_veterinary.emr_pet_prevention_action
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_encounter_veterinary__prevention_ids
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__prevention_ids
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_prevention
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_encounter_veterinary_view_form
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.emr_pet_view_form
+msgid "Vacunas y desparasitación"
+msgstr "Vacunas y desparasitación"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet_prevention__expiration_date
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_veterinary_consumption_line__expiration_date
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "Vencimiento"
+msgstr "Vencimiento"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_root
+msgid "Veterinaria"
+msgstr "Veterinaria"
+
+#. module: emr_veterinary
+#: model:ir.actions.server,name:emr_veterinary.cron_prevention_reminder_ir_actions_server
+msgid "Veterinaria: recordatorio de vacunas y desparasitación"
+msgstr "Veterinaria: recordatorio de vacunas y desparasitación"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_emr_pet__website_message_ids
+msgid "Website Messages"
+msgstr "Mensajes del sitio web"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_emr_pet__website_message_ids
+msgid "Website communication history"
+msgstr "Historial de comunicación del sitio web"
+
+#. module: emr_veterinary
+#: model:ir.model.constraint,message:emr_veterinary.constraint_emr_pet_species_name_uniq
+msgid "Ya existe esa especie."
+msgstr "Ya existe esa especie."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/emr_pet.py:0
+msgid "Ya hay una mascota con el microchip %s."
+msgstr "Ya hay una mascota con el microchip %s."
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "atenciones"
+msgstr "atenciones"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "atención"
+msgstr "atención"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "kg"
+msgstr "kg"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "°C"
+msgstr "°C"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "· Castrado"
+msgstr "· Castrado"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_header
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "· Chip"
+msgstr "· Chip"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "· Peso"
+msgstr "· Peso"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_pet_history_document
+msgid "· firmada"
+msgstr "· firmada"
+
+#. module: emr_veterinary
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
+msgid "· próxima"
+msgstr "· próxima"

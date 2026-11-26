@@ -10,8 +10,8 @@ class EmrPetSpecies(models.Model):
     _description = "Especie"
     _order = "name"
 
-    name = fields.Char(required=True)
-    active = fields.Boolean(default=True)
+    name = fields.Char("Nombre", required=True)
+    active = fields.Boolean("Activo", default=True)
 
     _name_uniq = models.Constraint(
         "UNIQUE (name)",

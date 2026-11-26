@@ -11,6 +11,7 @@
                 <field name="owner_id"/>
                 <field name="species_id"/>
                 <field name="breed_id"/>
+                <field name="color_id"/>
                 <filter name="alive" string="Activos" domain="[('deceased', '=', False)]"/>
                 <filter name="deceased" string="Fallecidos" domain="[('deceased', '=', True)]"/>
                 <separator/>
@@ -33,6 +34,7 @@
                 <field name="breed_id" optional="show"/>
                 <field name="sex" optional="show"/>
                 <field name="age" optional="show"/>
+                <field name="color_id" optional="hide"/>
                 <field name="owner_id"/>
                 <field name="microchip" optional="hide"/>
                 <field name="deceased" optional="hide"/>
@@ -75,12 +77,6 @@
                 <sheet>
                     <widget name="web_ribbon" title="Fallecido" bg_color="text-bg-danger"
                             invisible="not deceased"/>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_open_encounters" type="object"
-                                class="oe_stat_button" icon="fa-stethoscope">
-                            <field name="encounter_count" widget="statinfo" string="Atenciones"/>
-                        </button>
-                    </div>
                     <field name="image_1920" widget="image" class="oe_avatar"
                            options="{'preview_image': 'image_1920'}"/>
                     <div class="oe_title">
@@ -94,39 +90,40 @@
                             <field name="sex"/>
                             <field name="birth_date"/>
                             <field name="age"/>
-                            <field name="color"/>
+                            <field name="color_id"/>
+                            <field name="color_note" invisible="not color_note"/>
                             <field name="microchip"/>
                             <field name="neutered"/>
-                        </group>
-                        <group string="Dueño">
-                            <field name="owner_id"/>
                             <field name="deceased"/>
                             <field name="deceased_date" invisible="not deceased"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
+                        <group string="Dueño">
+                            <field name="owner_id"/>
+                        </group>
                     </group>
                     <notebook>
                         <page name="history" string="Historia clínica">
-                            <field name="encounter_ids" readonly="1">
-                                <list create="false" delete="false" no_open="1"
+                            <button name="action_new_consultation" type="object"
+                                    string="Nueva consulta" class="btn-link"
+                                    icon="fa-plus" invisible="not id or deceased"/>
+                            <field name="consultation_ids" readonly="1">
+                                <list create="false" delete="false"
                                       default_order="date desc, id desc">
-                                    <field name="date"/>
+                                    <field name="date" string="Fecha"/>
                                     <field name="encounter_type_id"/>
                                     <field name="practitioner_id"/>
-                                    <field name="state" widget="badge"
+                                    <field name="state" string="Estado" widget="badge"
                                            decoration-warning="state == 'draft'"
                                            decoration-info="state == 'closed'"
                                            decoration-success="state == 'signed'"/>
-                                    <button name="action_open" type="object"
-                                            string="Abrir" icon="fa-external-link"
-                                            title="Abrir la atención"/>
                                 </list>
                             </field>
                         </page>
                         <page name="weight" string="Peso">
                             <field name="weight_ids">
                                 <list editable="bottom">
-                                    <field name="date"/>
+                                    <field name="date" string="Fecha"/>
                                     <field name="weight"/>
                                     <field name="encounter_id" optional="show"/>
                                     <field name="note" optional="hide"/>

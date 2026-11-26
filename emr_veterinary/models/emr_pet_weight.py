@@ -12,9 +12,9 @@ class EmrPetWeight(models.Model):
     _order = "date desc, id desc"
 
     pet_id = fields.Many2one(
-        "emr.pet", required=True, ondelete="cascade", index=True
+        "emr.pet", string="Mascota", required=True, ondelete="cascade", index=True
     )
-    date = fields.Date(required=True, default=fields.Date.context_today)
+    date = fields.Date("Fecha", required=True, default=fields.Date.context_today)
     weight = fields.Float("Peso (kg)", required=True, digits=(6, 3))
     encounter_id = fields.Many2one(
         "emr.encounter.veterinary",

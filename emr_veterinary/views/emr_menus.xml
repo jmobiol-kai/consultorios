@@ -15,9 +15,20 @@
               parent="menu_emr_veterinary_root"
               action="emr_pet_action" sequence="20"/>
 
+    <!-- La ficha del profesional trae la agenda, los horarios y los huecos. -->
+    <menuitem id="menu_emr_veterinary_practitioners" name="Profesionales"
+              parent="menu_emr_veterinary_root"
+              action="emr.res_partner_action_practitioner" sequence="25"/>
+
     <menuitem id="menu_emr_veterinary_encounters" name="Consultas"
               parent="menu_emr_veterinary_root"
               action="emr_encounter_veterinary_action" sequence="30"
+              groups="emr.group_emr_practitioner"/>
+
+    <!-- Una fila por visita, del tipo que sea. La acción es la de emr. -->
+    <menuitem id="menu_emr_veterinary_attentions" name="Atenciones"
+              parent="menu_emr_veterinary_root"
+              action="emr.emr_encounter_action" sequence="35"
               groups="emr.group_emr_practitioner"/>
 
     <menuitem id="menu_emr_veterinary_prevention" name="Vacunas y desparasitación"
@@ -36,8 +47,20 @@
               parent="menu_emr_veterinary_config"
               action="emr_pet_breed_action" sequence="20"/>
 
+    <menuitem id="menu_emr_veterinary_colors" name="Colores"
+              parent="menu_emr_veterinary_config"
+              action="emr_pet_color_action" sequence="25"/>
+
     <menuitem id="menu_emr_veterinary_products" name="Productos"
               parent="menu_emr_veterinary_config"
               action="product_template_action_veterinary" sequence="30"/>
+
+    <menuitem id="menu_emr_veterinary_procedures" name="Prácticas"
+              parent="menu_emr_veterinary_config"
+              action="emr.product_template_action_procedure" sequence="40"/>
+
+    <menuitem id="menu_emr_veterinary_locations" name="Locaciones"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_location_action" sequence="50"/>
 
 </odoo>

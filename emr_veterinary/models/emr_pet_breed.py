@@ -10,11 +10,11 @@ class EmrPetBreed(models.Model):
     _description = "Raza"
     _order = "species_id, name"
 
-    name = fields.Char(required=True)
+    name = fields.Char("Nombre", required=True)
     species_id = fields.Many2one(
         "emr.pet.species", string="Especie", required=True, ondelete="restrict", index=True
     )
-    active = fields.Boolean(default=True)
+    active = fields.Boolean("Activo", default=True)
 
     _breed_uniq = models.Constraint(
         "UNIQUE (species_id, name)",

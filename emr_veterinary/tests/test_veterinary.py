@@ -4,6 +4,8 @@
 ##############################################################################
 from datetime import date, timedelta
 
+from lxml import etree
+
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 from odoo import Command, fields
@@ -44,11 +46,34 @@ class TestVeterinary(TransactionCase):
 
     def test_breed_must_match_species(self):
         siames = self.env["emr.pet.breed"].create({
-            "name": "Siamés",
+            "name": "Raza de prueba",
             "species_id": self.species_cat.id,
         })
         with self.assertRaises(ValidationError):
             self.pet.write({"breed_id": siames.id})
+
+    def test_breed_catalog_loads_for_dog_and_cat(self):
+        dogs = self.env["emr.pet.breed"].search([("species_id", "=", self.species_dog.id)])
+        cats = self.env["emr.pet.breed"].search([("species_id", "=", self.species_cat.id)])
+        self.assertGreaterEqual(len(dogs), 40)
+        self.assertLessEqual(len(dogs), 60)
+        self.assertGreaterEqual(len(cats), 20)
+        self.assertLessEqual(len(cats), 30)
+        self.assertEqual(len(dogs), len(set(dogs.mapped("name"))))
+        self.assertEqual(len(cats), len(set(cats.mapped("name"))))
+        for name in ("Callejero", "Dogo Argentino", "Ovejero Alemán", "Labrador Retriever",
+                     "Golden Retriever", "Caniche", "Bulldog Francés"):
+            self.assertIn(name, dogs.mapped("name"))
+        for name in ("Callejero", "Siamés", "Persa", "Maine Coon", "Común Europeo"):
+            self.assertIn(name, cats.mapped("name"))
+        dogo = self.env.ref("emr_veterinary.breed_dog_dogo_argentino")
+        siames = self.env.ref("emr_veterinary.breed_cat_siames")
+        self.assertEqual(dogo.species_id, self.species_dog)
+        self.assertEqual(siames.species_id, self.species_cat)
+        self.assertEqual(
+            self.env.ref("emr_veterinary.breed_dog_callejero").name,
+            self.env.ref("emr_veterinary.breed_cat_callejero").name,
+        )
 
     def test_microchip_unique(self):
         self.pet.microchip = "CHIP-900"
@@ -288,6 +313,131 @@ class TestVeterinary(TransactionCase):
         self.assertEqual(visit.partner_id, self.owner)
         self.assertEqual(visit.res_model, "emr.encounter.veterinary")
         self.assertEqual(order.encounter_id, visit.encounter_id)
+
+    def test_consultorio_menu_hidden_and_vet_reuses_emr_actions(self):
+        reception = self.env["res.users"].create({
+            "name": "Recepción vet",
+            "login": "recepcion.vet.test",
+            "group_ids": [Command.set([
+                self.env.ref("emr.group_emr_reception").id,
+            ])],
+        })
+        manager = self.env["res.users"].create({
+            "name": "Admin clínica",
+            "login": "admin.vet.test",
+            "group_ids": [Command.set([
+                self.env.ref("emr.group_emr_manager").id,
+            ])],
+        })
+        Menu = self.env["ir.ui.menu"]
+        root = self.env.ref("emr.menu_emr_root")
+        vet_root = self.env.ref("emr_veterinary.menu_emr_veterinary_root")
+
+        reception_menus = Menu.with_user(reception)._visible_menu_ids(False)
+        self.assertNotIn(root.id, reception_menus)
+        self.assertNotIn(self.env.ref("emr.menu_emr_patients").id, reception_menus)
+        self.assertIn(vet_root.id, reception_menus)
+        self.assertIn(
+            self.env.ref("emr_veterinary.menu_emr_veterinary_practitioners").id,
+            reception_menus,
+        )
+
+        manager_menus = Menu.with_user(manager)._visible_menu_ids(False)
+        self.assertNotIn(root.id, manager_menus)
+        for xmlid in (
+            "emr_veterinary.menu_emr_veterinary_procedures",
+            "emr_veterinary.menu_emr_veterinary_locations",
+            "emr_veterinary.menu_emr_veterinary_attentions",
+        ):
+            self.assertIn(self.env.ref(xmlid).id, manager_menus)
+
+        admin_menus = Menu.with_user(self.env.ref("base.user_admin"))._visible_menu_ids(False)
+        self.assertIn(root.id, admin_menus)
+
+        self.assertEqual(
+            self.env.ref("emr_veterinary.menu_emr_veterinary_practitioners").action,
+            self.env.ref("emr.res_partner_action_practitioner"),
+        )
+        self.assertEqual(
+            self.env.ref("emr_veterinary.menu_emr_veterinary_procedures").action,
+            self.env.ref("emr.product_template_action_procedure"),
+        )
+        self.assertEqual(
+            self.env.ref("emr_veterinary.menu_emr_veterinary_locations").action,
+            self.env.ref("emr.emr_location_action"),
+        )
+        self.assertEqual(
+            self.env.ref("emr_veterinary.menu_emr_veterinary_attentions").action,
+            self.env.ref("emr.emr_encounter_action"),
+        )
+
+    def test_color_catalog_and_legacy_text(self):
+        dogs = self.env["emr.pet.color"].search([("species_id", "=", self.species_dog.id)])
+        cats = self.env["emr.pet.color"].search([("species_id", "=", self.species_cat.id)])
+        self.assertIn("Negro", dogs.mapped("name"))
+        self.assertIn("Negro y fuego", dogs.mapped("name"))
+        self.assertIn("Merle", dogs.mapped("name"))
+        self.assertIn("Carey", cats.mapped("name"))
+        self.assertIn("Colorpoint", cats.mapped("name"))
+        self.assertIn("Atigrado naranja", cats.mapped("name"))
+        cat_black = self.env.ref("emr_veterinary.color_cat_negro")
+        with self.assertRaises(ValidationError):
+            self.pet.write({"color_id": cat_black.id})
+        self.pet.color_note = "  dorado "
+        self.pet._match_legacy_colors()
+        self.assertEqual(self.pet.color_id, self.env.ref("emr_veterinary.color_dog_dorado"))
+        self.assertFalse(self.pet.color_note)
+        self.pet.write({"color_id": False, "color_note": "turquesa imposible"})
+        self.pet._match_legacy_colors()
+        self.assertFalse(self.pet.color_id)
+        self.assertEqual(self.pet.color_note, "turquesa imposible")
+
+    def test_new_consultation_from_empty_history(self):
+        self.assertFalse(self.pet.encounter_ids)
+        self.env.user.partner_id.write({"is_practitioner": True})
+        action = self.pet.action_new_consultation()
+        self.assertEqual(action["res_model"], "emr.encounter.veterinary")
+        self.assertEqual(action["views"], [[False, "form"]])
+        ctx = action["context"]
+        self.assertEqual(ctx["default_pet_id"], self.pet.id)
+        self.assertEqual(ctx["default_partner_id"], self.owner.id)
+        self.assertEqual(ctx["default_practitioner_id"], self.env.user.partner_id.id)
+        visit = self.env["emr.encounter.veterinary"].with_context(**ctx).create({})
+        self.assertEqual(visit.pet_id, self.pet)
+        self.assertEqual(visit.partner_id, self.owner)
+        self.assertEqual(visit.practitioner_id, self.env.user.partner_id)
+        self.assertIn(visit.encounter_id, self.pet.encounter_ids)
+        self.assertIn(visit, self.pet.consultation_ids)
+        self.pet.deceased = True
+        with self.assertRaises(UserError):
+            self.pet.action_new_consultation()
+
+    def test_visible_labels_are_spanish(self):
+        self.assertEqual(self.env["emr.pet"]._fields["name"].string, "Nombre")
+        self.assertEqual(self.env["emr.pet.weight"]._fields["date"].string, "Fecha")
+        self.assertEqual(self.env["emr.pet"]._fields["deceased"].string, "Mascota fallecida")
+        arch = self.env["emr.pet"].get_view()["arch"]
+        self.assertIn('string="Fecha"', arch)
+        self.assertIn('string="Estado"', arch)
+        self.assertIn("Nueva consulta", arch)
+        self.assertIn('name="consultation_ids"', arch)
+        self.assertNotIn("action_open_encounters", arch)
+        self.assertNotIn("no_open", arch)
+        self.assertNotIn(">Date<", arch)
+        self.assertNotIn('string="State"', arch)
+        self.assertNotIn('string="Name"', arch)
+
+    def test_deceased_field_is_on_the_pet_section(self):
+        self.assertEqual(self.env["emr.pet"]._fields["deceased"].string, "Mascota fallecida")
+        arch = self.env["emr.pet"].get_view()["arch"]
+        root = etree.fromstring(arch.encode())
+        owner = root.xpath("//group[@string='Dueño']")[0]
+        pet = root.xpath("//group[@string='Mascota']")[0]
+        self.assertFalse(owner.xpath(".//field[@name='deceased' or @name='deceased_date']"))
+        self.assertEqual([node.get("name") for node in owner.xpath("./field")], ["owner_id"])
+        names = [node.get("name") for node in pet.xpath("./field")]
+        self.assertLess(names.index("neutered"), names.index("deceased"))
+        self.assertLess(names.index("deceased"), names.index("deceased_date"))
 
     def _visit(self, pet, order=None, **extra):
         vals = {

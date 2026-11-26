@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Razas conocidas, en español de Argentina. noupdate para que la
+         clínica pueda corregir un nombre sin que una actualización lo pise.
+         Un xml id nuevo igual se crea al actualizar una base que todavía
+         no lo tenía. -->
+
+    <!-- Perro -->
+    <record id="breed_dog_callejero" model="emr.pet.breed">
+        <field name="name">Callejero</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_dogo_argentino" model="emr.pet.breed">
+        <field name="name">Dogo Argentino</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_ovejero_aleman" model="emr.pet.breed">
+        <field name="name">Ovejero Alemán</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_labrador_retriever" model="emr.pet.breed">
+        <field name="name">Labrador Retriever</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_golden_retriever" model="emr.pet.breed">
+        <field name="name">Golden Retriever</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_caniche" model="emr.pet.breed">
+        <field name="name">Caniche</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_bulldog_frances" model="emr.pet.breed">
+        <field name="name">Bulldog Francés</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_bulldog_ingles" model="emr.pet.breed">
+        <field name="name">Bulldog Inglés</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_beagle" model="emr.pet.breed">
+        <field name="name">Beagle</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_boxer" model="emr.pet.breed">
+        <field name="name">Bóxer</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_salchicha" model="emr.pet.breed">
+        <field name="name">Salchicha</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_yorkshire_terrier" model="emr.pet.breed">
+        <field name="name">Yorkshire Terrier</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_chihuahua" model="emr.pet.breed">
+        <field name="name">Chihuahua</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_shih_tzu" model="emr.pet.breed">
+        <field name="name">Shih Tzu</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_pomerania" model="emr.pet.breed">
+        <field name="name">Pomerania</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_border_collie" model="emr.pet.breed">
+        <field name="name">Border Collie</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_cocker_spaniel_ingles" model="emr.pet.breed">
+        <field name="name">Cocker Spaniel Inglés</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_cocker_spaniel_americano" model="emr.pet.breed">
+        <field name="name">Cocker Spaniel Americano</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_rottweiler" model="emr.pet.breed">
+        <field name="name">Rottweiler</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_doberman" model="emr.pet.breed">
+        <field name="name">Dóberman</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_schnauzer" model="emr.pet.breed">
+        <field name="name">Schnauzer</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_schnauzer_miniatura" model="emr.pet.breed">
+        <field name="name">Schnauzer Miniatura</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_husky_siberiano" model="emr.pet.breed">
+        <field name="name">Husky Siberiano</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_akita_inu" model="emr.pet.breed">
+        <field name="name">Akita Inu</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_pastor_belga_malinois" model="emr.pet.breed">
+        <field name="name">Pastor Belga Malinois</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_pastor_australiano" model="emr.pet.breed">
+        <field name="name">Pastor Australiano</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_boyero_de_berna" model="emr.pet.breed">
+        <field name="name">Boyero de Berna</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_gran_danes" model="emr.pet.breed">
+        <field name="name">Gran Danés</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_dogo_de_burdeos" model="emr.pet.breed">
+        <field name="name">Dogo de Burdeos</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_cane_corso" model="emr.pet.breed">
+        <field name="name">Cane Corso</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_american_staffordshire" model="emr.pet.breed">
+        <field name="name">American Staffordshire Terrier</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_bull_terrier" model="emr.pet.breed">
+        <field name="name">Bull Terrier</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_staffordshire_bull_terrier" model="emr.pet.breed">
+        <field name="name">Staffordshire Bull Terrier</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_jack_russell" model="emr.pet.breed">
+        <field name="name">Jack Russell Terrier</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_fox_terrier" model="emr.pet.breed">
+        <field name="name">Fox Terrier</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_west_highland" model="emr.pet.breed">
+        <field name="name">West Highland White Terrier</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_bichon_frise" model="emr.pet.breed">
+        <field name="name">Bichón Frisé</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_maltes" model="emr.pet.breed">
+        <field name="name">Maltés</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_pekines" model="emr.pet.breed">
+        <field name="name">Pekinés</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_pug" model="emr.pet.breed">
+        <field name="name">Pug</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_shar_pei" model="emr.pet.breed">
+        <field name="name">Shar Pei</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_samoyedo" model="emr.pet.breed">
+        <field name="name">Samoyedo</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_alaskan_malamute" model="emr.pet.breed">
+        <field name="name">Alaskan Malamute</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_weimaraner" model="emr.pet.breed">
+        <field name="name">Weimaraner</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_braco_aleman" model="emr.pet.breed">
+        <field name="name">Braco Alemán</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_setter_ingles" model="emr.pet.breed">
+        <field name="name">Setter Inglés</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_galgo_espanol" model="emr.pet.breed">
+        <field name="name">Galgo Español</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_whippet" model="emr.pet.breed">
+        <field name="name">Whippet</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_dalmata" model="emr.pet.breed">
+        <field name="name">Dálmata</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_san_bernardo" model="emr.pet.breed">
+        <field name="name">San Bernardo</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_terranova" model="emr.pet.breed">
+        <field name="name">Terranova</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_bobtail" model="emr.pet.breed">
+        <field name="name">Bobtail</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_collie" model="emr.pet.breed">
+        <field name="name">Collie</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_corgi_pembroke" model="emr.pet.breed">
+        <field name="name">Corgi Galés de Pembroke</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_boston_terrier" model="emr.pet.breed">
+        <field name="name">Boston Terrier</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_pinscher_miniatura" model="emr.pet.breed">
+        <field name="name">Pinscher Miniatura</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_shiba_inu" model="emr.pet.breed">
+        <field name="name">Shiba Inu</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+    <record id="breed_dog_basset_hound" model="emr.pet.breed">
+        <field name="name">Basset Hound</field>
+        <field name="species_id" ref="species_dog"/>
+    </record>
+
+    <!-- Gato -->
+    <record id="breed_cat_callejero" model="emr.pet.breed">
+        <field name="name">Callejero</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_siames" model="emr.pet.breed">
+        <field name="name">Siamés</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_persa" model="emr.pet.breed">
+        <field name="name">Persa</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_maine_coon" model="emr.pet.breed">
+        <field name="name">Maine Coon</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_comun_europeo" model="emr.pet.breed">
+        <field name="name">Común Europeo</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_bengali" model="emr.pet.breed">
+        <field name="name">Bengalí</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_ragdoll" model="emr.pet.breed">
+        <field name="name">Ragdoll</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_britanico" model="emr.pet.breed">
+        <field name="name">Británico de Pelo Corto</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_sphynx" model="emr.pet.breed">
+        <field name="name">Sphynx</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_abisinio" model="emr.pet.breed">
+        <field name="name">Abisinio</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_azul_ruso" model="emr.pet.breed">
+        <field name="name">Azul Ruso</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_fold_escoces" model="emr.pet.breed">
+        <field name="name">Fold Escocés</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_exotico" model="emr.pet.breed">
+        <field name="name">Exótico de Pelo Corto</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_sagrado_de_birmania" model="emr.pet.breed">
+        <field name="name">Sagrado de Birmania</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_angora_turco" model="emr.pet.breed">
+        <field name="name">Angora Turco</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_bosque_de_noruega" model="emr.pet.breed">
+        <field name="name">Bosque de Noruega</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_oriental" model="emr.pet.breed">
+        <field name="name">Oriental</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_somali" model="emr.pet.breed">
+        <field name="name">Somalí</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_bombay" model="emr.pet.breed">
+        <field name="name">Bombay</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_cornish_rex" model="emr.pet.breed">
+        <field name="name">Cornish Rex</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_devon_rex" model="emr.pet.breed">
+        <field name="name">Devon Rex</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_cartujo" model="emr.pet.breed">
+        <field name="name">Cartujo</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_siberiano" model="emr.pet.breed">
+        <field name="name">Siberiano</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_van_turco" model="emr.pet.breed">
+        <field name="name">Van Turco</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_burmes" model="emr.pet.breed">
+        <field name="name">Burmés</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_tonquines" model="emr.pet.breed">
+        <field name="name">Tonquinés</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_americano_pelo_corto" model="emr.pet.breed">
+        <field name="name">Americano de Pelo Corto</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+    <record id="breed_cat_himalayo" model="emr.pet.breed">
+        <field name="name">Himalayo</field>
+        <field name="species_id" ref="species_cat"/>
+    </record>
+</odoo>

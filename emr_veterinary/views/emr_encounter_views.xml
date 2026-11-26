@@ -9,9 +9,20 @@
         <field name="arch" type="xml">
             <field name="partner_id" position="attributes">
                 <attribute name="string">Dueño</attribute>
+                <attribute name="force_save">1</attribute>
+            </field>
+            <field name="practitioner_id" position="attributes">
+                <attribute name="force_save">1</attribute>
             </field>
             <field name="partner_id" position="before">
-                <field name="pet_id" readonly="1"/>
+                <field name="encounter_type_id" invisible="1" force_save="1"/>
+                <field name="pet_id" readonly="1" force_save="1"/>
+            </field>
+            <field name="company_id" position="attributes">
+                <attribute name="string">Compañía</attribute>
+            </field>
+            <field name="state" position="attributes">
+                <attribute name="string">Estado</attribute>
             </field>
             <page name="attachments" position="before">
                 <page name="consultation" string="Consulta">
@@ -95,11 +106,11 @@
         <field name="model">emr.encounter.veterinary</field>
         <field name="arch" type="xml">
             <list create="false">
-                <field name="date"/>
+                <field name="date" string="Fecha"/>
                 <field name="pet_id"/>
                 <field name="partner_id" string="Dueño"/>
                 <field name="practitioner_id"/>
-                <field name="state" widget="badge"/>
+                <field name="state" string="Estado" widget="badge"/>
             </list>
         </field>
     </record>

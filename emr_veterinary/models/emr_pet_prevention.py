@@ -17,7 +17,7 @@ class EmrPetPrevention(models.Model):
     _emr_vet_signed_ok = {"reminder_sent", "activity_id"}
 
     pet_id = fields.Many2one(
-        "emr.pet", required=True, ondelete="cascade", index=True
+        "emr.pet", string="Mascota", required=True, ondelete="cascade", index=True
     )
     kind = fields.Selection(
         [
@@ -51,7 +51,7 @@ class EmrPetPrevention(models.Model):
         index=True,
     )
     activity_id = fields.Many2one("mail.activity", string="Recordatorio", copy=False)
-    reminder_sent = fields.Boolean(copy=False)
+    reminder_sent = fields.Boolean("Recordatorio enviado", copy=False)
     note = fields.Char("Nota")
     company_id = fields.Many2one(related="pet_id.company_id", store=True)
 

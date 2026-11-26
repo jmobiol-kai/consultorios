@@ -20,6 +20,7 @@ class EmrVeterinaryConsumptionLine(models.Model):
 
     encounter_id = fields.Many2one(
         "emr.encounter.veterinary",
+        string="Consulta",
         required=True,
         ondelete="cascade",
         index=True,
@@ -32,7 +33,7 @@ class EmrVeterinaryConsumptionLine(models.Model):
     )
     quantity = fields.Float("Cantidad", required=True, default=1.0, digits="Product Unit")
     product_uom_id = fields.Many2one(related="product_id.uom_id", string="Unidad")
-    tracking = fields.Selection(related="product_id.tracking")
+    tracking = fields.Selection(related="product_id.tracking", string="Seguimiento")
     lot_id = fields.Many2one(
         "stock.lot",
         string="Lote",

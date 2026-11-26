@@ -16,11 +16,13 @@
                             </span>
                             <span t-if="doc.age"> · <span t-out="doc.age"/></span>
                         </div>
-                        <div class="text-muted" t-if="doc.birth_date or doc.microchip or doc.color">
+                        <div class="text-muted" t-if="doc.birth_date or doc.microchip or doc.color_id or doc.color_note">
                             <span t-if="doc.birth_date">
                                 Nac. <span t-out="doc.birth_date" t-options="{'widget': 'date'}"/>
                             </span>
-                            <span t-if="doc.color"> · <span t-out="doc.color"/></span>
+                            <span t-if="doc.color_id or doc.color_note">
+                                · <span t-out="doc.color_id.name or doc.color_note"/>
+                            </span>
                             <span t-if="doc.microchip"> · Chip <span t-out="doc.microchip"/></span>
                             <span t-if="doc.neutered"> · Castrado</span>
                         </div>

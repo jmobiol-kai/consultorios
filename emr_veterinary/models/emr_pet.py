@@ -3,7 +3,7 @@
 # directory
 ##############################################################################
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 
 class EmrPet(models.Model):
@@ -20,7 +20,7 @@ class EmrPet(models.Model):
     _order = "name, id"
     _rec_names_search = ["name", "microchip"]
 
-    name = fields.Char(required=True, tracking=True)
+    name = fields.Char("Nombre", required=True, tracking=True)
     species_id = fields.Many2one(
         "emr.pet.species", string="Especie", required=True, ondelete="restrict", index=True
     )
@@ -42,7 +42,18 @@ class EmrPet(models.Model):
     )
     birth_date = fields.Date("Fecha de nacimiento")
     age = fields.Char("Edad", compute="_compute_age")
-    color = fields.Char("Color")
+    color_id = fields.Many2one(
+        "emr.pet.color",
+        string="Color",
+        ondelete="restrict",
+        domain="[('species_id', '=', species_id)]",
+    )
+    color_note = fields.Char(
+        "Color anotado",
+        help="Texto libre que quedó de antes, o un pelaje que no está en el "
+        "catálogo. Si coincide con un color de la especie, la actualización "
+        "lo pasa a Color.",
+    )
     image_1920 = fields.Image("Foto", max_width=1920, max_height=1920)
     microchip = fields.Char("Microchip", index=True, copy=False)
     neutered = fields.Boolean("Castrado")
@@ -55,11 +66,12 @@ class EmrPet(models.Model):
         tracking=True,
         help="Quien paga. No es el paciente: el paciente es esta mascota.",
     )
-    deceased = fields.Boolean("Fallecido", tracking=True)
+    deceased = fields.Boolean("Mascota fallecida", tracking=True)
     deceased_date = fields.Date("Fecha de fallecimiento")
-    active = fields.Boolean(default=True)
+    active = fields.Boolean("Activo", default=True)
     company_id = fields.Many2one(
         "res.company",
+        string="Compañía",
         required=True,
         index=True,
         default=lambda self: self.env.company,
@@ -69,7 +81,11 @@ class EmrPet(models.Model):
         "emr.pet.prevention", "pet_id", string="Vacunas y desparasitación"
     )
     encounter_ids = fields.One2many("emr.encounter", "pet_id", string="Atenciones")
-    encounter_count = fields.Integer(compute="_compute_encounter_count")
+    consultation_ids = fields.Many2many(
+        "emr.encounter.veterinary",
+        compute="_compute_consultation_ids",
+        string="Consultas",
+    )
 
     @api.constrains("microchip")
     def _check_microchip_unique(self):
@@ -99,9 +115,18 @@ class EmrPet(models.Model):
             pet.age = self._format_age(pet.birth_date, today)
 
     @api.depends("encounter_ids")
-    def _compute_encounter_count(self):
+    def _compute_consultation_ids(self):
+        """La lista de la ficha abre el formulario de la consulta, no el de emr.encounter.
+
+        El one2many de atenciones es el padre. Si la fila abriera ese modelo,
+        faltaría el detalle clínico. Estas son las consultas veterinarias.
+        """
+        Consultation = self.env["emr.encounter.veterinary"]
         for pet in self:
-            pet.encounter_count = len(pet.encounter_ids)
+            pet.consultation_ids = Consultation.search(
+                [("pet_id", "=", pet.id)],
+                order="date desc, id desc",
+            )
 
     @api.model
     def _format_age(self, birth_date, today):
@@ -133,6 +158,8 @@ class EmrPet(models.Model):
     def _onchange_species_id(self):
         if self.breed_id and self.breed_id.species_id != self.species_id:
             self.breed_id = False
+        if self.color_id and self.color_id.species_id != self.species_id:
+            self.color_id = False
 
     @api.onchange("deceased")
     def _onchange_deceased(self):
@@ -152,6 +179,42 @@ class EmrPet(models.Model):
                         species=pet.species_id.name,
                     )
                 )
+
+    @api.constrains("color_id", "species_id")
+    def _check_color_species(self):
+        for pet in self:
+            if pet.color_id and pet.color_id.species_id != pet.species_id:
+                raise ValidationError(
+                    _(
+                        "El color %(color)s no es de la especie %(species)s.",
+                        color=pet.color_id.name,
+                        species=pet.species_id.name,
+                    )
+                )
+
+    def _match_legacy_colors(self):
+        """Pasa el color escrito a mano al catálogo, si el nombre coincide.
+
+        Lo que no está en el catálogo queda en color anotado.
+        """
+        pets = self if self else self.with_context(active_test=False).search(
+            [("color_note", "!=", False)]
+        )
+        Color = self.env["emr.pet.color"]
+        for pet in pets.filtered("color_note"):
+            if pet.color_id or not pet.species_id:
+                continue
+            name = " ".join(pet.color_note.split())
+            color = Color.search(
+                [
+                    ("species_id", "=", pet.species_id.id),
+                    ("name", "=ilike", name),
+                ],
+                limit=1,
+            )
+            if color:
+                pet.write({"color_id": color.id, "color_note": False})
+        return True
 
     def _reminder_user(self):
         """A quién le cae el recordatorio de la próxima dosis.
@@ -173,15 +236,40 @@ class EmrPet(models.Model):
         managers = self.env.ref("emr.group_emr_manager").all_user_ids[:1]
         return managers or self.env.user
 
-    def action_open_encounters(self):
+    def action_new_consultation(self):
+        """Abre una consulta nueva de esta mascota, aunque no tenga historia.
+
+        El dueño queda como cliente. Si quien opera es profesional, la
+        consulta arranca a su nombre.
+        """
         self.ensure_one()
+        if self.deceased:
+            raise UserError(
+                _(
+                    "No se abre una consulta para %(name)s porque figura como fallecido.",
+                    name=self.name,
+                )
+            )
+        if not self.owner_id:
+            raise UserError(_("La mascota %(name)s no tiene dueño.", name=self.name))
+        practitioner = self.env.user.partner_id
+        if not practitioner.is_practitioner:
+            practitioner = self.env["res.partner"]
+        encounter_type = self.env.ref("emr_veterinary.encounter_type_veterinary")
         return {
             "type": "ir.actions.act_window",
-            "name": _("Historia clínica"),
+            "name": _("Nueva consulta"),
             "res_model": "emr.encounter.veterinary",
-            "view_mode": "list,form",
-            "domain": [("pet_id", "=", self.id)],
-            "context": {"default_pet_id": self.id},
+            "view_mode": "form",
+            "views": [[False, "form"]],
+            "target": "current",
+            "context": {
+                "default_pet_id": self.id,
+                "default_partner_id": self.owner_id.id,
+                "default_practitioner_id": practitioner.id,
+                "default_encounter_type_id": encounter_type.id,
+                "default_company_id": self.company_id.id,
+            },
         }
 
     def action_print_history(self):
