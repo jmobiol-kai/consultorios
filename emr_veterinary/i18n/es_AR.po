@@ -1532,3 +1532,44 @@ msgstr "No se validó la entrega %(pickings)s: hay un lote vencido o falta el lo
 msgid "La entrega %(name)s no se pudo validar."
 msgstr "La entrega %(name)s no se pudo validar."
 
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_appointment_types
+msgid "Tipos de turno"
+msgstr "Tipos de turno"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_specialties
+msgid "Especialidades"
+msgstr "Especialidades"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_diagnoses
+msgid "Diagnósticos"
+msgstr "Diagnósticos"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_allergies
+msgid "Alergias"
+msgstr "Alergias"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_practice_types
+msgid "Tipos de práctica"
+msgstr "Tipos de práctica"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_slots
+msgid "Huecos"
+msgstr "Huecos"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_generate_slots
+msgid "Generar agenda"
+msgstr "Generar agenda"
+
+#. module: emr_veterinary
+#: model:ir.ui.menu,name:emr_veterinary.menu_emr_veterinary_settings
+msgid "Ajustes"
+msgstr "Ajustes"
+
+

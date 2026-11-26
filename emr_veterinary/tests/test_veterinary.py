@@ -369,7 +369,30 @@ class TestVeterinary(TransactionCase):
         self.assertTrue(self.env.ref("emr.emr_encounter_action"))
 
         admin_menus = Menu.with_user(self.env.ref("base.user_admin"))._visible_menu_ids(False)
-        self.assertIn(root.id, admin_menus)
+        self.assertNotIn(root.id, admin_menus)
+        self.assertNotIn(self.env.ref("emr.menu_emr_insurers").id, admin_menus)
+        self.assertNotIn(self.env.ref("emr.menu_emr_patients").id, admin_menus)
+        admin_debug = Menu.with_user(self.env.ref("base.user_admin"))._visible_menu_ids(True)
+        self.assertNotIn(root.id, admin_debug)
+        self.assertIn(
+            self.env.ref("emr_veterinary.menu_emr_veterinary_settings").id,
+            admin_menus,
+        )
+
+        for xmlid in (
+            "emr_veterinary.menu_emr_veterinary_appointment_types",
+            "emr_veterinary.menu_emr_veterinary_specialties",
+            "emr_veterinary.menu_emr_veterinary_diagnoses",
+            "emr_veterinary.menu_emr_veterinary_allergies",
+            "emr_veterinary.menu_emr_veterinary_practice_types",
+            "emr_veterinary.menu_emr_veterinary_slots",
+            "emr_veterinary.menu_emr_veterinary_generate_slots",
+        ):
+            self.assertIn(self.env.ref(xmlid).id, manager_menus)
+            self.assertEqual(
+                self.env.ref(xmlid).parent_id,
+                self.env.ref("emr_veterinary.menu_emr_veterinary_config"),
+            )
 
         self.assertEqual(
             self.env.ref("emr_veterinary.menu_emr_veterinary_practitioners").action,
