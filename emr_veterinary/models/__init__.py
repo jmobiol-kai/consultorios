@@ -11,6 +11,7 @@ from . import emr_veterinary_movement
 from . import emr_veterinary_prescription
 from . import emr_encounter
 from . import product_template
+from . import res_config_settings
 from . import sale_order
 from . import emr_appointment_book
 from . import emr_appointment_charge

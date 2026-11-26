@@ -1500,3 +1500,35 @@ msgstr "· firmada"
 #: model_terms:ir.ui.view,arch_db:emr_veterinary.report_encounter_veterinary_body
 msgid "· próxima"
 msgstr "· próxima"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,field_description:emr_veterinary.field_res_company__emr_veterinary_auto_validate_delivery
+#: model:ir.model.fields,field_description:emr_veterinary.field_res_config_settings__emr_veterinary_auto_validate_delivery
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.res_config_settings_view_form
+msgid "Validar entrega automáticamente con stock"
+msgstr "Validar entrega automáticamente con stock"
+
+#. module: emr_veterinary
+#: model:ir.model.fields,help:emr_veterinary.field_res_company__emr_veterinary_auto_validate_delivery
+#: model_terms:ir.ui.view,arch_db:emr_veterinary.res_config_settings_view_form
+msgid "Al confirmar una venta, si hay stock para todas las líneas almacenables, la entrega se valida sola. Los pedidos del sitio se retiran en la clínica y no se validan."
+msgstr "Al confirmar una venta, si hay stock para todas las líneas almacenables, la entrega se valida sola. Los pedidos del sitio se retiran en la clínica y no se validan."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/sale_order.py:0
+msgid "No se pudo validar la entrega automáticamente. Quedó pendiente. %(error)s"
+msgstr "No se pudo validar la entrega automáticamente. Quedó pendiente. %(error)s"
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/sale_order.py:0
+msgid "No se validó la entrega %(pickings)s: hay un lote vencido o falta el lote."
+msgstr "No se validó la entrega %(pickings)s: hay un lote vencido o falta el lote."
+
+#. module: emr_veterinary
+#. odoo-python
+#: code:addons/emr_veterinary/models/sale_order.py:0
+msgid "La entrega %(name)s no se pudo validar."
+msgstr "La entrega %(name)s no se pudo validar."
+

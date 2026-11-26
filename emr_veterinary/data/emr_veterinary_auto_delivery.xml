@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Corre en cada actualización, pero solo la primera vez prende el
+         check en las compañías que ya existían. El alta de columna booleana
+         deja False; el default del campo solo vale para compañías nuevas. -->
+    <function model="res.company" name="_emr_veterinary_init_auto_validate_delivery"/>
+
+</odoo>

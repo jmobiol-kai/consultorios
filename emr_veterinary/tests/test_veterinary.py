@@ -3,6 +3,7 @@
 # directory
 ##############################################################################
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from lxml import etree
 
@@ -594,11 +595,6 @@ class TestVeterinary(TransactionCase):
         self.assertEqual(counter.state, "sale")
         self.assertTrue(counter.picking_ids)
         picking = counter.picking_ids
-        picking.action_assign()
-        for move in picking.move_ids:
-            move.quantity = move.product_uom_qty
-            move.picked = True
-        picking.button_validate()
         self.assertEqual(picking.state, "done")
         invoice = counter._create_invoices()
         self.assertEqual(invoice.partner_id, self.owner)
@@ -608,6 +604,135 @@ class TestVeterinary(TransactionCase):
             ),
             9,
         )
+
+    def test_auto_validate_delivery_only_with_full_stock(self):
+        warehouse = self.env["stock.warehouse"].search(
+            [("company_id", "=", self.env.company.id)], limit=1
+        )
+        location = warehouse.lot_stock_id
+        product = self.env["product.product"].create({
+            "name": "Pipeta",
+            "type": "consu",
+            "is_storable": True,
+            "veterinary_kind": "medicine",
+            "list_price": 100,
+        })
+        self.env["stock.quant"]._update_available_quantity(product, location, 4)
+        self.assertTrue(self.env.company.emr_veterinary_auto_validate_delivery)
+
+        ready = self._counter_sale(product, 2)
+        ready.action_confirm()
+        self.assertEqual(ready.state, "sale")
+        self.assertEqual(ready.picking_ids.state, "done")
+        self.assertEqual(
+            self.env["stock.quant"]._get_available_quantity(product, location),
+            2,
+        )
+
+        short = self._counter_sale(product, 5)
+        short.action_confirm()
+        self.assertEqual(short.state, "sale")
+        self.assertTrue(short.picking_ids)
+        self.assertNotEqual(short.picking_ids.state, "done")
+
+        self.env.company.emr_veterinary_auto_validate_delivery = False
+        paused = self._counter_sale(product, 1)
+        paused.action_confirm()
+        self.assertEqual(paused.state, "sale")
+        self.assertNotEqual(paused.picking_ids.state, "done")
+
+        self.env.company.emr_veterinary_auto_validate_delivery = True
+        self.assertIn("website_id", self.env["sale.order"]._fields)
+        website = self.env["website"].search([], limit=1)
+        self.assertTrue(website)
+        web = self._counter_sale(product, 1, website_id=website.id)
+        web.action_confirm()
+        self.assertEqual(web.state, "sale")
+        self.assertNotEqual(web.picking_ids.state, "done")
+
+    def test_auto_validate_uses_reserved_fefo_lot_and_skips_expired(self):
+        warehouse = self.env["stock.warehouse"].search(
+            [("company_id", "=", self.env.company.id)], limit=1
+        )
+        location = warehouse.lot_stock_id
+        product = self.env["product.product"].create({
+            "name": "Comprimido con lote",
+            "type": "consu",
+            "is_storable": True,
+            "tracking": "lot",
+            "use_expiration_date": True,
+            "veterinary_kind": "medicine",
+        })
+        product.categ_id.removal_strategy_id = self.env.ref(
+            "product_expiry.removal_fefo"
+        )
+        soon = self.env["stock.lot"].create({
+            "name": "LOTE-PRONTO",
+            "product_id": product.id,
+            "expiration_date": fields.Datetime.now() + timedelta(days=5),
+        })
+        later = self.env["stock.lot"].create({
+            "name": "LOTE-TARDE",
+            "product_id": product.id,
+            "expiration_date": fields.Datetime.now() + timedelta(days=40),
+        })
+        Quant = self.env["stock.quant"]
+        Quant._update_available_quantity(product, location, 4, lot_id=soon)
+        Quant._update_available_quantity(product, location, 4, lot_id=later)
+
+        order = self._counter_sale(product, 3)
+        order.action_confirm()
+        self.assertEqual(order.picking_ids.state, "done")
+        self.assertEqual(order.picking_ids.move_line_ids.lot_id, soon)
+
+        self.env.company.emr_veterinary_auto_validate_delivery = False
+        held = self._counter_sale(product, 1)
+        held.action_confirm()
+        self.assertNotEqual(held.picking_ids.state, "done")
+        soon.expiration_date = fields.Datetime.now() - timedelta(days=1)
+        self.env.company.emr_veterinary_auto_validate_delivery = True
+        held._emr_veterinary_auto_validate_delivery()
+        self.assertNotEqual(held.picking_ids.state, "done")
+        self.assertIn("lote vencido", held.message_ids[:1].body)
+
+    def test_auto_validate_error_does_not_block_the_sale(self):
+        warehouse = self.env["stock.warehouse"].search(
+            [("company_id", "=", self.env.company.id)], limit=1
+        )
+        product = self.env["product.product"].create({
+            "name": "Collar",
+            "type": "consu",
+            "is_storable": True,
+            "veterinary_kind": "accessory",
+        })
+        self.env["stock.quant"]._update_available_quantity(
+            product, warehouse.lot_stock_id, 3
+        )
+        order = self._counter_sale(product, 1)
+        with patch.object(
+            type(self.env["stock.picking"]),
+            "button_validate",
+            side_effect=UserError("falló el almacén"),
+        ):
+            order.action_confirm()
+        self.assertEqual(order.state, "sale")
+        self.assertNotEqual(order.picking_ids.state, "done")
+        self.assertTrue(any(
+            "Quedó pendiente" in (message.body or "")
+            for message in order.message_ids
+        ))
+
+    def _counter_sale(self, product, qty, **extra):
+        vals = {
+            "partner_id": self.owner.id,
+            "is_appointment": False,
+            "order_line": [Command.create({
+                "product_id": product.id,
+                "product_uom_qty": qty,
+            })],
+        }
+        vals.update(extra)
+        return self.env["sale.order"].create(vals)
 
     def test_deceased_field_is_on_the_pet_section(self):
         self.assertEqual(self.env["emr.pet"]._fields["deceased"].string, "Mascota fallecida")
