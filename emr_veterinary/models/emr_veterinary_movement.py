@@ -2,7 +2,7 @@
 # For copyright and license notices, see __manifest__.py file in module root
 # directory
 ##############################################################################
-from odoo import _, api, fields, models, tools
+from odoo import _, fields, models, tools
 
 
 class EmrVeterinaryMovement(models.Model):
@@ -123,9 +123,15 @@ class EmrVeterinaryMovement(models.Model):
             "target": "current",
         }
 
-    @api.model
     def action_new_sale(self):
-        """Venta de mostrador: un pedido normal, no un punto de venta."""
+        """Venta de mostrador: un pedido normal, no un punto de venta.
+
+        No lleva ``@api.model``. El botón del encabezado de la lista llega
+        por ``call_button`` con los ids seleccionados —aunque no haya
+        ninguno— y ``call_kw`` se los queda para armar el recordset. Si el
+        método es de modelo, ese argumento sobra y revienta con
+        ``TypeError: takes 1 positional argument but 2 were given``.
+        """
         view = self.env.ref("emr_veterinary.sale_order_view_form_counter_sale")
         return {
             "type": "ir.actions.act_window",

@@ -24,6 +24,11 @@
             <field name="state" position="attributes">
                 <attribute name="string">Estado</attribute>
             </field>
+            <!-- El agregado existe para anotar algo después de firmar.
+                 En elaboración y cerrada la pestaña no aporta. -->
+            <page name="addenda" position="attributes">
+                <attribute name="invisible">state != 'signed'</attribute>
+            </page>
             <page name="attachments" position="before">
                 <page name="consultation" string="Consulta">
                     <group>

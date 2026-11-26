@@ -7,6 +7,7 @@ from datetime import date, timedelta
 from lxml import etree
 
 from odoo.exceptions import UserError, ValidationError
+from odoo.service.model import call_kw
 from odoo.tests import TransactionCase, tagged
 from odoo import Command, fields
 
@@ -157,6 +158,17 @@ class TestVeterinary(TransactionCase):
         book = self.env["emr.appointment.book"].get_view()["arch"]
         self.assertIn("emr_veterinary", book)
         self.assertNotIn("insurance_member_number", book)
+
+    def test_addenda_tab_only_when_the_consultation_is_signed(self):
+        arch = self.env["emr.encounter.veterinary"].get_view(view_type="form")["arch"]
+        page = etree.fromstring(arch.encode()).xpath("//page[@name='addenda']")
+        self.assertEqual(len(page), 1)
+        self.assertEqual(page[0].get("string"), "Agregados")
+        self.assertEqual(page[0].get("invisible"), "state != 'signed'")
+        base = self.env.ref("emr.emr_encounter_view_form_base").arch
+        base_page = etree.fromstring(base.encode()).xpath("//page[@name='addenda']")
+        self.assertEqual(len(base_page), 1)
+        self.assertFalse(base_page[0].get("invisible"))
 
     def test_encounter_weight_history_signature_and_panel(self):
         other = self.env["emr.pet"].create({
@@ -569,10 +581,10 @@ class TestVeterinary(TransactionCase):
         self.assertEqual(len(counter_rows), 1)
         self.assertFalse(counter_rows.pet_id)
 
-        action = Movement.action_new_sale()
-        self.assertEqual(action["res_model"], "sale.order")
-        self.assertFalse(action["context"]["default_is_appointment"])
-        self.assertTrue(action["context"]["emr_veterinary_counter_sale"])
+        action = self._call_new_sale_button([])
+        self._assert_new_sale_action(action)
+        action = self._call_new_sale_button(counter_rows.ids)
+        self._assert_new_sale_action(action)
         self.assertEqual(
             self.env.ref("emr_veterinary.emr_veterinary_movement_action").context,
             "{'search_default_today': 1}",
@@ -608,6 +620,35 @@ class TestVeterinary(TransactionCase):
         names = [node.get("name") for node in pet.xpath("./field")]
         self.assertLess(names.index("neutered"), names.index("deceased"))
         self.assertLess(names.index("deceased"), names.index("deceased_date"))
+
+    def _call_new_sale_button(self, ids):
+        """Igual que ``/web/dataset/call_button``: el primer arg son los ids."""
+        return call_kw(
+            self.env["emr.veterinary.movement"],
+            "action_new_sale",
+            [ids],
+            {},
+        )
+
+    def _assert_new_sale_action(self, action):
+        self.assertEqual(action["res_model"], "sale.order")
+        self.assertEqual(action["view_mode"], "form")
+        self.assertEqual(action["views"][0][1], "form")
+        self.assertTrue(action["views"][0][0])
+        self.assertFalse(action["context"]["default_is_appointment"])
+        self.assertTrue(action["context"]["emr_veterinary_counter_sale"])
+
+    def test_new_sale_header_button_accepts_web_client_ids(self):
+        """Sin selección y con filas marcadas, Nuevo abre un sale.order."""
+        self._assert_new_sale_action(self._call_new_sale_button([]))
+        visit = self._visit(self.pet, reason="Control de botón")
+        self.env.flush_all()
+        row = self.env["emr.veterinary.movement"].search([
+            ("move_type", "=", "consulta"),
+            ("res_id", "=", visit.id),
+        ])
+        self.assertTrue(row)
+        self._assert_new_sale_action(self._call_new_sale_button(row.ids))
 
     def _visit(self, pet, order=None, **extra):
         vals = {
