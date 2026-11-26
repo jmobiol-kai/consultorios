@@ -18,6 +18,13 @@ function parseDay(value) {
     return new Date(year, month - 1, day);
 }
 
+function capitalizeFirst(value) {
+    if (!value) {
+        return "";
+    }
+    return value.charAt(0).toLocaleUpperCase("es") + value.slice(1);
+}
+
 function el(tag, className, text) {
     const node = document.createElement(tag);
     if (className) {
@@ -46,6 +53,9 @@ export class TurnosCalendar extends Interaction {
         this.formEl = this.el.querySelector("#emr_booking");
         this.summaryEl = this.el.querySelector(".o_emr_summary");
         this.filterEl = this.el.querySelector(".o_emr_filter");
+    }
+
+    start() {
         this.addListener(this.el, "click", this.onClick);
         this.addListener(this.filterEl, "change", () => this.load());
         this.addListener(window, "resize", () => this.render());
@@ -112,7 +122,8 @@ export class TurnosCalendar extends Interaction {
         const label = this.mode === "day" && this.selectedDay
             ? this.dayLabel(this.selectedDay)
             : `${MONTHS[this.view.getMonth()]} ${this.view.getFullYear()}`;
-        this.titleEl.textContent = label;
+        this.titleEl.textContent = capitalizeFirst(label);
+        this.el.classList.toggle("o_emr_mode_day", this.mode === "day");
         this.el.querySelector(".o_emr_back").classList.toggle("d-none", this.mode !== "day");
         this.renderMini();
         this.calendarEl.replaceChildren();
@@ -174,7 +185,10 @@ export class TurnosCalendar extends Interaction {
                 const vet = this.practitioner(id);
                 const chip = el("span", "o_emr_chip", `${vet.name} · ${count} libres`);
                 chip.style.background = vet.color_hex;
-                button.append(chip);
+                const dot = el("span", "o_emr_dot", String(count));
+                dot.style.background = vet.color_hex;
+                dot.title = `${vet.name} · ${count} libres`;
+                button.append(chip, dot);
             });
         }
         return button;

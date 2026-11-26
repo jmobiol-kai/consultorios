@@ -324,5 +324,8 @@ class TestTurnosController(HttpCase):
         self.assertEqual(payload["timezone"], "America/Buenos_Aires")
         self.assertIn("slots", payload)
         self.assertRegex(payload["today"], r"^\d{4}-\d{2}-\d{2}$")
+
+    def test_turnos_month_grid_tour(self):
+        self.start_tour("/turnos", "emr_veterinary_website_turnos_month", login=None)
         bad = self.url_open("/turnos/huecos?start=no&end=2026-12-07")
         self.assertEqual(bad.status_code, 400)
