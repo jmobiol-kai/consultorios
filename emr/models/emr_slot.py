@@ -233,18 +233,38 @@ class EmrSlot(models.Model):
         vals_list = []
         day = date_from
         while day <= date_to:
-            for attendance in calendar.attendance_ids:
-                # En el widget de secciones conviven filas que no son franjas.
-                if attendance.display_type:
-                    continue
-                if int(attendance.dayofweek) != day.weekday():
-                    continue
+            for attendance in self._attendances_for_day(calendar, day):
                 vals_list += self._prepare_day_slots(
                     practitioner, attendance, day, tz, leaves, existing
                 )
             day += timedelta(days=1)
 
         return self.create(vals_list) if vals_list else self.browse()
+
+    @api.model
+    def _attendances_for_day(self, calendar, day):
+        """Las franjas que aplican ese día.
+
+        En un calendario de dos semanas, la semana par y la impar no se
+        suman: solo entran las franjas cuyo ``week_type`` es el de ese día.
+        Las filas de sección no son horarios. Un calendario común no tiene
+        semana y se comporta como antes.
+        """
+        week_type = None
+        if calendar.two_weeks_calendar:
+            week_type = str(
+                self.env["resource.calendar.attendance"].get_week_type(day)
+            )
+        attendances = self.env["resource.calendar.attendance"]
+        for attendance in calendar.attendance_ids:
+            if attendance.display_type or attendance.week_type == "section":
+                continue
+            if int(attendance.dayofweek) != day.weekday():
+                continue
+            if week_type is not None and attendance.week_type != week_type:
+                continue
+            attendances |= attendance
+        return attendances
 
     @api.model
     def _prepare_day_slots(self, practitioner, attendance, day, tz, leaves, existing):
