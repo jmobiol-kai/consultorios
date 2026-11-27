@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from pytz import timezone, utc
 
 from odoo import _, api, fields, models
+from odoo.addons.emr.models.emr_slot import LIVE_APPOINTMENT_STATES
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
@@ -150,7 +151,61 @@ class EmrVeterinaryWebsiteBooking(models.AbstractModel):
             "today": today,
             "practitioners": list(practitioners.values()),
             "slots": rows,
+            "booked": self._booked_counts(start_utc, end_utc, professional),
         }
+
+    @api.model
+    def _booked_counts(self, start_utc, end_utc, professional):
+        """Turnos ya tomados, por día y profesional. Solo la cantidad.
+
+        Un turno tomado es un hueco en estado de turno vivo, o una orden de
+        turno en esos mismos estados. Si los dos apuntan a lo mismo, cuenta
+        una vez. No se devuelve paciente, mascota ni ningún otro dato.
+        """
+        slot_domain = [
+            ("state", "in", list(LIVE_APPOINTMENT_STATES)),
+            ("start", ">=", start_utc),
+            ("start", "<=", end_utc),
+        ]
+        order_domain = [
+            ("is_appointment", "=", True),
+            ("parent_order_id", "=", False),
+            ("appointment_state", "in", list(LIVE_APPOINTMENT_STATES)),
+            ("appointment_start", ">=", start_utc),
+            ("appointment_start", "<=", end_utc),
+        ]
+        if professional and professional.is_practitioner:
+            slot_domain.append(("practitioner_id", "=", professional.id))
+            order_domain.append(("practitioner_id", "=", professional.id))
+        orders = self.env["sale.order"].search_read(
+            order_domain, ["id", "appointment_start", "practitioner_id"]
+        )
+        slots = self.env["emr.slot"].search_read(
+            slot_domain, ["start", "practitioner_id", "order_id"]
+        )
+        seen_orders = {order["id"] for order in orders}
+        counts = {}
+
+        def add(moment, practitioner):
+            local = _as_local(moment)
+            practitioner_id = practitioner[0] if isinstance(practitioner, tuple) else practitioner
+            if not local or not practitioner_id:
+                return
+            key = (local.strftime("%Y-%m-%d"), practitioner_id)
+            counts[key] = counts.get(key, 0) + 1
+
+        for order in orders:
+            add(order["appointment_start"], order["practitioner_id"])
+        for slot in slots:
+            order = slot["order_id"]
+            order_id = order[0] if isinstance(order, tuple) else order
+            if order_id and order_id in seen_orders:
+                continue
+            add(slot["start"], slot["practitioner_id"])
+        return [
+            {"date": day, "practitioner_id": practitioner_id, "count": count}
+            for (day, practitioner_id), count in sorted(counts.items())
+        ]
 
     @api.model
     def book(self, post, ip=None):

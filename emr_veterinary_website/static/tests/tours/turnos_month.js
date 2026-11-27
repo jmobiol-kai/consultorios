@@ -8,6 +8,16 @@ registry.category("web_tour.tours").add("emr_veterinary_website_turnos_month", {
             trigger: ".o_emr_calendar .o_emr_weekdays span:nth-child(7)",
         },
         {
+            content: "Los días del mes de al lado no van atenuados",
+            trigger: ".o_emr_calendar .o_emr_week .o_emr_day",
+            run() {
+                const faded = document.querySelector(".o_emr_calendar .o_emr_day.is-out");
+                if (faded) {
+                    throw new Error("Un día de otro mes sigue atenuado");
+                }
+            },
+        },
+        {
             content: "Hay días en la grilla",
             trigger: ".o_emr_calendar .o_emr_week .o_emr_day",
             run: "click",

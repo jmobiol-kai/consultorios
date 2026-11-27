@@ -19,7 +19,7 @@
 ##############################################################################
 {
     "name": "Sitio de la veterinaria",
-    "version": "19.0.1.1.2",
+    "version": "19.0.1.1.3",
     "category": "Website",
     "author": "filoquin",
     "license": "AGPL-3",

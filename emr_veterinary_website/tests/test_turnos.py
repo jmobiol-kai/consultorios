@@ -26,6 +26,9 @@ class TestTurnosBooking(TransactionCase):
 
     def _slot(self, hours=24):
         start = fields.Datetime.now() + timedelta(hours=hours)
+        return self._slot_at(start)
+
+    def _slot_at(self, start):
         return self.env["emr.slot"].create({
             "practitioner_id": self.vet.id,
             "start": start,
@@ -265,6 +268,70 @@ class TestTurnosBooking(TransactionCase):
         with self.assertRaises(UserError):
             self.Booking.slots_payload("no-es-fecha", window_end)
 
+    def test_slots_payload_counts_booked_without_patient_data(self):
+        now = fields.Datetime.now().replace(minute=0, second=0, microsecond=0)
+        start = (now + timedelta(days=12)).replace(hour=18)
+        local_day = (start - timedelta(hours=3)).date().isoformat()
+        self.env["emr.slot"].create({
+            "practitioner_id": self.vet.id,
+            "start": start,
+            "stop": start + timedelta(minutes=30),
+            "duration": 30,
+            "slot_type": "scheduled",
+        })
+        first = self._slot_at(start + timedelta(hours=1))
+        second = self._slot_at(start + timedelta(hours=2))
+        booked = self.Booking.book(self._post(first, email="uno.web@example.com", pet_name="Rita"), ip="203.0.113.40")
+        self.Booking.book(
+            self._post(second, email="dos.web@example.com", pet_name="Lola", phone="11 5555 0199"),
+            ip="203.0.113.41",
+        )
+        owner = self.env["res.partner"].create({"name": "Dueño suelto"})
+        pet = self.env["emr.pet"].create({
+            "name": "Sol",
+            "species_id": self.species.id,
+            "owner_id": owner.id,
+        })
+        self.env["sale.order"].create({
+            "partner_id": owner.id,
+            "pet_id": pet.id,
+            "is_appointment": True,
+            "practitioner_id": self.vet.id,
+            "appointment_start": start + timedelta(hours=3),
+            "appointment_state": "confirmed",
+        })
+        self.env["sale.order"].create({
+            "partner_id": owner.id,
+            "pet_id": pet.id,
+            "is_appointment": True,
+            "practitioner_id": self.vet.id,
+            "appointment_start": start + timedelta(hours=4),
+            "appointment_state": "cancelled",
+        })
+        payload = self.Booking.slots_payload(local_day, local_day)
+        mine = [
+            row for row in payload["booked"]
+            if row["date"] == local_day and row["practitioner_id"] == self.vet.id
+        ]
+        self.assertEqual(mine, [{
+            "date": local_day,
+            "practitioner_id": self.vet.id,
+            "count": 3,
+        }])
+        self.assertEqual(set(mine[0]), {"date", "practitioner_id", "count"})
+        dumped = str(payload)
+        self.assertNotIn("Rita", dumped)
+        self.assertNotIn("Lola", dumped)
+        self.assertNotIn("Sol", dumped)
+        self.assertNotIn("Dueño suelto", dumped)
+        self.assertNotIn(booked.partner_id.name, dumped)
+        other = self.env["res.partner"].create({
+            "name": "Otra",
+            "is_practitioner": True,
+        })
+        filtered = self.Booking.slots_payload(local_day, local_day, professional_id=other.id)
+        self.assertFalse(filtered["booked"])
+
 
 @tagged("post_install", "-at_install")
 class TestTurnosController(HttpCase):
@@ -323,6 +390,7 @@ class TestTurnosController(HttpCase):
         payload = response.json()
         self.assertEqual(payload["timezone"], "America/Buenos_Aires")
         self.assertIn("slots", payload)
+        self.assertIsInstance(payload["booked"], list)
         self.assertRegex(payload["today"], r"^\d{4}-\d{2}-\d{2}$")
 
     def test_turnos_month_grid_tour(self):

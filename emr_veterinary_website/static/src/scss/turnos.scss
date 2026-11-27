@@ -61,10 +61,6 @@
         cursor: default;
     }
 
-    .o_emr_day.is-out {
-        opacity: .55;
-    }
-
     .o_emr_day.is-today .o_emr_num {
         background: var(--emr-today);
         color: #fff;
@@ -73,7 +69,8 @@
     }
 
     .o_emr_chip {
-        display: block;
+        display: flex;
+        align-items: center;
         width: 100%;
         border: 0;
         border-radius: 999px;
@@ -85,7 +82,36 @@
         text-align: left;
         white-space: nowrap;
         overflow: hidden;
+    }
+
+    .o_emr_chip_name {
+        min-width: 0;
+        overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .o_emr_booked {
+        display: inline-flex;
+        align-items: center;
+        flex: none;
+        gap: .12rem;
+        margin-left: .28rem;
+    }
+
+    .o_emr_booked_dot {
+        width: .38rem;
+        height: .38rem;
+        border-radius: 999px;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, .45);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, .35);
+    }
+
+    .o_emr_booked_more {
+        color: #fff;
+        font-size: .62rem;
+        line-height: 1;
+        text-shadow: 0 0 2px rgba(0, 0, 0, .75);
     }
 
     .o_emr_dot {

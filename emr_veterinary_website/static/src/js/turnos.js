@@ -110,6 +110,26 @@ export class TurnosCalendar extends Interaction {
         return (this.payload.slots || []).filter((slot) => slot.date === dayIso);
     }
 
+    bookedMarks(count) {
+        if (!count) {
+            return null;
+        }
+        const shown = Math.min(count, 5);
+        const extra = count - shown;
+        const marks = el("span", "o_emr_booked");
+        marks.setAttribute(
+            "aria-label",
+            `${count} ${count === 1 ? "turno tomado" : "turnos tomados"}`,
+        );
+        for (let index = 0; index < shown; index++) {
+            marks.append(el("span", "o_emr_booked_dot"));
+        }
+        if (extra) {
+            marks.append(el("span", "o_emr_booked_more", `+${extra}`));
+        }
+        return marks;
+    }
+
     practitioner(id) {
         return (this.payload.practitioners || []).find((item) => item.id === id) || {
             id,
@@ -125,6 +145,10 @@ export class TurnosCalendar extends Interaction {
         this.titleEl.textContent = capitalizeFirst(label);
         this.el.classList.toggle("o_emr_mode_day", this.mode === "day");
         this.el.querySelector(".o_emr_back").classList.toggle("d-none", this.mode !== "day");
+        this.bookedIndex = {};
+        (this.payload.booked || []).forEach((item) => {
+            this.bookedIndex[`${item.date}:${item.practitioner_id}`] = item.count || 0;
+        });
         this.renderMini();
         this.calendarEl.replaceChildren();
         if (this.mode === "day" && this.selectedDay) {
@@ -161,16 +185,12 @@ export class TurnosCalendar extends Interaction {
         const dayIso = iso(date);
         const slots = this.slotsOn(dayIso);
         const past = date < this.today;
-        const outside = date.getMonth() !== this.view.getMonth();
         const muted = past || !slots.length;
         const button = el("button", "o_emr_day");
         button.type = "button";
         button.dataset.day = dayIso;
         if (muted) {
             button.classList.add("is-muted");
-        }
-        if (outside) {
-            button.classList.add("is-out");
         }
         if (dayIso === iso(this.today)) {
             button.classList.add("is-today");
@@ -181,12 +201,21 @@ export class TurnosCalendar extends Interaction {
             slots.forEach((slot) => seen.add(slot.practitioner_id));
             seen.forEach((id) => {
                 const vet = this.practitioner(id);
-                const chip = el("span", "o_emr_chip", vet.name);
+                const count = (this.bookedIndex || {})[`${dayIso}:${id}`] || 0;
+                const chip = el("span", "o_emr_chip");
                 chip.style.background = vet.color_hex;
+                chip.append(el("span", "o_emr_chip_name", vet.name));
+                const marks = this.bookedMarks(count);
+                if (marks) {
+                    chip.append(marks);
+                }
                 const dot = el("span", "o_emr_dot");
                 dot.style.background = vet.color_hex;
-                dot.title = vet.name;
-                dot.setAttribute("aria-label", vet.name);
+                const label = count
+                    ? `${vet.name}, ${count} ${count === 1 ? "turno tomado" : "turnos tomados"}`
+                    : vet.name;
+                dot.title = label;
+                dot.setAttribute("aria-label", label);
                 button.append(chip, dot);
             });
         }
