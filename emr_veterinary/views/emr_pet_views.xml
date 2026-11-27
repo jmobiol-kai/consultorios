@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_pet_view_search" model="ir.ui.view">
+        <field name="name">emr.pet.search</field>
+        <field name="model">emr.pet</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="microchip"/>
+                <field name="owner_id"/>
+                <field name="species_id"/>
+                <field name="breed_id"/>
+                <field name="color_id"/>
+                <filter name="alive" string="Activos" domain="[('deceased', '=', False)]"/>
+                <filter name="deceased" string="Fallecidos" domain="[('deceased', '=', True)]"/>
+                <separator/>
+                <filter name="neutered" string="Castrados" domain="[('neutered', '=', True)]"/>
+                <group>
+                    <filter name="group_species" string="Especie" context="{'group_by': 'species_id'}"/>
+                    <filter name="group_owner" string="Dueño" context="{'group_by': 'owner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="emr_pet_view_list" model="ir.ui.view">
+        <field name="name">emr.pet.list</field>
+        <field name="model">emr.pet</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="species_id"/>
+                <field name="breed_id" optional="show"/>
+                <field name="sex" optional="show"/>
+                <field name="age" optional="show"/>
+                <field name="color_id" optional="hide"/>
+                <field name="owner_id"/>
+                <field name="microchip" optional="hide"/>
+                <field name="deceased" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_pet_view_kanban" model="ir.ui.view">
+        <field name="name">emr.pet.kanban</field>
+        <field name="model">emr.pet</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="image_1920" widget="image" options="{'size': [80, 80]}"/>
+                        <div class="ms-2">
+                            <strong><field name="name"/></strong>
+                            <div class="text-muted">
+                                <field name="species_id"/>
+                                <span invisible="not breed_id"> · <field name="breed_id"/></span>
+                            </div>
+                            <div><field name="owner_id"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="emr_pet_view_form" model="ir.ui.view">
+        <field name="name">emr.pet.form</field>
+        <field name="model">emr.pet</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_print_history" type="object" string="Imprimir historia"
+                            class="btn-secondary" icon="fa-file-pdf-o"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Mascota fallecida" bg_color="text-bg-danger"
+                            invisible="not deceased"/>
+                    <field name="image_1920" widget="image" class="oe_avatar"
+                           options="{'preview_image': 'image_1920'}"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Nombre"/></h1>
+                    </div>
+                    <group>
+                        <group string="Mascota">
+                            <field name="species_id"/>
+                            <field name="breed_id"/>
+                            <field name="sex"/>
+                            <field name="birth_date"/>
+                            <field name="age"/>
+                            <field name="color_id"/>
+                            <field name="color_note" invisible="not color_note"/>
+                            <field name="microchip"/>
+                            <field name="neutered"/>
+                            <field name="deceased"/>
+                            <field name="deceased_date" invisible="not deceased"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Dueño">
+                            <field name="owner_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="history" string="Historia clínica">
+                            <button name="action_new_consultation" type="object"
+                                    string="Nueva consulta" class="btn-link"
+                                    icon="fa-plus" invisible="not id or deceased"/>
+                            <field name="consultation_ids" readonly="1">
+                                <list create="false" delete="false"
+                                      default_order="date desc, id desc">
+                                    <field name="date" string="Fecha"/>
+                                    <field name="encounter_type_id"/>
+                                    <field name="practitioner_id"/>
+                                    <field name="state" string="Estado" widget="badge"
+                                           decoration-warning="state == 'draft'"
+                                           decoration-info="state == 'closed'"
+                                           decoration-success="state == 'signed'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="weight" string="Peso">
+                            <field name="weight_ids">
+                                <list editable="bottom">
+                                    <field name="date" string="Fecha"/>
+                                    <field name="weight"/>
+                                    <field name="encounter_id" optional="show"/>
+                                    <field name="note" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="prevention" string="Vacunas y desparasitación">
+                            <button name="action_new_prevention" type="object"
+                                    string="Nueva aplicación" class="btn-link"
+                                    icon="fa-plus" invisible="not id"/>
+                            <field name="prevention_ids" context="{'default_pet_id': id}">
+                                <list editable="bottom">
+                                    <field name="pet_id" column_invisible="1"/>
+                                    <field name="date"/>
+                                    <field name="kind"/>
+                                    <field name="product_id"/>
+                                    <field name="lot_id"/>
+                                    <field name="expiration_date"/>
+                                    <field name="next_date"/>
+                                    <field name="note" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="emr_pet_action" model="ir.actions.act_window">
+        <field name="name">Mascotas</field>
+        <field name="res_model">emr.pet</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="emr_pet_view_search"/>
+        <field name="context">{'search_default_alive': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Todavía no hay mascotas</p>
+            <p>El paciente es el animal. El dueño es el contacto al que se le factura.</p>
+        </field>
+    </record>
+
+</odoo>

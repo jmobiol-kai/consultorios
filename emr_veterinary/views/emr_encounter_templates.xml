@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="encounter_summary_veterinary">
+        <div class="border-bottom py-2">
+            <t t-call="emr.encounter_summary_header"/>
+            <div t-if="detail and detail.pet_id" class="small text-muted">
+                <t t-out="detail.pet_id.name"/>
+                <t t-if="detail.pet_id.species_id"> · <t t-out="detail.pet_id.species_id.name"/></t>
+            </div>
+            <t t-call="emr.encounter_summary_fields"/>
+        </div>
+    </template>
+
+</odoo>

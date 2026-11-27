@@ -1,0 +1,35 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_emr_pet_species_reception,emr.pet.species reception,model_emr_pet_species,emr.group_emr_reception,1,0,0,0
+access_emr_pet_species_practitioner,emr.pet.species practitioner,model_emr_pet_species,emr.group_emr_practitioner,1,1,1,0
+access_emr_pet_species_manager,emr.pet.species manager,model_emr_pet_species,emr.group_emr_manager,1,1,1,1
+access_emr_pet_breed_reception,emr.pet.breed reception,model_emr_pet_breed,emr.group_emr_reception,1,0,0,0
+access_emr_pet_breed_practitioner,emr.pet.breed practitioner,model_emr_pet_breed,emr.group_emr_practitioner,1,1,1,0
+access_emr_pet_breed_manager,emr.pet.breed manager,model_emr_pet_breed,emr.group_emr_manager,1,1,1,1
+access_emr_pet_color_reception,emr.pet.color reception,model_emr_pet_color,emr.group_emr_reception,1,0,0,0
+access_emr_pet_color_practitioner,emr.pet.color practitioner,model_emr_pet_color,emr.group_emr_practitioner,1,1,1,0
+access_emr_pet_color_manager,emr.pet.color manager,model_emr_pet_color,emr.group_emr_manager,1,1,1,1
+access_emr_veterinary_movement_reception,emr.veterinary.movement reception,model_emr_veterinary_movement,emr.group_emr_reception,1,0,0,0
+access_emr_veterinary_movement_manager,emr.veterinary.movement manager,model_emr_veterinary_movement,emr.group_emr_manager,1,0,0,0
+access_emr_pet_reception,emr.pet reception,model_emr_pet,emr.group_emr_reception,1,1,1,0
+access_emr_pet_practitioner,emr.pet practitioner,model_emr_pet,emr.group_emr_practitioner,1,1,1,0
+access_emr_pet_manager,emr.pet manager,model_emr_pet,emr.group_emr_manager,1,1,1,1
+access_emr_pet_weight_reception,emr.pet.weight reception,model_emr_pet_weight,emr.group_emr_reception,1,0,0,0
+access_emr_pet_weight_practitioner,emr.pet.weight practitioner,model_emr_pet_weight,emr.group_emr_practitioner,1,1,1,1
+access_emr_pet_weight_manager,emr.pet.weight manager,model_emr_pet_weight,emr.group_emr_manager,1,1,1,1
+access_emr_pet_prevention_reception,emr.pet.prevention reception,model_emr_pet_prevention,emr.group_emr_reception,1,0,0,0
+access_emr_pet_prevention_practitioner,emr.pet.prevention practitioner,model_emr_pet_prevention,emr.group_emr_practitioner,1,1,1,1
+access_emr_pet_prevention_manager,emr.pet.prevention manager,model_emr_pet_prevention,emr.group_emr_manager,1,1,1,1
+access_emr_encounter_veterinary_reception,emr.encounter.veterinary reception,model_emr_encounter_veterinary,emr.group_emr_reception,1,0,0,0
+access_emr_encounter_veterinary_practitioner,emr.encounter.veterinary practitioner,model_emr_encounter_veterinary,emr.group_emr_practitioner,1,1,1,0
+access_emr_encounter_veterinary_manager,emr.encounter.veterinary manager,model_emr_encounter_veterinary,emr.group_emr_manager,1,1,1,1
+access_emr_veterinary_consumption_reception,consumption reception,model_emr_veterinary_consumption_line,emr.group_emr_reception,1,0,0,0
+access_emr_veterinary_consumption_practitioner,consumption practitioner,model_emr_veterinary_consumption_line,emr.group_emr_practitioner,1,1,1,1
+access_emr_veterinary_consumption_manager,consumption manager,model_emr_veterinary_consumption_line,emr.group_emr_manager,1,1,1,1
+access_emr_veterinary_prescription_reception,prescription reception,model_emr_veterinary_prescription,emr.group_emr_reception,1,0,0,0
+access_emr_veterinary_prescription_practitioner,prescription practitioner,model_emr_veterinary_prescription,emr.group_emr_practitioner,1,1,1,1
+access_emr_veterinary_prescription_manager,prescription manager,model_emr_veterinary_prescription,emr.group_emr_manager,1,1,1,1
+access_emr_veterinary_prescription_line_reception,prescription line reception,model_emr_veterinary_prescription_line,emr.group_emr_reception,1,0,0,0
+access_emr_veterinary_prescription_line_practitioner,prescription line practitioner,model_emr_veterinary_prescription_line,emr.group_emr_practitioner,1,1,1,1
+access_emr_veterinary_prescription_line_manager,prescription line manager,model_emr_veterinary_prescription_line,emr.group_emr_manager,1,1,1,1
+access_sale_order_template_emr_vet_manager,sale.order.template vet manager,sale_management.model_sale_order_template,emr.group_emr_manager,1,1,1,1
+access_sale_order_template_line_emr_vet_manager,sale.order.template.line vet manager,sale_management.model_sale_order_template_line,emr.group_emr_manager,1,1,1,1

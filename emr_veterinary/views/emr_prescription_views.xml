@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_veterinary_prescription_view_form" model="ir.ui.view">
+        <field name="name">emr.veterinary.prescription.form</field>
+        <field name="model">emr.veterinary.prescription</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_print" type="object" string="Imprimir" class="btn-primary"
+                            icon="fa-print"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="pet_id" string="Mascota"/>
+                            <field name="owner_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="practitioner_id"/>
+                            <field name="encounter_id"/>
+                        </group>
+                    </group>
+                    <field name="indications" placeholder="Indicaciones"/>
+                    <field name="line_ids">
+                        <list editable="bottom">
+                            <field name="product_id"/>
+                            <field name="name"/>
+                            <field name="dosage"/>
+                            <field name="instructions"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

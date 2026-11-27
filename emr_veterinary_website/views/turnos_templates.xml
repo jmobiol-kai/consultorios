@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="turnos_page" name="Pedir turno">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-4 o_emr_turnos">
+                    <h1>Pedir un turno</h1>
+                    <p class="text-muted">Sin cuenta. Elegí un día, un horario libre y dejá los datos del dueño y de la mascota.</p>
+                    <div t-if="error" class="alert alert-danger" role="alert" t-out="error"/>
+                    <div class="o_emr_layout">
+                        <aside class="o_emr_side">
+                            <div class="o_emr_mini" aria-label="Mes"/>
+                            <label class="form-label mt-3" for="emr_practitioner">Profesional (opcional)</label>
+                            <select id="emr_practitioner" class="form-select o_emr_filter">
+                                <option value="">Cualquiera</option>
+                                <t t-foreach="practitioners" t-as="vet">
+                                    <option t-att-value="vet.id"
+                                            t-att-selected="practitioner and practitioner.id == vet.id and 'selected' or False">
+                                        <t t-out="vet.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </aside>
+                        <section class="o_emr_main">
+                            <div class="o_emr_toolbar">
+                                <button type="button" class="btn btn-outline-secondary" data-nav="prev" aria-label="Mes anterior">‹</button>
+                                <button type="button" class="btn btn-outline-secondary" data-nav="today">Hoy</button>
+                                <button type="button" class="btn btn-outline-secondary" data-nav="next" aria-label="Mes siguiente">›</button>
+                                <h2 class="o_emr_title h5 mb-0"/>
+                                <button type="button" class="btn btn-link o_emr_back d-none" data-nav="month">Mes</button>
+                            </div>
+                            <div class="o_emr_calendar" role="grid" aria-label="Agenda"/>
+                        </section>
+                    </div>
+                    <form t-attf-class="o_emr_form row g-3 mt-4 #{'' if error or selected else 'd-none'}"
+                          action="/turnos/confirmar" method="post" id="emr_booking">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="slot_id" t-att-value="selected.id if selected else ''"/>
+                        <input type="hidden" name="practitioner_id"
+                               t-att-value="(selected.practitioner_id.id if selected else (practitioner.id if practitioner else ''))"/>
+                        <div class="emr-hp" aria-hidden="true">
+                            <label for="emr_hp">Sitio web</label>
+                            <input id="emr_hp" type="text" name="emr_hp" tabindex="-1" autocomplete="off"/>
+                        </div>
+                        <div class="col-12">
+                            <h2 class="h4">Turno elegido</h2>
+                            <p class="o_emr_summary mb-0" t-out="slot_summary or 'Elegí un horario en la agenda.'"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="emr_practice">Práctica (opcional)</label>
+                            <select id="emr_practice" name="practice_id" class="form-select">
+                                <option value="">Sin práctica</option>
+                                <t t-foreach="practices" t-as="practice">
+                                    <option t-att-value="practice.id"
+                                            t-att-selected="post.get('practice_id') == str(practice.id) and 'selected' or False">
+                                        <t t-out="practice.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-12"><h2 class="h4">Dueño</h2></div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="emr_owner">Nombre</label>
+                            <input id="emr_owner" name="owner_name" class="form-control" required="required"
+                                   t-att-value="post.get('owner_name')"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="emr_phone">Teléfono</label>
+                            <input id="emr_phone" name="phone" class="form-control" required="required"
+                                   t-att-value="post.get('phone')"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="emr_email">Correo</label>
+                            <input id="emr_email" type="email" name="email" class="form-control" required="required"
+                                   t-att-value="post.get('email')"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="emr_vat">DNI (opcional)</label>
+                            <input id="emr_vat" name="vat" class="form-control" t-att-value="post.get('vat')"/>
+                        </div>
+                        <div class="col-12"><h2 class="h4">Mascota</h2></div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="emr_pet">Nombre</label>
+                            <input id="emr_pet" name="pet_name" class="form-control" required="required"
+                                   t-att-value="post.get('pet_name')"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="emr_species">Especie</label>
+                            <select id="emr_species" name="species_id" class="form-select" required="required">
+                                <option value="">Elegí</option>
+                                <t t-foreach="species" t-as="item">
+                                    <option t-att-value="item.id"
+                                            t-att-selected="post.get('species_id') == str(item.id) and 'selected' or False">
+                                        <t t-out="item.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="emr_breed">Raza (opcional)</label>
+                            <select id="emr_breed" name="breed_id" class="form-select">
+                                <option value="">Sin especificar</option>
+                                <t t-foreach="breeds" t-as="breed">
+                                    <option t-att-value="breed.id" t-att-data-species="breed.species_id.id"
+                                            t-att-selected="post.get('breed_id') == str(breed.id) and 'selected' or False">
+                                        <t t-out="breed.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="emr_sex">Sexo</label>
+                            <select id="emr_sex" name="sex" class="form-select">
+                                <option value="unknown">Sin especificar</option>
+                                <option value="female" t-att-selected="post.get('sex') == 'female' and 'selected' or False">Hembra</option>
+                                <option value="male" t-att-selected="post.get('sex') == 'male' and 'selected' or False">Macho</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="emr_birth">Nacimiento aprox.</label>
+                            <input id="emr_birth" type="date" name="birth_date" class="form-control"
+                                   t-att-value="post.get('birth_date')"/>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Confirmar turno</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="turnos_thanks" name="Turno confirmado">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container py-5">
+                    <t t-if="order">
+                        <h1>Turno reservado</h1>
+                        <p>
+                            Quedó programado el turno <strong t-out="order.name"/>
+                            para <strong t-out="order.pet_id.name"/>.
+                        </p>
+                        <p>
+                            <t t-out="order.appointment_start" t-options="{'widget': 'datetime'}"/>
+                            <t t-if="order.practitioner_id">
+                                con <t t-out="order.practitioner_id.name"/>.
+                            </t>
+                        </p>
+                        <p>Dueño: <t t-out="order.partner_id.name"/>. Si dejaste un correo, te mandamos la confirmación.</p>
+                    </t>
+                    <t t-else="">
+                        <h1>Recibimos el pedido</h1>
+                        <p>Si los datos estaban completos, el turno queda programado.</p>
+                    </t>
+                    <a href="/turnos" class="btn btn-outline-secondary">Volver</a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

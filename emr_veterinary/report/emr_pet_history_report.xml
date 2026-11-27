@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_pet_history_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <div class="row mb-4">
+                    <div class="col-8">
+                        <h4 class="mt-0">Historia clínica</h4>
+                        <div><strong t-out="doc.name"/></div>
+                        <div class="text-muted">
+                            <span t-if="doc.species_id" t-out="doc.species_id.name"/>
+                            <span t-if="doc.breed_id"> · <span t-out="doc.breed_id.name"/></span>
+                            <span t-if="doc.sex">
+                                · <span t-out="dict(doc._fields['sex']._description_selection(env)).get(doc.sex)"/>
+                            </span>
+                            <span t-if="doc.age"> · <span t-out="doc.age"/></span>
+                        </div>
+                        <div class="text-muted" t-if="doc.birth_date or doc.microchip or doc.color_id or doc.color_note">
+                            <span t-if="doc.birth_date">
+                                Nac. <span t-out="doc.birth_date" t-options="{'widget': 'date'}"/>
+                            </span>
+                            <span t-if="doc.color_id or doc.color_note">
+                                · <span t-out="doc.color_id.name or doc.color_note"/>
+                            </span>
+                            <span t-if="doc.microchip"> · Chip <span t-out="doc.microchip"/></span>
+                            <span t-if="doc.neutered"> · Castrado</span>
+                        </div>
+                        <div t-if="doc.owner_id">
+                            <strong>Dueño</strong>
+                            <span t-out="doc.owner_id.name"/>
+                            <span t-if="doc.owner_id.phone" class="text-muted">
+                                · <span t-out="doc.owner_id.phone"/>
+                            </span>
+                        </div>
+                        <div t-if="doc.deceased" class="text-danger">Mascota fallecida
+                            <span t-if="doc.deceased_date" t-out="doc.deceased_date" t-options="{'widget': 'date'}"/>
+                        </div>
+                    </div>
+                    <div class="col-4 text-end">
+                        <t t-set="atenciones" t-value="historia.get(doc.id) or []"/>
+                        <div>
+                            <strong t-out="len(atenciones)"/>
+                            <span t-if="len(atenciones) == 1">atención</span>
+                            <span t-else="">atenciones</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div t-if="doc.weight_ids" class="mb-3">
+                    <strong>Peso</strong>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Fecha</th><th class="text-end">kg</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="doc.weight_ids" t-as="peso">
+                                <td><span t-out="peso.date" t-options="{'widget': 'date'}"/></td>
+                                <td class="text-end"><span t-out="peso.weight"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div t-if="doc.prevention_ids" class="mb-3">
+                    <strong>Vacunas y desparasitación</strong>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th><th>Tipo</th><th>Producto</th>
+                                <th>Lote</th><th>Próxima dosis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="doc.prevention_ids" t-as="prev">
+                                <td><span t-out="prev.date" t-options="{'widget': 'date'}"/></td>
+                                <td><span t-out="dict(prev._fields['kind']._description_selection(env)).get(prev.kind)"/></td>
+                                <td><span t-out="prev.product_id.display_name"/></td>
+                                <td><span t-out="prev.lot_id.name"/></td>
+                                <td>
+                                    <span t-if="prev.next_date" t-out="prev.next_date" t-options="{'widget': 'date'}"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p t-if="not atenciones" class="text-muted">
+                    Esta mascota no tiene atenciones cerradas.
+                </p>
+
+                <t t-foreach="atenciones" t-as="linea">
+                    <t t-set="enc" t-value="linea['encuentro']"/>
+                    <t t-set="doc" t-value="linea['detalle']"/>
+                    <div class="mt-3 pt-2" style="border-top: 1px solid #dee2e6;">
+                        <div class="row">
+                            <div class="col-8">
+                                <strong t-out="enc.encounter_type_id.name"/>
+                                <span class="text-muted">
+                                    · <span t-out="enc.practitioner_id.name"/>
+                                </span>
+                            </div>
+                            <div class="col-4 text-end text-muted">
+                                <span t-out="enc.date" t-options="{'widget': 'datetime'}"/>
+                                <span t-if="enc.state == 'signed'"> · firmada</span>
+                            </div>
+                        </div>
+                        <t t-if="doc and linea['plantilla']">
+                            <t t-call="{{linea['plantilla']}}"/>
+                        </t>
+                        <div t-if="enc.diagnosis_ids" class="mt-1">
+                            <span class="text-muted">Diagnósticos:</span>
+                            <span t-foreach="enc.diagnosis_ids" t-as="d">
+                                <span t-out="d.name"/><span t-if="not d_last">, </span>
+                            </span>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_pet_history">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr_veterinary.report_pet_history_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_pet_history" model="ir.actions.report">
+        <field name="name">Historia clínica</field>
+        <field name="model">emr.pet</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr_veterinary.report_pet_history</field>
+        <field name="report_file">emr_veterinary.report_pet_history</field>
+        <field name="print_report_name">'Historia - %s' % (object.name or '')</field>
+        <field name="binding_model_id" ref="model_emr_pet"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

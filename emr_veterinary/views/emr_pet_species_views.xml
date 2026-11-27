@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_pet_species_view_list" model="ir.ui.view">
+        <field name="name">emr.pet.species.list</field>
+        <field name="model">emr.pet.species</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_pet_species_action" model="ir.actions.act_window">
+        <field name="name">Especies</field>
+        <field name="res_model">emr.pet.species</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

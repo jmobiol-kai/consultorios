@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="species_dog" model="emr.pet.species">
+        <field name="name">Perro</field>
+    </record>
+    <record id="species_cat" model="emr.pet.species">
+        <field name="name">Gato</field>
+    </record>
+
+    <record id="product_category_veterinary" model="product.category">
+        <field name="name">Veterinaria</field>
+    </record>
+    <record id="product_category_medicine" model="product.category">
+        <field name="name">Medicamentos</field>
+        <field name="parent_id" ref="product_category_veterinary"/>
+    </record>
+    <record id="product_category_accessory" model="product.category">
+        <field name="name">Accesorios</field>
+        <field name="parent_id" ref="product_category_veterinary"/>
+    </record>
+    <record id="product_category_food" model="product.category">
+        <field name="name">Alimento balanceado</field>
+        <field name="parent_id" ref="product_category_veterinary"/>
+    </record>
+    <record id="product_category_service" model="product.category">
+        <field name="name">Prácticas y servicios</field>
+        <field name="parent_id" ref="product_category_veterinary"/>
+    </record>
+
+    <record id="encounter_type_veterinary" model="emr.encounter.type">
+        <field name="name">Consulta veterinaria</field>
+        <field name="model_name">emr.encounter.veterinary</field>
+        <field name="summary_template">emr_veterinary.encounter_summary_veterinary</field>
+        <field name="report_template">emr_veterinary.report_encounter_veterinary_body</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="product_consulta_veterinaria" model="product.product">
+        <field name="name">Consulta veterinaria</field>
+        <field name="type">service</field>
+        <field name="is_medical_procedure" eval="True"/>
+        <field name="encounter_type_id" ref="encounter_type_veterinary"/>
+        <field name="veterinary_kind">service</field>
+        <field name="categ_id" ref="product_category_service"/>
+        <field name="purchase_ok" eval="False"/>
+        <field name="list_price">0</field>
+    </record>
+
+    <record id="sale_order_template_consulta_veterinaria" model="sale.order.template">
+        <field name="company_id" eval="False"/>
+        <field name="name">Consulta veterinaria</field>
+        <field name="is_appointment" eval="True"/>
+        <field name="sequence">50</field>
+    </record>
+    <record id="sale_order_template_consulta_veterinaria_line" model="sale.order.template.line">
+        <field name="sale_order_template_id" ref="sale_order_template_consulta_veterinaria"/>
+        <field name="product_id" ref="product_consulta_veterinaria"/>
+        <field name="product_uom_qty">1</field>
+    </record>
+
+    <record id="config_reminder_days" model="ir.config_parameter">
+        <field name="key">emr_veterinary.reminder_days</field>
+        <field name="value">7</field>
+    </record>
+
+</odoo>

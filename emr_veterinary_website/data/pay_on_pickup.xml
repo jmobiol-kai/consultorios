@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="product_pickup_clinic" model="product.product">
+        <field name="name">Retiro en la clínica</field>
+        <field name="type">service</field>
+        <field name="list_price">0.0</field>
+        <field name="sale_ok" eval="False"/>
+        <field name="purchase_ok" eval="False"/>
+        <field name="invoice_policy">order</field>
+    </record>
+
+    <record id="carrier_pickup_clinic" model="delivery.carrier">
+        <field name="name">Retiro en la clínica</field>
+        <field name="delivery_type">fixed</field>
+        <field name="product_id" ref="product_pickup_clinic"/>
+        <field name="fixed_price">0.0</field>
+        <field name="allow_cash_on_delivery" eval="True"/>
+        <field name="is_published" eval="True"/>
+        <field name="website_description">Retirás el pedido en la clínica y lo pagás ahí. No se cobra online.</field>
+    </record>
+
+    <function model="payment.provider" name="_emr_website_label_pay_on_pickup"/>
+
+</odoo>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_prescription_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h4>Receta</h4>
+                <div class="row mb-3">
+                    <div class="col-7">
+                        <div><strong t-out="doc.pet_id.name"/></div>
+                        <div class="text-muted">
+                            <span t-if="doc.pet_id.species_id" t-out="doc.pet_id.species_id.name"/>
+                            <span t-if="doc.pet_id.breed_id"> · <span t-out="doc.pet_id.breed_id.name"/></span>
+                        </div>
+                        <div t-if="doc.owner_id">
+                            <strong>Dueño</strong>
+                            <span t-out="doc.owner_id.name"/>
+                        </div>
+                    </div>
+                    <div class="col-5 text-end">
+                        <div>
+                            <strong>Fecha</strong>
+                            <span t-out="doc.date" t-options="{'widget': 'date'}"/>
+                        </div>
+                        <div>
+                            <strong>Profesional</strong>
+                            <span t-out="doc.practitioner_id.name"/>
+                        </div>
+                    </div>
+                </div>
+                <div t-if="doc.indications" class="mb-3">
+                    <strong>Indicaciones</strong>
+                    <div t-out="doc.indications"/>
+                </div>
+                <table class="table table-sm" t-if="doc.line_ids">
+                    <thead>
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Dosis</th>
+                            <th>Cómo darlo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="doc.line_ids" t-as="line">
+                            <td><span t-out="line.name"/></td>
+                            <td><span t-out="line.dosage"/></td>
+                            <td><span t-out="line.instructions"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="row mt-5">
+                    <div class="col-5 offset-7 text-center">
+                        <div style="border-top: 1px solid #000; padding-top: 4px;">
+                            <span t-out="doc.practitioner_id.name"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_prescription">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="emr_veterinary.report_prescription_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_prescription" model="ir.actions.report">
+        <field name="name">Receta</field>
+        <field name="model">emr.veterinary.prescription</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">emr_veterinary.report_prescription</field>
+        <field name="report_file">emr_veterinary.report_prescription</field>
+        <field name="print_report_name">'Receta - %s' % (object.pet_id.name or '')</field>
+        <field name="binding_model_id" ref="model_emr_veterinary_prescription"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

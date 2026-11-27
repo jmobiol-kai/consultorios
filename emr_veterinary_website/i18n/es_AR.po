@@ -1,0 +1,411 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* emr_veterinary_website
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-26 02:07+0000\n"
+"PO-Revision-Date: 2026-11-26 02:07+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "%(name)s figura como fallecida. Llamá a la clínica para el turno."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid ". Si dejaste un correo, te mandamos la confirmación."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:mail.template,body_html:emr_veterinary_website.mail_template_turno
+msgid ""
+"<div>\n"
+"    <p>Hola <t t-out=\"object.partner_id.name or ''\"/>,</p>\n"
+"    <p>\n"
+"        Reservamos un turno para <strong t-out=\"object.pet_id.name or ''\"/>.\n"
+"    </p>\n"
+"    <p>\n"
+"        <t t-out=\"object.appointment_start\" t-options=\"{'widget': 'datetime'}\"/>\n"
+"        <t t-if=\"object.practitioner_id\">\n"
+"            con <t t-out=\"object.practitioner_id.name\"/>.\n"
+"        </t>\n"
+"    </p>\n"
+"    <p>Referencia: <t t-out=\"object.name or ''\"/>.</p>\n"
+"    <p>El pago de la consulta se realiza en la clínica.</p>\n"
+"</div>\n"
+"        "
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "<option value=\"\">Cualquiera</option>"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "<option value=\"\">Elegí</option>"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "<option value=\"\">Sin especificar</option>"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "<option value=\"\">Sin práctica</option>"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "<option value=\"unknown\">Sin especificar</option>"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Confirmar turno"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Correo"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "DNI (opcional)"
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Demasiados pedidos desde esta conexión. Probá más tarde."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_emr_veterinary_website_booking__display_name
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_payment_provider__display_name
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_sale_order__display_name
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_website__display_name
+msgid "Display Name"
+msgstr "Nombre en pantalla"
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Dueño"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid "Dueño:"
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "El DNI tiene que tener 7 u 8 números."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "El correo no es válido."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "El teléfono tiene que tener al menos 6 números."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Elegí el sexo de la mascota."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Elegí la especie."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Elegí un horario de la lista."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Esa práctica no se puede reservar online."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Ese horario no es del profesional elegido."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Ese horario ya no está libre. Elegí otro."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Ese horario ya pasó. Elegí otro."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Especie"
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Falta el nombre de la mascota."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Falta el nombre del dueño."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Hembra"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Horario"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_emr_veterinary_website_booking__id
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_payment_provider__id
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_sale_order__id
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_website__id
+msgid "ID"
+msgstr "ID"
+
+#. module: emr_veterinary_website
+#: model:ir.model.fields,field_description:emr_veterinary_website.field_sale_order__emr_website_ip
+msgid "IP del sitio"
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "La fecha de nacimiento no es válida."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "La fecha de nacimiento no puede ser futura."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:ir.model.fields,help:emr_veterinary_website.field_sale_order__emr_website_ip
+msgid "La guarda el pedido de turno público, para frenar ráfagas."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "La raza no corresponde a la especie."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Macho"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Mascota"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Nacimiento aprox."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "No hay horarios libres en las próximas tres semanas."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Nombre"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:ir.model,name:emr_veterinary_website.model_payment_provider
+msgid "Payment Provider"
+msgstr "Proveedor de pago"
+
+#. module: emr_veterinary_website
+#: model:ir.model,name:emr_veterinary_website.model_emr_veterinary_website_booking
+msgid "Pedido de turno desde el sitio"
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Pedido de turno desde el sitio web."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Pedir un turno"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Profesional (opcional)"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Práctica (opcional)"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid "Quedó programado el turno"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Raza (opcional)"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid "Recibimos el pedido"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:delivery.carrier,name:emr_veterinary_website.carrier_pickup_clinic
+#: model:product.template,name:emr_veterinary_website.product_pickup_clinic_product_template
+msgid "Retiro en la clínica"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:product.template,description_sale:emr_veterinary_website.product_pickup_clinic_product_template
+msgid "Retirás el pedido en la clínica y lo pagás ahí. No se cobra online."
+msgstr ""
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Revisá la fecha de nacimiento."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:ir.model,name:emr_veterinary_website.model_sale_order
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: emr_veterinary_website
+#: model:mail.template,description:emr_veterinary_website.mail_template_turno
+msgid ""
+"Se encola al confirmar un turno desde /turnos, si hay correo del dueño."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Sexo"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid "Si los datos estaban completos, el turno queda programado."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid ""
+"Sin cuenta. Elegí un horario libre y dejá los datos del dueño y de la "
+"mascota."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Sitio web"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Teléfono"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid "Turno reservado"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:mail.template,subject:emr_veterinary_website.mail_template_turno
+msgid "Turno reservado {{ object.name }}"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:mail.template,name:emr_veterinary_website.mail_template_turno
+msgid "Turno: confirmación al dueño"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:website.menu,name:emr_veterinary_website.menu_turnos
+msgid "Turnos"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_page
+msgid "Ver horarios"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid "Volver"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model:ir.model,name:emr_veterinary_website.model_website
+msgid "Website"
+msgstr "Sitio web"
+
+#. module: emr_veterinary_website
+#. odoo-python
+#: code:addons/emr_veterinary_website/models/booking.py:0
+msgid "Ya hay varios turnos pedidos con este correo. Probá más tarde."
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid "con"
+msgstr ""
+
+#. module: emr_veterinary_website
+#: model_terms:ir.ui.view,arch_db:emr_veterinary_website.turnos_thanks
+msgid "para"
+msgstr ""

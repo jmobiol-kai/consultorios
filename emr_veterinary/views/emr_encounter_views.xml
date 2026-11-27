@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="emr_encounter_veterinary_view_form" model="ir.ui.view">
+        <field name="name">emr.encounter.veterinary.form</field>
+        <field name="model">emr.encounter.veterinary</field>
+        <field name="inherit_id" ref="emr.emr_encounter_view_form_base"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="string">Dueño</attribute>
+                <attribute name="force_save">1</attribute>
+            </field>
+            <field name="practitioner_id" position="attributes">
+                <attribute name="force_save">1</attribute>
+            </field>
+            <field name="partner_id" position="before">
+                <field name="encounter_type_id" invisible="1" force_save="1"/>
+                <field name="pet_id" string="Mascota" readonly="1" force_save="1"/>
+            </field>
+            <field name="company_id" position="attributes">
+                <attribute name="string">Compañía</attribute>
+            </field>
+            <field name="state" position="attributes">
+                <attribute name="string">Estado</attribute>
+            </field>
+            <!-- El agregado existe para anotar algo después de firmar.
+                 En elaboración y cerrada la pestaña no aporta. -->
+            <page name="addenda" position="attributes">
+                <attribute name="invisible">state != 'signed'</attribute>
+            </page>
+            <page name="attachments" position="before">
+                <page name="consultation" string="Consulta">
+                    <group>
+                        <group>
+                            <field name="reason" placeholder="Motivo de consulta"/>
+                            <field name="temperature"/>
+                            <field name="weight"/>
+                        </group>
+                        <group>
+                            <field name="diagnosis_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <field name="anamnesis" placeholder="Anamnesis"/>
+                    <field name="examination" placeholder="Examen clínico"/>
+                    <field name="diagnosis" placeholder="Diagnóstico"/>
+                    <field name="evolution" placeholder="Evolución"/>
+                </page>
+                <page name="consumption" string="Medicación e insumos">
+                    <field name="consumption_line_ids">
+                        <list editable="bottom">
+                            <field name="product_id"/>
+                            <field name="quantity"/>
+                            <field name="product_uom_id"/>
+                            <field name="tracking" column_invisible="1"/>
+                            <field name="lot_id" required="tracking in ('lot', 'serial')"/>
+                            <field name="expiration_date"/>
+                            <field name="to_invoice"/>
+                        </list>
+                    </field>
+                </page>
+                <page name="prevention" string="Vacunas y desparasitación">
+                    <field name="prevention_ids" context="{'default_pet_id': pet_id}">
+                        <list editable="bottom">
+                            <field name="pet_id" column_invisible="1"/>
+                            <field name="date"/>
+                            <field name="kind"/>
+                            <field name="product_id"/>
+                            <field name="lot_id"/>
+                            <field name="expiration_date"/>
+                            <field name="next_date"/>
+                        </list>
+                    </field>
+                </page>
+                <page name="prescription" string="Receta">
+                    <field name="prescription_ids">
+                        <list>
+                            <field name="date"/>
+                            <field name="indications"/>
+                            <button name="action_print" type="object" string="Imprimir"
+                                    icon="fa-print"/>
+                        </list>
+                        <form>
+                            <header>
+                                <button name="action_print" type="object" string="Imprimir"
+                                        class="btn-primary" icon="fa-print"/>
+                            </header>
+                            <sheet>
+                                <group>
+                                    <field name="date"/>
+                                    <field name="indications" placeholder="Indicaciones"/>
+                                </group>
+                                <field name="line_ids">
+                                    <list editable="bottom">
+                                        <field name="product_id"/>
+                                        <field name="name"/>
+                                        <field name="dosage"/>
+                                        <field name="instructions"/>
+                                    </list>
+                                </field>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <record id="emr_encounter_veterinary_view_list" model="ir.ui.view">
+        <field name="name">emr.encounter.veterinary.list</field>
+        <field name="model">emr.encounter.veterinary</field>
+        <field name="arch" type="xml">
+            <list create="false">
+                <field name="date" string="Fecha"/>
+                <field name="pet_id" string="Mascota"/>
+                <field name="partner_id" string="Dueño"/>
+                <field name="practitioner_id"/>
+                <field name="state" string="Estado" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emr_encounter_veterinary_action" model="ir.actions.act_window">
+        <field name="name">Consultas</field>
+        <field name="res_model">emr.encounter.veterinary</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+</odoo>

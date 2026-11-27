@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_emr_veterinary_root" name="Veterinaria"
+              web_icon="emr_veterinary,static/description/icon.svg"
+              sequence="55"
+              groups="emr.group_emr_reception"
+              action="sale_order_action_veterinary"/>
+
+    <menuitem id="menu_emr_veterinary_agenda" name="Agenda"
+              parent="menu_emr_veterinary_root"
+              action="sale_order_action_veterinary" sequence="10"/>
+
+    <menuitem id="menu_emr_veterinary_movements" name="Movimientos del día"
+              parent="menu_emr_veterinary_root"
+              action="emr_veterinary_movement_action" sequence="15"/>
+
+    <menuitem id="menu_emr_veterinary_pets" name="Mascotas"
+              parent="menu_emr_veterinary_root"
+              action="emr_pet_action" sequence="20"/>
+
+    <!-- La ficha del profesional trae la agenda, los horarios y los huecos. -->
+    <menuitem id="menu_emr_veterinary_practitioners" name="Profesionales"
+              parent="menu_emr_veterinary_root"
+              action="emr.res_partner_action_practitioner" sequence="25"/>
+
+    <!-- Atenciones no va en el menú: la historia está en la ficha y el
+         día se mira en Movimientos del día. La acción de emr sigue. -->
+    <menuitem id="menu_emr_veterinary_config" name="Configuración"
+              parent="menu_emr_veterinary_root" sequence="90"
+              groups="emr.group_emr_manager"/>
+
+    <menuitem id="menu_emr_veterinary_species" name="Especies"
+              parent="menu_emr_veterinary_config"
+              action="emr_pet_species_action" sequence="10"/>
+
+    <menuitem id="menu_emr_veterinary_breeds" name="Razas"
+              parent="menu_emr_veterinary_config"
+              action="emr_pet_breed_action" sequence="20"/>
+
+    <menuitem id="menu_emr_veterinary_colors" name="Colores"
+              parent="menu_emr_veterinary_config"
+              action="emr_pet_color_action" sequence="25"/>
+
+    <menuitem id="menu_emr_veterinary_products" name="Productos"
+              parent="menu_emr_veterinary_config"
+              action="product_template_action_veterinary" sequence="30"/>
+
+    <menuitem id="menu_emr_veterinary_procedures" name="Prácticas"
+              parent="menu_emr_veterinary_config"
+              action="emr.product_template_action_procedure" sequence="40"/>
+
+    <menuitem id="menu_emr_veterinary_appointment_types" name="Tipos de turno"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_appointment_type_action" sequence="45"/>
+
+    <menuitem id="menu_emr_veterinary_locations" name="Locaciones"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_location_action" sequence="50"/>
+
+    <menuitem id="menu_emr_veterinary_specialties" name="Especialidades"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_specialty_action" sequence="55"/>
+
+    <menuitem id="menu_emr_veterinary_diagnoses" name="Diagnósticos"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_diagnosis_action" sequence="56"/>
+
+    <menuitem id="menu_emr_veterinary_allergies" name="Alergias"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_allergy_action" sequence="57"/>
+
+    <menuitem id="menu_emr_veterinary_practice_types" name="Tipos de práctica"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_practice_type_action" sequence="58"/>
+
+    <!-- La grilla de huecos y el generador. Los horarios se editan en la
+         ficha del profesional, que ya está en el menú principal. -->
+    <menuitem id="menu_emr_veterinary_slots" name="Huecos"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_slot_action" sequence="60"/>
+
+    <menuitem id="menu_emr_veterinary_generate_slots" name="Generar agenda"
+              parent="menu_emr_veterinary_config"
+              action="emr.emr_slot_generate_action" sequence="70"/>
+
+    <menuitem id="menu_emr_veterinary_settings" name="Ajustes"
+              parent="menu_emr_veterinary_config"
+              action="base_setup.action_general_configuration" sequence="1"
+              groups="base.group_system"/>
+
+</odoo>
