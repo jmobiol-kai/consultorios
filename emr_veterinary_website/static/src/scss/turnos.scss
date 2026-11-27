@@ -73,15 +73,17 @@
         align-items: center;
         width: 100%;
         border: 0;
-        border-radius: 999px;
+        border-radius: .7rem;
         color: #fff;
         font-size: .7rem;
         line-height: 1.3;
         margin-top: .2rem;
-        padding: .1rem .4rem;
+        padding: .16rem .4rem;
         text-align: left;
         white-space: nowrap;
         overflow: hidden;
+        flex-wrap: wrap;
+        row-gap: .12rem;
     }
 
     .o_emr_chip_name {
@@ -93,22 +95,26 @@
     .o_emr_booked {
         display: inline-flex;
         align-items: center;
-        flex: none;
-        gap: .12rem;
-        margin-left: .28rem;
+        flex: 1 1 auto;
+        flex-wrap: wrap;
+        min-width: 0;
+        max-width: 100%;
+        gap: .16rem;
+        margin-left: .3rem;
     }
 
     .o_emr_booked_dot {
-        width: .38rem;
-        height: .38rem;
+        width: .76rem;
+        height: .76rem;
         border-radius: 999px;
         background: #FFC107;
         border: 1px solid rgba(0, 0, 0, .55);
+        flex: none;
     }
 
     .o_emr_booked_more {
         color: #fff;
-        font-size: .62rem;
+        font-size: .7rem;
         line-height: 1;
         text-shadow: 0 0 2px rgba(0, 0, 0, .75);
     }
